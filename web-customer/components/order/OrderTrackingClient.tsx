@@ -96,7 +96,7 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="divide-y divide-border/50">
-                    {(order.order_items?.length > 0 ? order.order_items : (order.items || [])).map((item: any, idx: number) => {
+                    {(order.order_items && order.order_items.length > 0 ? order.order_items : (order.items || [])).map((item: any, idx: number) => {
                       const name = item.products?.name || item.name || "Product";
                       const price = item.unit_price || item.price || 0;
                       const image = item.products?.image_url || item.image || null;
