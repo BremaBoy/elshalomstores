@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { ShieldCheck, Zap, Users, Globe, Target, Award } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export default function AboutPage() {
   const stats = [
