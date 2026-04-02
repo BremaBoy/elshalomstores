@@ -36,3 +36,10 @@ Thumbs.db
 # Turbo / Next cache
 .turbo/
 .cache/
+
+# Internal task tracking & temporary docs
+task/
+api_requirements.md
+supabase_schema.sql
+make_me_admin.sql
+master_schema_fix.sql
