@@ -50,7 +50,9 @@ export interface DetailedOrder {
   shipping_cost: number;
   delivery_instructions?: string;
   created_at: string;
-  order_items: any[]; // Define more specifically if needed
+  items?: any[];
+  shipping_details?: any;
+  order_items?: any[];
   shipments?: Shipment[];
   order_status_history?: OrderStatusHistory[];
 }
