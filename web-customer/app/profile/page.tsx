@@ -8,6 +8,8 @@ import Link from "next/link";
 import { createServer } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProfilePage() {
   const supabase = createServer();
   const { data: { user }, error: authError } = await supabase.auth.getUser();

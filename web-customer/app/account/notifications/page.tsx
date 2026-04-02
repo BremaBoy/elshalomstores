@@ -1,6 +1,8 @@
 import { createServer } from "@/lib/supabase-server";
 import { NotificationCenterClient } from "@/components/account/NotificationCenterClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function NotificationsPage() {
   const supabase = createServer();
   const { data: { user } } = await supabase.auth.getUser();
