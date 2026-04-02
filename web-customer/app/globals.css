@@ -1,0 +1,99 @@
+@import "tailwindcss";
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+@import "swiper/css/autoplay";
+@import "swiper/css/effect-fade";
+
+@theme {
+  --color-primary: #7C3AED;
+  --color-primary-hover: #6D28D9;
+  --color-secondary: #000000;
+  
+  --color-bg: #FFFFFF;
+  --color-card: #F9FAFB;
+  --color-border: #E5E7EB;
+  
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+}
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #111827;
+  --card: #F9FAFB;
+  --card-foreground: #111827;
+  --primary: #7C3AED;
+  --primary-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --muted: #6B7280;
+}
+
+/* Force Light Mode Only */
+html, body {
+  color-scheme: light !important;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #E5E7EB;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D1D5DB;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-bottom {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes zoom-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-in {
+  animation-duration: 500ms;
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+
+.slide-in-from-bottom-4 {
+  animation-name: slide-in-bottom;
+}
+
+.zoom-in-95 {
+  animation-name: zoom-in;
+}
+
+.duration-700 {
+  animation-duration: 700ms;
+}
