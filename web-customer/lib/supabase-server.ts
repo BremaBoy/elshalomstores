@@ -1,10 +1,13 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 
 export const createServer = () => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error("SERVER ERROR: Supabase environment variables are missing.")
+  }
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       async getAll() {
