@@ -11,7 +11,7 @@ import { useUIStore, useAuthStore } from '@/store/useStore'
 import { cn } from '@/lib/utils'
 
 const adminLinks = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/products', label: 'Products', icon: Package },
   { href: '/dashboard/categories', label: 'Categories', icon: Tag },
   { href: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
@@ -19,6 +19,7 @@ const adminLinks = [
 ]
 
 const superAdminLinks = [
+  { href: '/dashboard/superadmin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart2 },
   { href: '/dashboard/inventory', label: 'Inventory', icon: Warehouse },
   { href: '/dashboard/payments', label: 'Payments', icon: CreditCard },

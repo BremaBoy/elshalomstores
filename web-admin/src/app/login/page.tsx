@@ -38,6 +38,11 @@ export default function LoginPage() {
         return
       }
 
+      // Update user metadata with role for middleware access
+      await supabaseAuth.auth.updateUser({
+        data: { role: profile.role }
+      })
+
       setUser({
         id: profile.id,
         name: profile.name,
