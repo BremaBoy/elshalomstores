@@ -16,7 +16,7 @@ import {
 import { ProductForm } from '@/components/forms/ProductForm'
 import { CSVImporter } from '@/components/ui/CSVImporter'
 import { Category, Product } from '@/types'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseAuth } from '@/lib/supabase'
 
 export default function ProductsPage() {
   const [showForm, setShowForm] = useState(false)
@@ -39,8 +39,8 @@ export default function ProductsPage() {
     setIsLoading(true)
     try {
       const [prodRes, catRes] = await Promise.all([
-        supabase.from('products').select('*').order('created_at', { ascending: false }),
-        supabase.from('categories').select('*')
+        supabaseAuth.from('products').select('*').order('created_at', { ascending: false }),
+        supabaseAuth.from('categories').select('*')
       ])
 
       if (prodRes.error) throw prodRes.error
@@ -73,13 +73,13 @@ export default function ProductsPage() {
       const submissionData = { ...data, status }
 
       if (editingProduct) {
-        const { error } = await supabase
+        const { error } = await supabaseAuth
           .from('products')
           .update(submissionData)
           .eq('id', editingProduct.id)
         if (error) throw error
       } else {
-        const { error } = await supabase
+        const { error } = await supabaseAuth
           .from('products')
           .insert([submissionData])
         if (error) throw error
@@ -99,7 +99,7 @@ export default function ProductsPage() {
     if (!confirm('Are you sure you want to delete this product?')) return
     
     try {
-      const { error } = await supabase.from('products').delete().eq('id', id)
+      const { error } = await supabaseAuth.from('products').delete().eq('id', id)
       if (error) throw error
       setProducts(products.filter(p => p.id !== id))
     } catch (err: any) {
@@ -119,64 +119,71 @@ export default function ProductsPage() {
     discount_price: ['discount', 'sale_price', 'discount_price', 'promo_price']
   }
 
-  const findBestMatch = (row: any, targetKey: string): string | null => {
+  const findBestMatch = (row: any, targetKey: string): any => {
     const rowKeys = Object.keys(row)
     const targets = fuzzyMapping[targetKey]
     
     // 1. Try exact match (case insensitive)
     const exactMatch = rowKeys.find(k => targets.includes(k.toLowerCase().trim()))
-    if (exactMatch) return row[exactMatch]
+    let value = exactMatch ? row[exactMatch] : null
 
-    // 2. Try partial match (substring)
-    const partialMatch = rowKeys.find(k => {
-      const lowKey = k.toLowerCase().trim()
-      return targets.some(t => lowKey.includes(t))
-    })
-    
-    return partialMatch ? row[partialMatch] : null
+    // 2. Try partial match if no exact match
+    if (value === null) {
+      const partialMatch = rowKeys.find(k => {
+        const lowKey = k.toLowerCase().trim()
+        return targets.some(t => lowKey.includes(t))
+      })
+      value = partialMatch ? row[partialMatch] : null
+    }
+
+    if (value === null) return null
+
+    // Clean numeric values if target is price or stock
+    if (targetKey === 'price' || targetKey === 'stock' || targetKey === 'discount_price') {
+      const cleaned = String(value).replace(/[^0-9.-]+/g, "")
+      return targetKey === 'stock' ? parseInt(cleaned) || 0 : parseFloat(cleaned) || 0
+    }
+
+    return value
   }
 
   const handleCSVImport = async (data: any[]) => {
     setIsSubmitting(true)
     setImportProgress(0)
     const total = data.length
-    let succeeded = 0
-    let failed = 0
 
     try {
-      const formatted = data.map(item => {
+      const formatted = data.map((item, index) => {
         const productData = {
-          name: findBestMatch(item, 'name') || '',
-          description: findBestMatch(item, 'description') || '',
-          price: parseFloat(findBestMatch(item, 'price') || '0'),
-          category: findBestMatch(item, 'category') || '',
-          stock: parseInt(findBestMatch(item, 'stock') || '0'),
+          name: findBestMatch(item, 'name') || `Imported Product ${index + 1}`,
+          description: findBestMatch(item, 'description') || 'No description provided.',
+          price: findBestMatch(item, 'price'),
+          category: findBestMatch(item, 'category') || 'uncategorized',
+          stock: findBestMatch(item, 'stock'),
           image: findBestMatch(item, 'image') || '',
           is_new: String(findBestMatch(item, 'is_new')).toLowerCase() === 'true',
           is_sale: String(findBestMatch(item, 'is_sale')).toLowerCase() === 'true',
-          discount_price: findBestMatch(item, 'discount_price') ? parseFloat(String(findBestMatch(item, 'discount_price'))) : null
+          discount_price: findBestMatch(item, 'discount_price') || null,
         }
         return { ...productData, status: validateProduct(productData) }
       })
 
-      // Insert row-by-row so we can track progress
-      for (let i = 0; i < formatted.length; i++) {
-        const { error } = await supabase.from('products').insert([formatted[i]])
-        if (error) {
-          failed++
-          console.warn(`Row ${i + 1} failed: ${error.message}`)
-        } else {
-          succeeded++
-        }
-        setImportProgress(Math.round(((i + 1) / total) * 100))
+      // Bulk insert in chunks of 50 for stability and progress tracking
+      const chunkSize = 50
+      for (let i = 0; i < formatted.length; i += chunkSize) {
+        const chunk = formatted.slice(i, i + chunkSize)
+        const { error } = await supabaseAuth.from('products').insert(chunk)
+        
+        if (error) throw error
+        
+        setImportProgress(Math.round((Math.min(i + chunkSize, total) / total) * 100))
       }
 
       await fetchData()
       setShowImport(false)
-      if (failed > 0) {
-        alert(`Import complete: ${succeeded} succeeded, ${failed} failed. Check console for details.`)
-      }
+      alert(`Successfully imported ${total} products!`)
     } catch (err: any) {
+      console.error('CSV Import Error:', err)
       alert(`CSV Import failed: ${err.message}`)
     } finally {
       setIsSubmitting(false)
