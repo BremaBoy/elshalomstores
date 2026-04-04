@@ -39,9 +39,16 @@ export default function LoginPage() {
       }
 
       // Update user metadata with role for middleware access
-      await supabaseAuth.auth.updateUser({
-        data: { role: profile.role }
-      })
+      try {
+        await supabaseAuth.auth.updateUser({
+          data: { role: profile.role }
+        })
+        // Refresh session to ensure the cookie contains the new metadata
+        await supabaseAuth.auth.refreshSession()
+      } catch (metaError) {
+        console.error('Metadata update failed:', metaError)
+        // We continue even if metadata update fails, as the local store is set
+      }
 
       setUser({
         id: profile.id,
@@ -51,7 +58,10 @@ export default function LoginPage() {
         status: profile.status,
       })
 
-      router.push('/dashboard')
+      // Small delay to ensure cookies are written
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 500)
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.')
     } finally {
