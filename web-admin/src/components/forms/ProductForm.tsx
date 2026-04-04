@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Product, Category } from '@/types'
-import { Loader2, Plus, Image as ImageIcon, X } from 'lucide-react'
+import { Loader2, Plus, Image as ImageIcon, X, AlertCircle } from 'lucide-react'
 import { useState } from 'react'
 
 const productSchema = z.object({

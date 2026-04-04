@@ -45,7 +45,7 @@ const statusColors: Record<string, string> = {
 
 export default function DashboardPage() {
   const { user } = useAuthStore()
-  const isSuperAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin'
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN'
 
   const [stats, setStats] = useState({
     revenue: 0,

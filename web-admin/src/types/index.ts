@@ -45,6 +45,8 @@ export interface Admin {
   created_at?: string;
 }
 
+export type AdminUser = Admin;
+
 export interface Customer {
   id: string;
   full_name: string;
