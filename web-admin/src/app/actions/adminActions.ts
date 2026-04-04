@@ -39,10 +39,24 @@ export async function saveAdmin(data: any) {
   try {
     const supabaseAdmin = getAdminClient()
     
-    // Ensure we have an ID for new admins
+    let adminId = data.id
+
+    // If it's a new admin (no ID provided), we must create them in Auth first
+    if (!adminId) {
+      const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email: data.email,
+        password: Math.random().toString(36).slice(-12), // Generate a random temporary password
+        email_confirm: true,
+        user_metadata: { role: data.role, name: data.name }
+      })
+
+      if (authError) throw authError
+      adminId = authUser.user.id
+    }
+
     const adminData = {
       ...data,
-      id: data.id || crypto.randomUUID(),
+      id: adminId,
       created_at: data.created_at || new Date().toISOString()
     }
 
