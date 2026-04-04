@@ -58,17 +58,57 @@ export async function deleteProduct(id: string) {
 export async function bulkImportProducts(products: any[]) {
   try {
     const supabaseAdmin = getAdminClient()
-    // Bulk insert in chunks of 50
+    
+    // 1. Resolve Categories: find all unique category strings (names or IDs)
+    const uniqueCategoryInputs = Array.from(new Set(products.map(p => p.category).filter(Boolean)))
+    
+    // 2. Fetch existing categories to map names to IDs
+    const { data: existingCategories } = await supabaseAdmin.from('categories').select('id, name')
+    
+    const categoryMap: Record<string, string> = {}
+    existingCategories?.forEach(cat => {
+      categoryMap[cat.name.toLowerCase().trim()] = cat.id
+      categoryMap[cat.id] = cat.id // support direct ID
+    })
+
+    // 3. Identify and create missing categories
+    for (const catInput of uniqueCategoryInputs) {
+      const lowInput = String(catInput).toLowerCase().trim()
+      if (!categoryMap[lowInput]) {
+        // Create new category if it doesn't exist
+        const { data: newCat, error: catError } = await supabaseAdmin
+          .from('categories')
+          .insert([{ name: catInput }])
+          .select()
+          .single()
+        
+        if (!catError && newCat) {
+          categoryMap[lowInput] = newCat.id
+        } else if (existingCategories && existingCategories.length > 0) {
+          // Fallback to first existing if creation fails (e.g. unique constraint race)
+          categoryMap[lowInput] = existingCategories[0].id
+        }
+      }
+    }
+
+    // 4. Map products to their final category IDs
+    const finalProducts = products.map(p => ({
+      ...p,
+      category: categoryMap[String(p.category).toLowerCase().trim()] || (existingCategories?.[0]?.id || p.category)
+    }))
+
+    // 5. Bulk insert in chunks of 50
     const chunkSize = 50
-    for (let i = 0; i < products.length; i += chunkSize) {
-      const chunk = products.slice(i, i + chunkSize)
+    for (let i = 0; i < finalProducts.length; i += chunkSize) {
+      const chunk = finalProducts.slice(i, i + chunkSize)
       const { error } = await supabaseAdmin.from('products').insert(chunk)
       if (error) throw error
     }
     
     revalidatePath('/dashboard/products')
-    return { success: true, count: products.length }
+    return { success: true, count: finalProducts.length }
   } catch (error: any) {
+    console.error('Bulk Import Error:', error)
     return { success: false, error: error.message }
   }
 }
