@@ -39,9 +39,14 @@ export async function saveAdmin(data: any) {
   try {
     const supabaseAdmin = getAdminClient()
     
-    // If it's a new user, we might want to also create them in Auth, 
-    // but for now we manage the 'admins' metadata table.
-    const { error } = await supabaseAdmin.from('admins').upsert([data])
+    // Ensure we have an ID for new admins
+    const adminData = {
+      ...data,
+      id: data.id || crypto.randomUUID(),
+      created_at: data.created_at || new Date().toISOString()
+    }
+
+    const { error } = await supabaseAdmin.from('admins').upsert([adminData])
     if (error) throw error
     
     revalidatePath('/dashboard/admins')
