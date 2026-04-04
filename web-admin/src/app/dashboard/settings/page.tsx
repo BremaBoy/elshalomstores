@@ -1,15 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Settings, Save, Globe, Lock, Bell, Palette, Database, Code, CreditCard } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Settings, Save, Globe, Lock, Bell, Palette, Database, Code, CreditCard, User } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 
 export default function SettingsPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState('general')
   const [isLoading, setIsLoading] = useState(false)
 
   const tabs = [
+    { id: 'profile', label: 'My Account', icon: User, path: '/dashboard/profile' },
     { id: 'general', label: 'General', icon: Globe },
     { id: 'security', label: 'Security', icon: Lock },
     { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -40,7 +43,13 @@ export default function SettingsPage() {
           {tabs.map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                if (tab.path) {
+                  router.push(tab.path)
+                } else {
+                  setActiveTab(tab.id)
+                }
+              }}
               className={cn(
                 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left',
                 activeTab === tab.id 
