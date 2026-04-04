@@ -118,7 +118,11 @@ export default function CategoriesPage() {
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-neutral-500">Most Popular</span>
-                <span className="text-white font-medium">Groceries</span>
+                <span className="text-white font-medium">
+                  {categories.length > 0 
+                    ? categories.reduce((prev, current) => (getProductCount(prev.id) > getProductCount(current.id) ? prev : current)).name
+                    : 'N/A'}
+                </span>
               </div>
             </div>
           </div>
