@@ -41,7 +41,7 @@ export interface Admin {
   name: string;
   email: string;
   role: 'ADMIN' | 'SUPER_ADMIN';
-  status: 'active' | 'inactive';
+  status: 'active' | 'suspended';
   created_at?: string;
 }
 

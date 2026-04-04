@@ -1,32 +1,72 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Shield, Plus, Search, Loader2, Mail, User, BadgeCheck, MoreHorizontal, Trash2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { Shield, Plus, Search, Loader2, Mail, BadgeCheck, MoreHorizontal, Trash2, User as UserIcon, X, AlertCircle } from 'lucide-react'
+import { fetchAdmins, saveAdmin, deleteAdmin as removeAdmin, updateAdminStatus } from '@/app/actions/adminActions'
+import { AdminForm } from '@/components/forms/AdminForm'
+import { AdminUser } from '@/types'
 
 export default function AdminManagementPage() {
-  const [admins, setAdmins] = useState<any[]>([])
+  const [admins, setAdmins] = useState<AdminUser[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [search, setSearch] = useState('')
+  const [showForm, setShowForm] = useState(false)
+  const [editingAdmin, setEditingAdmin] = useState<AdminUser | undefined>()
 
   useEffect(() => {
-    fetchAdmins()
+    loadAdmins()
   }, [])
 
-  const fetchAdmins = async () => {
+  const loadAdmins = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('admins')
-        .select('*')
-        .order('role', { ascending: false })
-
-      if (error) throw error
-      setAdmins(data || [])
+      const res = await fetchAdmins()
+      if (res.success) {
+        setAdmins(res.data || [])
+      }
     } catch (err) {
       console.error('Admins Error:', err)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleCreate = async (data: any) => {
+    setIsSubmitting(true)
+    try {
+      const res = await saveAdmin(data)
+      if (res.success) {
+        await loadAdmins()
+        setShowForm(false)
+        setEditingAdmin(undefined)
+      } else {
+        alert(`Error: ${res.error}`)
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message}`)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to remove this administrator?')) return
+    try {
+      const res = await removeAdmin(id)
+      if (res.success) await loadAdmins()
+    } catch (err: any) {
+      alert(`Error: ${err.message}`)
+    }
+  }
+
+  const toggleStatus = async (admin: AdminUser) => {
+    const newStatus = admin.status === 'active' ? 'suspended' : 'active'
+    try {
+      const res = await updateAdminStatus(admin.id, newStatus)
+      if (res.success) await loadAdmins()
+    } catch (err: any) {
+      alert(`Error: ${err.message}`)
     }
   }
 
@@ -42,7 +82,13 @@ export default function AdminManagementPage() {
           <h1 className="text-2xl font-bold text-white">Admin Management</h1>
           <p className="text-neutral-400 text-sm">Create and oversee platform administrator accounts</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity font-semibold text-sm shadow-lg shadow-purple-900/20">
+        <button 
+          onClick={() => {
+            setEditingAdmin(undefined)
+            setShowForm(true)
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity font-semibold text-sm shadow-lg shadow-purple-900/20"
+        >
           <Plus className="w-4 h-4" />
           <span>New Admin</span>
         </button>
@@ -69,15 +115,20 @@ export default function AdminManagementPage() {
                 <th className="px-6 py-4">Administrator</th>
                 <th className="px-6 py-4">Role</th>
                 <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">ID</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-800">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center">
+                  <td colSpan={4} className="px-6 py-10 text-center">
                     <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
+                  </td>
+                </tr>
+              ) : filteredAdmins.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-10 text-center text-neutral-500 italic">
+                    No administrators found.
                   </td>
                 </tr>
               ) : filteredAdmins.map(admin => (
@@ -105,21 +156,31 @@ export default function AdminManagementPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      admin.status === 'active' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
-                    }`}>
+                    <button 
+                      onClick={() => toggleStatus(admin)}
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all hover:scale-105 active:scale-95 ${
+                        admin.status === 'active' ? 'bg-green-500/10 text-green-500 hover:bg-red-500/10 hover:text-red-500' : 'bg-red-500/10 text-red-500 hover:bg-green-500/10 hover:text-green-500'
+                      }`}
+                      title={`Click to ${admin.status === 'active' ? 'suspend' : 'activate'}`}
+                    >
                       {admin.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                     <p className="font-mono text-[9px] text-neutral-600 truncate max-w-[80px]" title={admin.id}>{admin.id}</p>
+                    </button>
                   </td>
                   <td className="px-6 py-4 text-right">
                      <div className="flex items-center justify-end gap-2">
-                        <button className="p-1.5 text-neutral-500 hover:text-white transition-colors">
+                        <button 
+                          onClick={() => {
+                            setEditingAdmin(admin)
+                            setShowForm(true)
+                          }}
+                          className="p-1.5 text-neutral-500 hover:text-white transition-colors bg-neutral-800 rounded-lg"
+                        >
                            <MoreHorizontal className="w-4 h-4" />
                         </button>
-                        <button className="p-1.5 text-neutral-600 hover:text-red-500 transition-colors">
+                        <button 
+                          onClick={() => handleDelete(admin.id)}
+                          className="p-1.5 text-neutral-600 hover:text-red-500 transition-colors bg-neutral-800 rounded-lg"
+                        >
                            <Trash2 className="w-4 h-4" />
                         </button>
                      </div>
@@ -130,6 +191,28 @@ export default function AdminManagementPage() {
           </table>
         </div>
       </div>
+
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 border-b border-neutral-800 flex items-center justify-between bg-neutral-900/50">
+              <div>
+                <h2 className="text-xl font-bold text-white">{editingAdmin ? 'Edit Admin' : 'New Admin'}</h2>
+                <p className="text-sm text-neutral-500">Manage administrative access levels</p>
+              </div>
+              <button 
+                onClick={() => setShowForm(false)} 
+                className="p-2 text-neutral-500 hover:text-white bg-neutral-900 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 bg-neutral-950">
+              <AdminForm initialData={editingAdmin} onSubmit={handleCreate} isLoading={isSubmitting} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
