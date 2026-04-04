@@ -151,11 +151,18 @@ export default function ProductsPage() {
 
     try {
       const formatted = data.map((item, index) => {
+        const rawCategory = findBestMatch(item, 'category')
+        // Efficiently find matching category ID by name
+        const matchedCategory = categories.find(c => 
+          c.name.toLowerCase().trim() === String(rawCategory || '').toLowerCase().trim() ||
+          c.id === rawCategory // support direct ID if provided
+        )
+
         const productData = {
           name: findBestMatch(item, 'name') || `Imported Product ${index + 1}`,
           description: findBestMatch(item, 'description') || 'No description provided.',
           price: findBestMatch(item, 'price'),
-          category: findBestMatch(item, 'category') || 'uncategorized',
+          category: matchedCategory ? matchedCategory.id : (categories[0]?.id || ''),
           stock: findBestMatch(item, 'stock'),
           image: findBestMatch(item, 'image') || '',
           is_new: String(findBestMatch(item, 'is_new')).toLowerCase() === 'true',
