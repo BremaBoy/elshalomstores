@@ -1,47 +1,86 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Plus, 
   Search, 
   Tag as TagIcon, 
   Edit, 
   Trash2, 
-  MoreVertical,
   X,
   Package,
-  Layers
+  Layers,
+  Loader2,
+  AlertCircle
 } from 'lucide-react'
 import { CategoryForm } from '@/components/forms/CategoryForm'
-import { Category } from '@/types'
-
-const MOCK_CATEGORIES: Category[] = [
-  { id: 'fashion', name: 'Fashion', item_count: 120, icon: 'Shirt' },
-  { id: 'electronics', name: 'Electronics', item_count: 85, icon: 'Smartphone' },
-  { id: 'beauty', name: 'Beauty', item_count: 64, icon: 'Sparkles' },
-  { id: 'furniture', name: 'Furniture', item_count: 42, icon: 'Armchair' },
-  { id: 'groceries', name: 'Groceries', item_count: 156, icon: 'Apple' },
-]
+import { Category, Product } from '@/types'
+import { fetchCategories, saveCategory, deleteCategory as removeCategory } from '@/app/actions/categoryActions'
+import { supabaseAuth } from '@/lib/supabase'
 
 export default function CategoriesPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | undefined>()
-  const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleCreate = async (data: any) => {
-    if (editingCategory) {
-      setCategories(categories.map(c => c.id === editingCategory.id ? { ...c, ...data } : c))
-    } else {
-      setCategories([...categories, { ...data, item_count: 0 }])
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    setIsLoading(true)
+    try {
+      const [catRes, prodRes] = await Promise.all([
+        fetchCategories(),
+        supabaseAuth.from('products').select('id, category')
+      ])
+
+      if (!catRes.success) throw new Error(catRes.error)
+      if (prodRes.error) throw prodRes.error
+
+      setCategories(catRes.data || [])
+      setProducts(prodRes.data as any[]) // We only need id/category for counting
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
     }
-    setShowForm(false)
-    setEditingCategory(undefined)
   }
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this category? This might affect products using it.')) {
-      setCategories(categories.filter(c => c.id !== id))
+  const handleCreate = async (data: any) => {
+    setIsSubmitting(true)
+    try {
+      const result = await saveCategory(data)
+      if (!result.success) throw new Error(result.error)
+      
+      await fetchData()
+      setShowForm(false)
+      setEditingCategory(undefined)
+    } catch (err: any) {
+      alert(`Error: ${err.message}`)
+    } finally {
+      setIsSubmitting(false)
     }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this category? This might affect products using it.')) return
+    
+    try {
+      const result = await removeCategory(id)
+      if (!result.success) throw new Error(result.error)
+      await fetchData()
+    } catch (err: any) {
+      alert(`Error: ${err.message}`)
+    }
+  }
+
+  const getProductCount = (categoryId: string) => {
+    return products.filter(p => p.category === categoryId).length
   }
 
   return (
@@ -98,39 +137,54 @@ export default function CategoriesPage() {
               </div>
             </div>
             <div className="divide-y divide-neutral-800">
-              {categories.map((category) => (
-                <div key={category.id} className="flex items-center justify-between p-4 hover:bg-neutral-800/20 transition-colors group">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-neutral-800 flex items-center justify-center border border-neutral-700">
-                      <TagIcon className="w-5 h-5 text-neutral-500" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-semibold text-white">{category.name}</h4>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <Package className="w-3 h-3 text-neutral-600" />
-                        <span className="text-[11px] text-neutral-500 font-medium">{category.item_count} Products</span>
+              {isLoading ? (
+                <div className="p-12 flex justify-center">
+                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+              ) : error ? (
+                <div className="p-12 text-center text-destructive flex flex-col items-center">
+                  <AlertCircle className="w-8 h-8 mb-2" />
+                  <p>{error}</p>
+                </div>
+              ) : categories.length === 0 ? (
+                <div className="p-12 text-center text-neutral-500 italic">
+                  No categories found. Add one to get started.
+                </div>
+              ) : (
+                categories.map((category) => (
+                  <div key={category.id} className="flex items-center justify-between p-4 hover:bg-neutral-800/20 transition-colors group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-neutral-800 flex items-center justify-center border border-neutral-700">
+                        <TagIcon className="w-5 h-5 text-neutral-500" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-white">{category.name}</h4>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Package className="w-3 h-3 text-neutral-600" />
+                          <span className="text-[11px] text-neutral-500 font-medium">{getProductCount(category.id)} Products</span>
+                        </div>
                       </div>
                     </div>
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => {
+                          setEditingCategory(category)
+                          setShowForm(true)
+                        }}
+                        className="p-2 text-neutral-400 hover:text-primary bg-neutral-800 rounded-lg transition-colors"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(category.id)}
+                        className="p-2 text-neutral-400 hover:text-red-500 bg-neutral-800 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
-                      onClick={() => {
-                        setEditingCategory(category)
-                        setShowForm(true)
-                      }}
-                      className="p-2 text-neutral-400 hover:text-primary bg-neutral-800 rounded-lg transition-colors"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(category.id)}
-                      className="p-2 text-neutral-400 hover:text-red-500 bg-neutral-800 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -152,7 +206,7 @@ export default function CategoriesPage() {
               </button>
             </div>
             <div className="p-6 bg-neutral-950">
-              <CategoryForm initialData={editingCategory} onSubmit={handleCreate} />
+              <CategoryForm initialData={editingCategory} onSubmit={handleCreate} isLoading={isSubmitting} />
             </div>
           </div>
         </div>
