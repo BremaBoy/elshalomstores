@@ -17,6 +17,7 @@ import { ProductForm } from '@/components/forms/ProductForm'
 import { CSVImporter } from '@/components/ui/CSVImporter'
 import { Category, Product } from '@/types'
 import { supabase, supabaseAuth } from '@/lib/supabase'
+import { createProduct, updateProduct, deleteProduct as removeProduct, bulkImportProducts } from '@/app/actions/productActions'
 
 export default function ProductsPage() {
   const [showForm, setShowForm] = useState(false)
@@ -72,18 +73,14 @@ export default function ProductsPage() {
       const status = validateProduct(data)
       const submissionData = { ...data, status }
 
+      let result
       if (editingProduct) {
-        const { error } = await supabaseAuth
-          .from('products')
-          .update(submissionData)
-          .eq('id', editingProduct.id)
-        if (error) throw error
+        result = await updateProduct(editingProduct.id, submissionData)
       } else {
-        const { error } = await supabaseAuth
-          .from('products')
-          .insert([submissionData])
-        if (error) throw error
+        result = await createProduct(submissionData)
       }
+      
+      if (!result.success) throw new Error(result.error)
       
       await fetchData()
       setShowForm(false)
@@ -99,8 +96,8 @@ export default function ProductsPage() {
     if (!confirm('Are you sure you want to delete this product?')) return
     
     try {
-      const { error } = await supabaseAuth.from('products').delete().eq('id', id)
-      if (error) throw error
+      const result = await removeProduct(id)
+      if (!result.success) throw new Error(result.error)
       setProducts(products.filter(p => p.id !== id))
     } catch (err: any) {
       alert(`Error deleting product: ${err.message}`)
@@ -168,17 +165,12 @@ export default function ProductsPage() {
         return { ...productData, status: validateProduct(productData) }
       })
 
-      // Bulk insert in chunks of 50 for stability and progress tracking
-      const chunkSize = 50
-      for (let i = 0; i < formatted.length; i += chunkSize) {
-        const chunk = formatted.slice(i, i + chunkSize)
-        const { error } = await supabaseAuth.from('products').insert(chunk)
-        
-        if (error) throw error
-        
-        setImportProgress(Math.round((Math.min(i + chunkSize, total) / total) * 100))
-      }
+      setImportProgress(50) // Basic progress since server action handles the rest
+      const result = await bulkImportProducts(formatted)
+      
+      if (!result.success) throw new Error(result.error)
 
+      setImportProgress(100)
       await fetchData()
       setShowImport(false)
       alert(`Successfully imported ${total} products!`)
