@@ -11,7 +11,6 @@ import { useUIStore, useAuthStore } from '@/store/useStore'
 import { cn } from '@/lib/utils'
 
 const adminLinks = [
-  { href: '/dashboard/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/products', label: 'Products', icon: Package },
   { href: '/dashboard/categories', label: 'Categories', icon: Tag },
   { href: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
@@ -19,7 +18,6 @@ const adminLinks = [
 ]
 
 const superAdminLinks = [
-  { href: '/dashboard/superadmin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart2 },
   { href: '/dashboard/inventory', label: 'Inventory', icon: Warehouse },
   { href: '/dashboard/payments', label: 'Payments', icon: CreditCard },
@@ -62,6 +60,23 @@ export default function Sidebar() {
         {isSidebarOpen && (
           <p className="text-xs text-neutral-500 uppercase tracking-wider px-3 mb-2 font-medium">Main</p>
         )}
+        
+        {/* Dynamic Dashboard Link */}
+        <Link
+          href={isSuperAdmin ? '/dashboard/superadmin' : '/dashboard/admin'}
+          className={cn(
+            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
+            (pathname === '/dashboard/admin' || pathname === '/dashboard/superadmin')
+              ? 'bg-primary text-white shadow-lg shadow-purple-900/30'
+              : 'text-neutral-400 hover:text-white hover:bg-white/5',
+            !isSidebarOpen && 'justify-center px-2'
+          )}
+          title={!isSidebarOpen ? 'Dashboard' : undefined}
+        >
+          <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
+          {isSidebarOpen && <span>Dashboard</span>}
+        </Link>
+
         {adminLinks.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
