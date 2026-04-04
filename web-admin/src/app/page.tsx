@@ -7,8 +7,12 @@ export default function Home() {
   const router = useRouter()
 
   useEffect(() => {
-    // If there is no hash (which would contain the access token for resets), redirect to login
-    if (!window.location.hash) {
+    // If there is no hash or code/recovery param, redirect to login
+    const hasAuthToken = window.location.hash || 
+                        window.location.search.includes('code=') || 
+                        window.location.search.includes('type=recovery')
+
+    if (!hasAuthToken) {
       router.replace('/login')
     }
   }, [router])
