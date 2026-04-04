@@ -40,34 +40,51 @@ export async function saveAdmin(data: any) {
     const supabaseAdmin = getAdminClient()
     
     let adminId = data.id
+    console.log('--- SAVE ADMIN START ---', { adminId, email: data.email })
 
     // If it's a new admin (no ID provided), we must create them in Auth first
     if (!adminId) {
+      console.log('Creating new Auth user...')
       const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email: data.email,
-        password: Math.random().toString(36).slice(-12), // Generate a random temporary password
+        password: Math.random().toString(36).slice(-12) + '!', // Stronger temp password
         email_confirm: true,
         user_metadata: { role: data.role, name: data.name }
       })
 
-      if (authError) throw authError
+      if (authError) {
+        console.error('Auth User Creation Failed:', authError)
+        throw authError
+      }
+      
       adminId = authUser.user.id
+      console.log('Auth User Created Successfully:', adminId)
     }
 
+    // Sanitize data for the 'admins' table
     const adminData = {
-      ...data,
       id: adminId,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      status: data.status || 'active',
       created_at: data.created_at || new Date().toISOString()
     }
 
-    const { error } = await supabaseAdmin.from('admins').upsert([adminData])
-    if (error) throw error
+    console.log('Upserting admin metadata:', adminData)
+    const { error: upsertError } = await supabaseAdmin.from('admins').upsert([adminData])
     
+    if (upsertError) {
+      console.error('Admins Upsert Failed:', upsertError)
+      throw upsertError
+    }
+    
+    console.log('Admin Saved Successfully')
     revalidatePath('/dashboard/admins')
     return { success: true }
   } catch (error: any) {
-    console.error('Save Admin Error:', error)
-    return { success: false, error: error.message }
+    console.error('Save Admin Detailed Error:', error)
+    return { success: false, error: error.message || 'An unknown error occurred during admin creation.' }
   }
 }
 
