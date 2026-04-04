@@ -59,14 +59,15 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/dashboard/admin', request.url))
         }
 
-        // Cross-role protection
-        if (request.nextUrl.pathname.startsWith('/dashboard/superadmin') && role !== 'SUPER_ADMIN') {
+        // Cross-role protection: Ensure Super Admin and Admin stay in their respective base dashboards
+        const isSuperAdminPath = request.nextUrl.pathname === '/dashboard/superadmin'
+        const isAdminPath = request.nextUrl.pathname === '/dashboard/admin'
+
+        if (isSuperAdminPath && role !== 'SUPER_ADMIN') {
             return NextResponse.redirect(new URL('/dashboard/admin', request.url))
         }
 
-        if (request.nextUrl.pathname.startsWith('/dashboard/admin') && role === 'SUPER_ADMIN') {
-             // Let super admin access admin via the superadmin route or redirect?
-             // User said: "superadmin redirected from /admin to /supaadmin"
+        if (isAdminPath && role === 'SUPER_ADMIN') {
              return NextResponse.redirect(new URL('/dashboard/superadmin', request.url))
         }
     }
