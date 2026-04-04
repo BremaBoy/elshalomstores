@@ -49,7 +49,7 @@ export async function saveAdmin(data: any) {
         email: data.email,
         password: Math.random().toString(36).slice(-12) + '!', // Stronger temp password
         email_confirm: true,
-        user_metadata: { role: data.role, name: data.name }
+        user_metadata: { role: data.role, full_name: data.name }
       })
 
       if (authError) {
