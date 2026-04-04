@@ -34,15 +34,18 @@ export async function middleware(request: NextRequest) {
 
     // Protected routes pattern
     const isDashboard = request.nextUrl.pathname.startsWith('/dashboard')
-    const isLoginPage = request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/'
+    const isLoginPage = request.nextUrl.pathname === '/login'
+    const isRoot = request.nextUrl.pathname === '/'
+    const isAuthFlow = request.nextUrl.pathname.startsWith('/reset-password')
 
     // Redirect unauthenticated users
     if (isDashboard && !user) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
-    // Redirect authenticated users from login to dashboard
-    if (user && isLoginPage) {
+    // Redirect authenticated users from login/root to dashboard
+    // BUT only if they aren't in a reset-password flow
+    if (user && (isLoginPage || isRoot) && !isAuthFlow) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
