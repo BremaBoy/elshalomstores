@@ -55,6 +55,40 @@ export async function deleteProduct(id: string) {
   }
 }
 
+export async function uploadImage(formData: FormData, bucket: string = 'products') {
+  try {
+    const supabaseAdmin = getAdminClient()
+    const file = formData.get('file') as File
+    if (!file) throw new Error('No file provided')
+
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`
+    const filePath = `${fileName}`
+
+    // Ensure bucket exists (best effort, might fail if already exists but that's fine)
+    await supabaseAdmin.storage.createBucket(bucket, { public: true })
+
+    const { data, error } = await supabaseAdmin.storage
+      .from(bucket)
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      })
+
+    if (error) throw error
+
+    // Get public URL
+    const { data: { publicUrl } } = supabaseAdmin.storage
+      .from(bucket)
+      .getPublicUrl(filePath)
+
+    return { success: true, url: publicUrl }
+  } catch (error: any) {
+    console.error('Upload Error:', error)
+    return { success: false, error: error.message }
+  }
+}
+
 export async function bulkImportProducts(products: any[]) {
   try {
     const supabaseAdmin = getAdminClient()

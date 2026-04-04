@@ -4,7 +4,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Category } from '@/types'
-import { Loader2, Plus, Image as ImageIcon } from 'lucide-react'
+import { Loader2, Plus, Image as ImageIcon, X } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { uploadImage } from '@/app/actions/productActions'
 
 const categorySchema = z.object({
   id: z.string().min(2, 'ID must be at least 2 characters').toLowerCase(),
@@ -22,7 +24,10 @@ interface CategoryFormProps {
 }
 
 export function CategoryForm({ initialData, onSubmit, isLoading }: CategoryFormProps) {
-  const { register, handleSubmit, formState: { errors } } = useForm<CategoryFormValues>({
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: initialData || {
       id: '',
@@ -31,6 +36,30 @@ export function CategoryForm({ initialData, onSubmit, isLoading }: CategoryFormP
       image: '',
     }
   })
+
+  const imageUrl = watch('image')
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const result = await uploadImage(formData, 'categories')
+      if (result.success && result.url) {
+        setValue('image', result.url)
+      } else {
+        alert(`Upload failed: ${result.error}`)
+      }
+    } catch (error: any) {
+      alert(`Error uploading image: ${error.message}`)
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -67,14 +96,56 @@ export function CategoryForm({ initialData, onSubmit, isLoading }: CategoryFormP
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-300">Banner Image URL</label>
-          <div className="relative">
-            <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
-            <input
-              {...register('image')}
-              className="w-full pl-10 pr-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none"
-              placeholder="https://example.com/category-banner.jpg"
+          <label className="text-sm font-medium text-neutral-300">Category Image</label>
+          <div className="flex flex-col gap-3">
+            {/* File Upload Button */}
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full aspect-video rounded-xl border-2 border-dashed border-neutral-800 bg-neutral-900/50 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-neutral-900 transition-all group relative overflow-hidden"
+            >
+              {imageUrl ? (
+                <>
+                  <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity">
+                    <ImageIcon className="w-8 h-8 text-white mb-2" />
+                    <p className="text-xs text-white font-medium">Change Image</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    {isUploading ? <Loader2 className="w-6 h-6 text-primary animate-spin" /> : <ImageIcon className="w-6 h-6 text-neutral-500" />}
+                  </div>
+                  <p className="text-sm text-neutral-400 font-medium">Click to upload image</p>
+                  <p className="text-xs text-neutral-600 mt-1">PNG, JPG or WebP (max 5MB)</p>
+                </>
+              )}
+              {isUploading && (
+                <div className="absolute inset-0 bg-neutral-950/80 flex items-center justify-center">
+                  <div className="flex flex-col items-center">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
+                    <p className="text-xs text-primary font-bold animate-pulse">UPLOADING...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <input 
+              type="file" 
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
             />
+
+            {/* URL Fallback */}
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wider font-bold text-neutral-500">Or use Image URL</label>
+              <input
+                {...register('image')}
+                className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                placeholder="https://example.com/category-banner.jpg"
+              />
+            </div>
           </div>
         </div>
       </div>
