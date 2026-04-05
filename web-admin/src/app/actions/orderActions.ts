@@ -21,20 +21,37 @@ function getAdminClient() {
 export async function fetchOrders() {
   try {
     const supabaseAdmin = getAdminClient()
-    const { data, error } = await supabaseAdmin
+    
+    // 1. Fetch Orders
+    const { data: ordersData, error: ordersError } = await supabaseAdmin
       .from('orders')
-      .select(`
-        *,
-        profiles:user_id (full_name, id)
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
 
-    if (error) throw error
+    if (ordersError) throw ordersError
 
-    // Transform profiles:user_id to users: { name } for compatibility
-    const formattedOrders = (data || []).map((order: any) => ({
+    // 2. Fetch Profiles for these orders separately
+    const userIds = Array.from(new Set((ordersData || []).map(o => o.user_id).filter(Boolean)))
+    let profilesMap: Record<string, any> = {}
+
+    if (userIds.length > 0) {
+      const { data: profilesData, error: profilesError } = await supabaseAdmin
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds)
+
+      if (!profilesError && profilesData) {
+        profilesMap = profilesData.reduce((acc, p) => ({ ...acc, [p.id]: p }), {})
+      }
+    }
+
+    // 3. Format
+    const formattedOrders = (ordersData || []).map((order: any) => ({
       ...order,
-      users: { name: order.profiles?.full_name || 'Guest' }
+      users: { 
+        name: profilesMap[order.user_id]?.full_name || 'Guest',
+        email: 'N/A' // Email is in auth.users, keeping it simple for now or fetch via auth admin later if needed
+      }
     }))
 
     return { success: true, data: formattedOrders }
