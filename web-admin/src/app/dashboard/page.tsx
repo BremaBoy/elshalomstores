@@ -58,6 +58,7 @@ export default function DashboardPage() {
   })
   const [recentOrders, setRecentOrders] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchDashboardData()
@@ -65,14 +66,19 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     setIsLoading(true)
+    setError(null)
     try {
       const result: any = await fetchDashboardStats()
-      if (!result.success) throw new Error(result.error)
+      if (!result.success) {
+        setError(result.error)
+        return
+      }
 
       setStats(result.stats)
       setRecentOrders(result.recentOrders)
     } catch (err: any) {
       console.error('Dashboard fetch error:', err)
+      setError('An unexpected error occurred while fetching dashboard data.')
     } finally {
       setIsLoading(false)
     }
@@ -94,6 +100,13 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold">Welcome back, {user?.name?.split(' ')[0] ?? 'Admin'} 👋</h1>
         <p className="text-muted-foreground text-sm mt-1">Here&apos;s what&apos;s happening with your store today.</p>
       </div>
+
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center gap-3 text-red-500">
+          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+          <p className="text-sm font-medium">{error}</p>
+        </div>
+      )}
 
       {/* Core Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

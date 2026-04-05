@@ -22,25 +22,40 @@ export async function fetchDashboardStats() {
   try {
     const supabaseAdmin = getAdminClient()
 
-    // 1. Fetch Orders for revenue and status counts
+    // Log the configuration state (safely)
+    console.log('Fetching dashboard stats from:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+
+    // 1. Fetch Orders
     const { data: orders, error: oError } = await supabaseAdmin
       .from('orders')
       .select('total_amount, status, payment_status, created_at, id, user_id')
-    if (oError) throw oError
+    
+    if (oError) {
+      console.error('Orders fetch error:', oError)
+      return { success: false, error: `Orders Error: ${oError.message}` }
+    }
 
-    // 2. Fetch Customers Count from the 'profiles' table
+    // 2. Fetch Customers Count
     const { count: customers, error: cError } = await supabaseAdmin
       .from('profiles')
       .select('*', { count: 'exact', head: true })
-    if (cError) throw cError
+    
+    if (cError) {
+      console.error('Profiles fetch error:', cError)
+      return { success: false, error: `Profiles Error: ${cError.message}` }
+    }
 
-    // 3. Fetch Products and Stock
+    // 3. Fetch Products
     const { data: products, error: pError } = await supabaseAdmin
       .from('products')
       .select('stock')
-    if (pError) throw pError
+    
+    if (pError) {
+      console.error('Products fetch error:', pError)
+      return { success: false, error: `Products Error: ${pError.message}` }
+    }
 
-    // 4. Fetch Recent Orders with Customer Names from 'profiles'
+    // 4. Fetch Recent Orders with Profiles
     const { data: recentOrders, error: rError } = await supabaseAdmin
       .from('orders')
       .select(`
@@ -52,7 +67,11 @@ export async function fetchDashboardStats() {
       `)
       .order('created_at', { ascending: false })
       .limit(5)
-    if (rError) throw rError
+    
+    if (rError) {
+      console.error('Recent orders fetch error:', rError)
+      // This is less critical; we can fallback for these
+    }
 
     // Map recent orders to flatten the structure for the UI
     const formattedRecentOrders = (recentOrders || []).map((order: any) => ({
@@ -62,8 +81,9 @@ export async function fetchDashboardStats() {
 
     // Calculations
     const paidOrders = orders?.filter(o => o.payment_status === 'Paid') || []
+    const totalAmount = orders?.reduce((sum, o) => sum + (o.total_amount || 0), 0) || 0
     const revenue = paidOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0)
-    const pendingOrdersCount = orders?.filter(o => o.status === 'pending' || o.status === 'Pending').length || 0
+    const pendingOrdersCount = orders?.filter(o => o.status?.toLowerCase() === 'pending').length || 0
     const outOfStockCount = products?.filter(p => (p.stock || 0) <= 0).length || 0
 
     return {
@@ -76,11 +96,12 @@ export async function fetchDashboardStats() {
         outOfStock: outOfStockCount,
         pendingOrders: pendingOrdersCount
       },
-      recentOrders: formattedRecentOrders
+      recentOrders: formattedRecentOrders,
+      debug: { totalOrdersAmount: totalAmount }
     }
 
   } catch (error: any) {
-    console.error('fetchDashboardStats error:', error)
-    return { success: false, error: error.message }
+    console.error('fetchDashboardStats critical catch:', error)
+    return { success: false, error: `Critical Error: ${error.message}` }
   }
 }
