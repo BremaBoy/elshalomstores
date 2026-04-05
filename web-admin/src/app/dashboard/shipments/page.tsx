@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Truck, MapPin, Search, Filter, Loader2, Clock, CheckCircle2, ChevronRight } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { fetchOrders } from '@/app/actions/orderActions'
 
 export default function ShipmentsPage() {
   const [orders, setOrders] = useState<any[]>([])
@@ -16,13 +16,12 @@ export default function ShipmentsPage() {
   const fetchShipments = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*, users(name)')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setOrders(data || [])
+      const res = await fetchOrders()
+      if (res.success && res.data) {
+        setOrders(res.data)
+      } else {
+        throw new Error(res.error || 'Failed to fetch shipments')
+      }
     } catch (err) {
       console.error('Shipments Error:', err)
     } finally {

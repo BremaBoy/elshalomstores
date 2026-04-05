@@ -33,3 +33,19 @@ export async function fetchProductsForOrder() {
     return { success: false, error: error.message }
   }
 }
+
+export async function fetchInventory() {
+  try {
+    const supabaseAdmin = getAdminClient()
+    const { data, error } = await supabaseAdmin
+      .from('products')
+      .select('*')
+      .order('stock', { ascending: true })
+
+    if (error) throw error
+    return { success: true, data }
+  } catch (error: any) {
+    console.error('fetchInventory error:', error)
+    return { success: false, error: error.message }
+  }
+}

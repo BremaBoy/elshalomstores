@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { CreditCard, ArrowUpRight, ArrowDownLeft, Search, Filter, Loader2, DollarSign, Wallet } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { fetchOrders } from '@/app/actions/orderActions'
 import { format } from 'date-fns'
 
 export default function PaymentsPage() {
@@ -17,13 +17,12 @@ export default function PaymentsPage() {
   const fetchPayments = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*, users(name, email)')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setOrders(data || [])
+      const res = await fetchOrders()
+      if (res.success && res.data) {
+        setOrders(res.data)
+      } else {
+        throw new Error(res.error || 'Failed to fetch payments data')
+      }
     } catch (err) {
       console.error('Payments Error:', err)
     } finally {

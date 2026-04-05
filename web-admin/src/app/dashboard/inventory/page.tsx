@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Warehouse, AlertTriangle, ArrowUpRight, Search, Filter, Loader2, Package } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { fetchInventory as fetchInventoryAction } from '@/app/actions/productActions'
 import { cn } from '@/lib/utils'
 
 export default function InventoryPage() {
@@ -17,13 +17,12 @@ export default function InventoryPage() {
   const fetchInventory = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('quantity', { ascending: true })
-
-      if (error) throw error
-      setProducts(data || [])
+      const res = await fetchInventoryAction()
+      if (res.success && res.data) {
+        setProducts(res.data)
+      } else {
+        throw new Error(res.error || 'Failed to fetch inventory')
+      }
     } catch (err) {
       console.error('Inventory Error:', err)
     } finally {
@@ -36,8 +35,8 @@ export default function InventoryPage() {
     p.sku?.toLowerCase().includes(search.toLowerCase())
   )
 
-  const lowStockCount = products.filter(p => p.quantity > 0 && p.quantity <= 5).length
-  const outOfStockCount = products.filter(p => p.quantity <= 0).length
+  const lowStockCount = products.filter(p => p.stock > 0 && p.stock <= 5).length
+  const outOfStockCount = products.filter(p => p.stock <= 0).length
 
   return (
     <div className="space-y-6">
@@ -126,15 +125,15 @@ export default function InventoryPage() {
                   </td>
                   <td className="px-6 py-4 font-mono text-[11px] text-neutral-500">{p.sku || 'N/A'}</td>
                   <td className="px-6 py-4 text-neutral-400">{p.category || 'Uncategorized'}</td>
-                  <td className="px-6 py-4 font-bold text-white">{p.quantity}</td>
+                  <td className="px-6 py-4 font-bold text-white">{p.stock}</td>
                   <td className="px-6 py-4">
                     <span className={cn(
                       'px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider',
-                      p.quantity > 5 ? 'bg-green-500/10 text-green-500' : 
-                      p.quantity > 0 ? 'bg-yellow-500/10 text-yellow-500' : 
+                      p.stock > 5 ? 'bg-green-500/10 text-green-500' : 
+                      p.stock > 0 ? 'bg-yellow-500/10 text-yellow-500' : 
                       'bg-red-500/10 text-red-500'
                     )}>
-                      {p.quantity > 5 ? 'In Stock' : p.quantity > 0 ? 'Low Stock' : 'Out of Stock'}
+                      {p.stock > 5 ? 'In Stock' : p.stock > 0 ? 'Low Stock' : 'Out of Stock'}
                     </span>
                   </td>
                 </tr>
