@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import { Search, Plus } from 'lucide-react'
 import { fetchOrders, updateOrderStatus } from '@/app/actions/orderActions'
