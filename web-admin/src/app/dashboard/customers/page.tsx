@@ -30,7 +30,7 @@ export default function CustomersPage() {
     setIsLoading(true)
     try {
       const res = await fetchCustomers()
-      if (res.success) setCustomers(res.data)
+      if (res.success && res.data) setCustomers(res.data)
       else throw new Error(res.error)
     } catch (err: any) {
       console.error('Error fetching customers:', err)

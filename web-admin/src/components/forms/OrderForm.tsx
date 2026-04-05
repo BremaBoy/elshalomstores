@@ -41,8 +41,8 @@ export default function OrderForm({ onClose, onSuccess }: OrderFormProps) {
       fetchProductsForOrder(),
       fetchCustomers()
     ])
-    if (pRes.success) setProducts(pRes.data)
-    if (cRes.success) setCustomers(cRes.data)
+    if (pRes.success && pRes.data) setProducts(pRes.data)
+    if (cRes.success && cRes.data) setCustomers(cRes.data)
   }
 
   const addItem = (product: any) => {
@@ -82,7 +82,7 @@ export default function OrderForm({ onClose, onSuccess }: OrderFormProps) {
 
       if (isNewCustomer) {
         const cRes = await createCustomer(newCustomer)
-        if (!cRes.success) throw new Error(cRes.error)
+        if (!cRes.success || !cRes.data) throw new Error(cRes.error || 'Failed to create customer')
         userId = cRes.data.id
       }
 
