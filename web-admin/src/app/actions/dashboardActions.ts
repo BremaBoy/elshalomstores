@@ -28,20 +28,19 @@ export async function fetchDashboardStats() {
       .select('total_amount, status, payment_status, created_at, id, user_id')
     if (oError) throw oError
 
-    // 2. Fetch Customers Count
+    // 2. Fetch Customers Count from the 'profiles' table
     const { count: customers, error: cError } = await supabaseAdmin
-      .from('users')
+      .from('profiles')
       .select('*', { count: 'exact', head: true })
-      .eq('role', 'customer')
     if (cError) throw cError
 
     // 3. Fetch Products and Stock
     const { data: products, error: pError } = await supabaseAdmin
       .from('products')
-      .select('stock, status')
+      .select('stock')
     if (pError) throw pError
 
-    // 4. Fetch Recent Orders with User Names
+    // 4. Fetch Recent Orders with Customer Names from 'profiles'
     const { data: recentOrders, error: rError } = await supabaseAdmin
       .from('orders')
       .select(`
@@ -49,16 +48,22 @@ export async function fetchDashboardStats() {
         total_amount, 
         status, 
         created_at,
-        users:user_id (name)
+        profiles:user_id (full_name)
       `)
       .order('created_at', { ascending: false })
       .limit(5)
     if (rError) throw rError
 
+    // Map recent orders to flatten the structure for the UI
+    const formattedRecentOrders = (recentOrders || []).map((order: any) => ({
+      ...order,
+      users: { name: order.profiles?.full_name || 'Guest' }
+    }))
+
     // Calculations
     const paidOrders = orders?.filter(o => o.payment_status === 'Paid') || []
     const revenue = paidOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0)
-    const pendingOrdersCount = orders?.filter(o => o.status === 'Pending').length || 0
+    const pendingOrdersCount = orders?.filter(o => o.status === 'pending' || o.status === 'Pending').length || 0
     const outOfStockCount = products?.filter(p => (p.stock || 0) <= 0).length || 0
 
     return {
@@ -71,7 +76,7 @@ export async function fetchDashboardStats() {
         outOfStock: outOfStockCount,
         pendingOrders: pendingOrdersCount
       },
-      recentOrders: recentOrders || []
+      recentOrders: formattedRecentOrders
     }
 
   } catch (error: any) {
