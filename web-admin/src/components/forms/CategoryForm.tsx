@@ -5,8 +5,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Category } from '@/types'
 import { Loader2, Plus, Image as ImageIcon, X } from 'lucide-react'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { uploadImage } from '@/app/actions/productActions'
+
+const slugify = (text: string) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')     // Replace spaces with -
+    .replace(/[^\w-]+/g, '')     // Remove all non-word chars
+    .replace(/--+/g, '-')       // Replace multiple - with single -
+}
 
 const categorySchema = z.object({
   id: z.string().min(2, 'ID must be at least 2 characters').toLowerCase(),
@@ -36,6 +46,14 @@ export function CategoryForm({ initialData, onSubmit, isLoading }: CategoryFormP
       image: '',
     }
   })
+
+  const categoryName = watch('name')
+  
+  useEffect(() => {
+    if (!initialData && categoryName) {
+      setValue('id', slugify(categoryName))
+    }
+  }, [categoryName, setValue, initialData])
 
   const imageUrl = watch('image')
 

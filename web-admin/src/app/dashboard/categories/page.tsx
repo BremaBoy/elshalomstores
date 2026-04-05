@@ -209,7 +209,7 @@ export default function CategoriesPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 bg-neutral-950">
+            <div className="p-6 bg-neutral-950 max-h-[85vh] overflow-y-auto custom-scrollbar">
               <CategoryForm initialData={editingCategory} onSubmit={handleCreate} isLoading={isSubmitting} />
             </div>
           </div>
