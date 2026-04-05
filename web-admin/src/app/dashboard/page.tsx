@@ -4,6 +4,7 @@ import { TrendingUp, ShoppingCart, Users, Package, AlertTriangle, Clock, DollarS
 import { useAuthStore } from '@/store/useStore'
 import { supabaseAuth } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { format } from 'date-fns'
 import { fetchDashboardStats } from '@/app/actions/dashboardActions'
 
@@ -14,11 +15,12 @@ interface StatCardProps {
   change?: string
   changeType?: 'up' | 'down'
   color?: string
+  href?: string
 }
 
-function StatCard({ title, value, icon: Icon, change, changeType, color = 'bg-primary/10 text-primary' }: StatCardProps) {
-  return (
-    <div className="bg-card border border-border rounded-xl p-5 flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow">
+function StatCard({ title, value, icon: Icon, change, changeType, color = 'bg-primary/10 text-primary', href }: StatCardProps) {
+  const content = (
+    <div className={`bg-card border border-border rounded-xl p-5 flex items-start gap-4 shadow-sm transition-all h-full ${href ? 'hover:shadow-md hover:border-primary/50 cursor-pointer' : ''}`}>
       <div className={`p-2.5 rounded-lg ${color}`}>
         <Icon className="w-5 h-5" />
       </div>
@@ -33,6 +35,11 @@ function StatCard({ title, value, icon: Icon, change, changeType, color = 'bg-pr
       </div>
     </div>
   )
+
+  if (href) {
+    return <Link href={href} className="block h-full">{content}</Link>
+  }
+  return content
 }
 
 const statusColors: Record<string, string> = {
@@ -85,12 +92,12 @@ export default function DashboardPage() {
   }
 
   const coreStats = [
-    { title: 'Total Revenue', value: `₦${stats.revenue.toLocaleString()}`, icon: TrendingUp, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' },
-    { title: 'Total Orders', value: stats.orders.toString(), icon: ShoppingCart, color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' },
-    { title: 'Total Customers', value: stats.customers.toString(), icon: Users, color: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' },
-    { title: 'Total Products', value: stats.products.toString(), icon: Package, color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' },
-    { title: 'Out of Stock', value: stats.outOfStock.toString(), icon: AlertTriangle, color: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' },
-    { title: 'Pending Orders', value: stats.pendingOrders.toString(), icon: Clock, color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400' },
+    { title: 'Total Revenue', value: `₦${stats.revenue.toLocaleString()}`, icon: TrendingUp, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400', href: '/dashboard/payments' },
+    { title: 'Total Orders', value: stats.orders.toString(), icon: ShoppingCart, color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', href: '/dashboard/orders' },
+    { title: 'Total Customers', value: stats.customers.toString(), icon: Users, color: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400', href: '/dashboard/customers' },
+    { title: 'Total Products', value: stats.products.toString(), icon: Package, color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400', href: '/dashboard/products' },
+    { title: 'Out of Stock', value: stats.outOfStock.toString(), icon: AlertTriangle, color: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400', href: '/dashboard/inventory' },
+    { title: 'Pending Orders', value: stats.pendingOrders.toString(), icon: Clock, color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400', href: '/dashboard/orders' },
   ]
 
   return (
