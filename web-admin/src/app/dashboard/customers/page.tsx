@@ -1,6 +1,4 @@
-'use client'
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Search, 
   Filter, 
@@ -17,7 +15,7 @@ import {
 import { Customer } from '@/types'
 
 import { supabase, supabaseAuth } from '@/lib/supabase'
-import { useEffect } from 'react'
+import { fetchCustomers } from '@/app/actions/customerActions'
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([])
@@ -25,20 +23,15 @@ export default function CustomersPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchCustomers()
+    fetchAllCustomers()
   }, [])
 
-  const fetchCustomers = async () => {
+  const fetchAllCustomers = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('role', 'customer')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setCustomers(data || [])
+      const res = await fetchCustomers()
+      if (res.success) setCustomers(res.data)
+      else throw new Error(res.error)
     } catch (err: any) {
       console.error('Error fetching customers:', err)
     } finally {

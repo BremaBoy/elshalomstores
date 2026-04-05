@@ -1,10 +1,8 @@
-'use client'
-
 import { useState, useEffect } from 'react'
-import { Search } from 'lucide-react'
-
-import { supabase, supabaseAuth } from '@/lib/supabase'
+import { Search, Plus } from 'lucide-react'
+import { fetchOrders, updateOrderStatus } from '@/app/actions/orderActions'
 import { format } from 'date-fns'
+import OrderForm from '@/components/forms/OrderForm'
 
 const statusColors: Record<string, string> = {
   Delivered: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -25,19 +23,15 @@ export default function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchOrders()
+    fetchAllOrders()
   }, [])
 
-  const fetchOrders = async () => {
+  const fetchAllOrders = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*, users(name, email)')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setOrders(data || [])
+      const res = await fetchOrders()
+      if (res.success && res.data) setOrders(res.data)
+      else throw new Error(res.error)
     } catch (err: any) {
       console.error('Error fetching orders:', err)
     } finally {
@@ -47,20 +41,8 @@ export default function OrdersPage() {
 
   const handleUpdateStatus = async (id: string, newStatus: string) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-      const { data: { session } } = await supabaseAuth.auth.getSession()
-      
-      const res = await fetch(`${apiUrl}/api/orders/${id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      })
-
-      if (!res.ok) throw new Error('Failed to update status')
-      
+      const res = await updateOrderStatus(id, newStatus)
+      if (!res.success) throw new Error(res.error)
       setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o))
     } catch (err: any) {
       alert(`Update failed: ${err.message}`)
@@ -74,12 +56,30 @@ export default function OrdersPage() {
     return customerMatch && statusMatch
   })
 
+  const [isOrderFormOpen, setIsOrderFormOpen] = useState(false)
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Orders</h1>
-        <p className="text-muted-foreground text-sm mt-1">{orders.length} orders total</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Orders</h1>
+          <p className="text-muted-foreground text-sm mt-1">{orders.length} orders total</p>
+        </div>
+        <button 
+          onClick={() => setIsOrderFormOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-110 transition-all"
+        >
+          <Plus className="w-4 h-4" />
+          Create Order
+        </button>
       </div>
+
+      {isOrderFormOpen && (
+        <OrderForm 
+          onClose={() => setIsOrderFormOpen(false)} 
+          onSuccess={fetchAllOrders} 
+        />
+      )}
 
       {/* Filters */}
       <div className="bg-card border border-border rounded-xl p-4 flex gap-4 items-center flex-wrap shadow-sm">
