@@ -2,9 +2,10 @@
 
 import { TrendingUp, ShoppingCart, Users, Package, AlertTriangle, Clock, DollarSign, BarChart3, Layers, Award } from 'lucide-react'
 import { useAuthStore } from '@/store/useStore'
-import { supabase } from '@/lib/supabase'
+import { supabaseAuth } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
+import { fetchDashboardStats } from '@/app/actions/dashboardActions'
 
 interface StatCardProps {
   title: string
@@ -65,39 +66,12 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     setIsLoading(true)
     try {
-      // 1. Fetch Orders and Revenue
-      const { data: oData, error: oError } = await supabase.from('orders').select('total_amount, status, payment_status, created_at, id, users(name)')
-      if (oError) throw oError
+      const result: any = await fetchDashboardStats()
+      if (!result.success) throw new Error(result.error)
 
-      const paidOrders = oData?.filter(o => o.payment_status === 'Paid') || []
-      const revenue = paidOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0)
-      const pendingOrders = oData?.filter(o => o.status === 'Pending').length || 0
-
-      // 2. Fetch Customer Count
-      const { count: cCount, error: cError } = await supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'customer')
-      if (cError) throw cError
-
-      // 3. Fetch Product Count and Stock
-      const { data: pData, error: pError } = await supabase.from('products').select('quantity')
-      if (pError) throw pError
-
-      const totalProducts = pData?.length || 0
-      const outOfStock = pData?.filter(p => p.quantity <= 0).length || 0
-
-      setStats({
-        revenue,
-        orders: oData?.length || 0,
-        customers: cCount || 0,
-        products: totalProducts,
-        outOfStock,
-        pendingOrders
-      })
-
-      // Recent orders (top 5)
-      const sorted = [...(oData || [])].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 5)
-      setRecentOrders(sorted)
-
-    } catch (err) {
+      setStats(result.stats)
+      setRecentOrders(result.recentOrders)
+    } catch (err: any) {
       console.error('Dashboard fetch error:', err)
     } finally {
       setIsLoading(false)
@@ -128,10 +102,19 @@ export default function DashboardPage() {
 
       {/* Super Admin Financial Widgets */}
       {isSuperAdmin && (
-        <div>
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Financial Overview</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center p-8 bg-card border border-border rounded-xl">
-             <p className="text-muted-foreground italic">Extended financial analytics available in Super Admin Reports</p>
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Financial Health (Super Admin)</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-card border border-border rounded-xl p-5">
+              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Total Net Profit (EST)</p>
+              <p className="text-2xl font-black text-foreground mt-1">₦{(stats.revenue * 0.85).toLocaleString()}</p>
+              <span className="text-[10px] text-green-500 font-bold">15% Margin Applied</span>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-5">
+              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Platform Fees</p>
+              <p className="text-2xl font-black text-foreground mt-1">₦{(stats.revenue * 0.05).toLocaleString()}</p>
+              <span className="text-[10px] text-primary font-bold">5% Processing Fee</span>
+            </div>
           </div>
         </div>
       )}
