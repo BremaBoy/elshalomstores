@@ -10,12 +10,12 @@
   --color-primary-hover: #6D28D9;
   --color-secondary: #000000;
   
-  --color-bg: #FFFFFF;
-  --color-card: #F9FAFB;
-  --color-border: #E5E7EB;
+  --color-bg: var(--background);
+  --color-card: var(--card);
+  --color-border: var(--border);
   
-  --color-text-primary: #111827;
-  --color-text-secondary: #6B7280;
+  --color-text-primary: var(--foreground);
+  --color-text-secondary: var(--muted);
 }
 
 :root {
@@ -29,15 +29,22 @@
   --muted: #6B7280;
 }
 
-/* Force Light Mode Only */
-html, body {
-  color-scheme: light !important;
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --border: #334155;
+  --muted: #94a3b8;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @layer base {

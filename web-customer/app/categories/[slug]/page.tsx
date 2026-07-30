@@ -7,11 +7,11 @@ import { getProducts } from "@/products/getProducts";
 
 
 interface CategoryPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function CategoryDetailPage({ params }: CategoryPageProps) {
-  const { slug } = params;
+  const { slug } = await params;
   const products = await getProducts();
   
   // Clean slug for display

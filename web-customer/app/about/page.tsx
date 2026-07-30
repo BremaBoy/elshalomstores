@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
-
+import Link from "next/link";
 import { ShieldCheck, Zap, Users, Globe, Target, Award } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -95,9 +95,11 @@ export default function AboutPage() {
                 <h2 className="text-4xl md:text-6xl font-extrabold text-white uppercase tracking-tighter">Ready to Start Shopping?</h2>
                 <p className="text-slate-400 max-w-xl mx-auto text-lg">Join our growing community and experience the difference of premium service.</p>
                 <div className="pt-4">
-                    <Button className="h-16 px-12 text-lg rounded-2xl font-extrabold uppercase tracking-widest bg-white text-primary hover:bg-slate-100 shadow-xl shadow-white/5">
-                        Browse Shop
-                    </Button>
+                    <Link href="/shop">
+                      <Button className="h-16 px-12 text-lg rounded-2xl font-extrabold uppercase tracking-widest bg-white text-primary hover:bg-slate-100 shadow-xl shadow-white/5">
+                          Browse Shop
+                      </Button>
+                    </Link>
                 </div>
             </div>
           </div>

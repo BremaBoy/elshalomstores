@@ -11,6 +11,17 @@ export interface Category {
   color?: string;
 }
 
+export const DEFAULT_CATEGORIES: Category[] = [
+  { id: "1", name: "Gift Items", slug: "gift-items", image_url: "/categories/gift-items.png", icon: "🎁", color: "bg-rose-500", itemCount: 12 },
+  { id: "2", name: "House Hold Items", slug: "household-items", image_url: "/categories/household-items.png", icon: "🏠", color: "bg-sky-500", itemCount: 24 },
+  { id: "3", name: "Humidifiers and Diffusers", slug: "humidifiers-and-diffusers", image_url: "/categories/humidifiers.png", icon: "💨", color: "bg-teal-500", itemCount: 8 },
+  { id: "4", name: "Kitchen Utensils", slug: "kitchen-utensils", image_url: "/categories/kitchen-utensils.png", icon: "🍳", color: "bg-amber-500", itemCount: 15 },
+  { id: "5", name: "Oils and Candles", slug: "oils-and-candles", image_url: "/categories/oils-candles.png", icon: "🕯️", color: "bg-yellow-500", itemCount: 18 },
+  { id: "6", name: "Perfumeries and Cosmetics", slug: "perfumeries-and-cosmetics", image_url: "/categories/perfumes.png", icon: "💄", color: "bg-purple-500", itemCount: 30 },
+  { id: "7", name: "Phone Accessories", slug: "phone-accessories", image_url: "/categories/phone-accessories.png", icon: "🔌", color: "bg-indigo-500", itemCount: 22 },
+  { id: "8", name: "Toiletries and Daily Needs", slug: "toiletries-and-daily-needs", image_url: "/categories/toiletries.png", icon: "🧼", color: "bg-emerald-500", itemCount: 40 },
+];
+
 export async function getCategories(): Promise<Category[]> {
   try {
     const { data, error } = await supabase
@@ -18,27 +29,23 @@ export async function getCategories(): Promise<Category[]> {
       .select('*')
       .order('name', { ascending: true });
       
-    if (error || !data) return [];
+    if (error || !data || data.length === 0) {
+      return DEFAULT_CATEGORIES;
+    }
     
-    // Add some default visual properties if they are missing in the DB
-    // (In a real app, these would be in the DB or a configuration file)
-    const categoryEnhancements: Record<string, { icon: string; color: string }> = {
-      "electronics": { icon: "📱", color: "bg-blue-500" },
-      "fashion": { icon: "👕", color: "bg-purple-500" },
-      "home-decor": { icon: "🏠", color: "bg-orange-500" },
-      "beauty": { icon: "💄", color: "bg-pink-500" },
-      "sports": { icon: "⚽", color: "bg-emerald-500" },
-      "books": { icon: "📚", color: "bg-amber-500" },
-    };
-
-    return data.map(cat => ({
-      ...cat,
-      icon: categoryEnhancements[cat.slug]?.icon || "📦",
-      color: categoryEnhancements[cat.slug]?.color || "bg-slate-500",
-      itemCount: 0 // This should ideally be a count from the products table or a separate column
-    }));
+    // Merge DB categories with our rich mock visual metadata if possible
+    return data.map(dbCat => {
+      const match = DEFAULT_CATEGORIES.find(c => c.slug === dbCat.slug || c.name.toLowerCase() === dbCat.name.toLowerCase());
+      return {
+        ...dbCat,
+        image_url: dbCat.image_url || match?.image_url,
+        icon: dbCat.icon || match?.icon || "📦",
+        color: dbCat.color || match?.color || "bg-slate-500",
+        itemCount: match?.itemCount || 0
+      };
+    });
   } catch (error) {
-    console.error("Supabase categories fetch failed", error);
-    return [];
+    console.error("Supabase categories fetch failed, returning default ones", error);
+    return DEFAULT_CATEGORIES;
   }
 }

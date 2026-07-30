@@ -12,6 +12,7 @@ import { useCartStore } from "@/store/cartStore";
 import { NotificationBell } from "./NotificationBell";
 
 import { supabase } from "@/lib/supabase";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -57,8 +58,8 @@ export const Header = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-white/90 backdrop-blur-md shadow-sm border-b border-border py-2"
-          : "bg-white py-4"
+          ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm border-b border-border dark:border-slate-800 py-2"
+          : "bg-white dark:bg-slate-900 py-4"
       }`}
     >
       <Container>
@@ -73,7 +74,7 @@ export const Header = () => {
 
           <Link href="/" className="flex-shrink-0 group">
             <span className="text-2xl font-extrabold text-primary tracking-tighter transition-transform group-hover:scale-105 inline-block uppercase">
-              ELSHALOM<span className="text-secondary">STORES</span>
+              ELSHALOM<span className="text-secondary dark:text-slate-300">STORES</span>
             </span>
           </Link>
 
@@ -82,21 +83,21 @@ export const Header = () => {
             <input
               type="text"
               placeholder="Search for premium products..."
-              className="w-full bg-card border-border hover:border-primary/30 border rounded-full py-2.5 pl-11 pr-4 text-sm focus:ring-4 focus:ring-primary/10 focus:border-primary/50 outline-none transition-all placeholder:text-text-secondary/50"
+              className="w-full bg-card dark:bg-slate-800 border-border dark:border-slate-700 hover:border-primary/30 border rounded-full py-2.5 pl-11 pr-4 text-sm focus:ring-4 focus:ring-primary/10 focus:border-primary/50 outline-none transition-all placeholder:text-text-secondary/50 dark:placeholder:text-slate-400 dark:text-white"
             />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary dark:text-slate-400 group-focus-within:text-primary transition-colors" />
           </div>
 
           {/* Actions */}
           <div className="flex items-center gap-2 md:gap-4">
             {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center gap-6 mr-4 border-r border-border pr-6">
+            <nav className="hidden xl:flex items-center gap-6 mr-4 border-r border-border dark:border-slate-700 pr-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
                   className={`text-sm font-bold transition-colors hover:text-primary ${
-                    pathname === link.href ? "text-primary" : "text-text-secondary"
+                    pathname === link.href ? "text-primary" : "text-text-secondary dark:text-slate-300"
                   }`}
                 >
                   {link.name}
@@ -105,19 +106,20 @@ export const Header = () => {
             </nav>
 
             <div className="flex items-center gap-1 md:gap-2">
+              <ThemeToggle />
 
               {mounted && user ? (
                 <div className="flex items-center gap-1 md:gap-2">
                   <NotificationBell userId={user.id} />
                   <Link href="/profile">
-                    <Button variant="ghost" size="icon" className="text-text-secondary hover:text-primary">
+                    <Button variant="ghost" size="icon" className="text-text-secondary dark:text-slate-300 hover:text-primary">
                       <User className="h-5 w-5" />
                     </Button>
                   </Link>
                 </div>
               ) : mounted ? (
                 <Link href="/auth/login" className="hidden sm:block">
-                  <Button variant="ghost" className="text-text-secondary hover:text-primary font-bold uppercase tracking-widest text-[10px]">
+                  <Button variant="ghost" className="text-text-secondary dark:text-slate-300 hover:text-primary font-bold uppercase tracking-widest text-[10px]">
                     Sign In
                   </Button>
                 </Link>
@@ -126,12 +128,12 @@ export const Header = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative text-text-secondary hover:text-primary"
+                className="relative text-text-secondary dark:text-slate-300 hover:text-primary"
                 onClick={() => setIsCartOpen(true)}
               >
                 <ShoppingCart className="h-5 w-5" />
                 {mounted && cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-black h-5 w-5 rounded-full flex items-center justify-center border-2 border-white">
+                  <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-black h-5 w-5 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
                     {cartItemCount}
                   </span>
                 )}

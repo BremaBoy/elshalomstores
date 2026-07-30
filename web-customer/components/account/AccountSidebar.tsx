@@ -1,21 +1,30 @@
 "use client";
 
-import { User, Package, Bell, MapPin, Settings, LogOut, ChevronRight } from "lucide-react";
+import { User, Package, Bell, Heart, Settings, LogOut, ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const AccountSidebar = ({ user }: { user: any }) => {
   const pathname = usePathname();
+  const router = useRouter();
 
   const navItems = [
     { label: "My Profile", icon: User, href: "/profile" },
     { label: "Orders", icon: Package, href: "/account/orders" },
     { label: "Notifications", icon: Bell, href: "/account/notifications" },
-    { label: "Wishlist", icon: MapPin, href: "/wishlist" }, // Reuse existing or placeholder
+    { label: "Wishlist", icon: Heart, href: "/account/wishlist" },
+    { label: "Addresses", icon: MapPin, href: "/account/addresses" },
     { label: "Settings", icon: Settings, href: "/account/settings" },
   ];
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <aside className="space-y-4">
@@ -51,7 +60,10 @@ export const AccountSidebar = ({ user }: { user: any }) => {
             </Link>
           );
         })}
-        <button className="w-full flex items-center gap-3 px-6 py-6 text-red-500 hover:bg-red-50 transition-all mt-4 border-t border-slate-50">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-6 py-6 text-red-500 hover:bg-red-50 transition-all mt-4 border-t border-slate-50"
+        >
           <LogOut className="h-5 w-5" />
           <span className="text-xs font-black uppercase tracking-widest">Log Out</span>
         </button>

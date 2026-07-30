@@ -2,10 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { ShoppingCart, Heart, Star, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
+
+const PLACEHOLDER = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=60";
 
 interface ProductCardProps {
   product: {
@@ -23,8 +27,23 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const addItem = useCartStore((state) => state.addItem);
+  const { addItem: addWishlistItem, removeItem: removeWishlistItem, isInWishlist } = useWishlistStore();
   const isOutOfStock = product.stock === 0;
+  const inWishlist = isMounted ? isInWishlist(product.id) : false;
+
+  // Guard against invalid image URLs (e.g. "n/a" from the DB)
+  const validSrc =
+    typeof product.image === "string" && product.image.startsWith("http")
+      ? product.image
+      : PLACEHOLDER;
+  const [imgSrc, setImgSrc] = useState(validSrc);
 
   const discountPercentage = product.discountPrice
     ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
@@ -69,8 +88,30 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
       {/* Action Buttons - Quick View & Wishlist */}
       <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 translate-x-12 opacity-0 transition-all duration-500 group-hover:translate-x-0 group-hover:opacity-100">
-        <button className="h-10 w-10 rounded-xl bg-white shadow-xl flex items-center justify-center text-text-secondary hover:bg-primary hover:text-white transition-all scale-90 hover:scale-100 border border-border hover:border-primary">
-          <Heart className="h-5 w-5" />
+        <button 
+          onClick={(e) => {
+            e.preventDefault();
+            if (inWishlist) {
+              removeWishlistItem(product.id);
+            } else {
+              addWishlistItem({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                discountPrice: product.discountPrice,
+                image: product.image,
+                category: product.category,
+                stock: product.stock,
+              });
+            }
+          }}
+          className={`h-10 w-10 rounded-xl shadow-xl flex items-center justify-center transition-all scale-90 hover:scale-100 border ${
+            inWishlist 
+              ? "bg-red-50 text-red-500 border-red-200" 
+              : "bg-white text-text-secondary hover:bg-primary hover:text-white border-border hover:border-primary"
+          }`}
+        >
+          <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
         </button>
         <button className="h-10 w-10 rounded-xl bg-white shadow-xl flex items-center justify-center text-text-secondary hover:bg-primary hover:text-white transition-all scale-90 hover:scale-100 border border-border hover:border-primary">
           <Eye className="h-5 w-5" />
@@ -80,11 +121,12 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       {/* Image Container */}
       <Link href={`/product/${product.id}`} className="block relative aspect-square overflow-hidden bg-card">
         <Image
-          src={product.image}
+          src={imgSrc}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          onError={() => setImgSrc(PLACEHOLDER)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       </Link>

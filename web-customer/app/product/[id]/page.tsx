@@ -8,16 +8,17 @@ import { ProductPrice } from "@/components/product/ProductPrice";
 import { getProductById, getFeaturedProducts } from "@/products/getProducts";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import { Star, ShoppingCart, Heart, Share2, ShieldCheck, Truck } from "lucide-react";
+import { AddToCartSection } from "@/components/product/AddToCartSection";
+import { Star, Share2, ShieldCheck, Truck } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
 interface ProductPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const { id } = params;
+  const { id } = await params;
   const product = await getProductById(id);
   
   if (!product) {
@@ -53,7 +54,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 {/* Thumbnails (Mock) */}
                 <div className="grid grid-cols-4 gap-4">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="aspect-square bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+                    <div key={i} className="relative aspect-square bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all">
                       <Image src={product.image} alt="" fill className="object-cover opacity-60" />
                     </div>
                   ))}
@@ -90,27 +91,21 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   {product.description || "Experience superior quality and design with our flagship product. Crafted with care and built to last, it combines functionality with a modern aesthetic."}
                 </p>
 
-                <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden h-12">
-                            <button className="px-4 hover:bg-slate-50 dark:hover:bg-slate-800">-</button>
-                            <span className="px-4 font-bold">1</span>
-                            <button className="px-4 hover:bg-slate-50 dark:hover:bg-slate-800">+</button>
-                        </div>
-                        <Button className="flex-grow h-12 text-lg rounded-xl gap-2 font-bold uppercase tracking-wide">
-                            <ShoppingCart className="h-5 w-5" />
-                            Add to Cart
-                        </Button>
-                        <Button variant="outline" size="icon" className="h-12 w-12 rounded-xl border-slate-200">
-                            <Heart className="h-5 w-5 text-red-500" />
-                        </Button>
-                    </div>
+                <AddToCartSection product={{
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  discountPrice: product.discountPrice,
+                  image: product.image,
+                  category: product.category,
+                  stock: product.stock,
+                }} />
+
                     <div className="flex gap-4">
                         <Button variant="ghost" className="text-sm font-bold gap-2 text-slate-500 hover:text-primary">
                             <Share2 className="h-4 w-4" /> Share Product
                         </Button>
                     </div>
-                </div>
 
                 {/* Features Badges */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6">

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { X, ChevronRight, User, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -47,11 +48,14 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border">
-            <span className="text-xl font-black text-primary tracking-tighter">ELSHALOM<span className="text-secondary">STORES</span></span>
-            <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition-colors">
-              <X className="h-6 w-6 text-text-secondary" />
-            </button>
+          <div className="flex items-center justify-between p-6 border-b border-border dark:border-slate-800">
+            <span className="text-xl font-black text-primary tracking-tighter">ELSHALOM<span className="text-secondary dark:text-slate-300">STORES</span></span>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <button onClick={onClose} className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+                <X className="h-6 w-6 text-text-secondary dark:text-slate-400" />
+              </button>
+            </div>
           </div>
 
           {/* User Section */}

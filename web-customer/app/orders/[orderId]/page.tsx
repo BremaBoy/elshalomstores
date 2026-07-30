@@ -5,13 +5,13 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
 interface OrderPageProps {
-  params: {
+  params: Promise<{
     orderId: string;
-  };
+  }>;
 }
 
 export default async function OrderTrackingPage({ params }: OrderPageProps) {
-  const { orderId } = params;
+  const { orderId } = await params;
   const supabase = createServer();
 
   // Fetch order data with all related info for the tracking experience

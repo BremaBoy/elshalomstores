@@ -1,12 +1,12 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
-
 import { Button } from "@/components/ui/Button";
-import { User, Package, Heart, MapPin, Settings, LogOut, ChevronRight, Clock } from "lucide-react";
+import { User, Package, Heart, MapPin, Settings, ChevronRight, Clock } from "lucide-react";
 import Link from "next/link";
 import { createServer } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
+import { LogoutButton } from "@/components/layout/LogoutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -51,27 +51,27 @@ export default async function ProfilePage() {
 
               <nav className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-lg overflow-hidden">
                 {[
-                  { label: "My Profile", icon: User, active: true },
-                  { label: "Orders", icon: Package },
-                  { label: "Wishlist", icon: Heart },
-                  { label: "Addresses", icon: MapPin },
-                  { label: "Settings", icon: Settings },
+                  { label: "My Profile", icon: User, href: "/profile" },
+                  { label: "Orders", icon: Package, href: "/account/orders" },
+                  { label: "Wishlist", icon: Heart, href: "/account/wishlist" },
+                  { label: "Addresses", icon: MapPin, href: "/account/addresses" },
+                  { label: "Settings", icon: Settings, href: "/account/settings" },
                 ].map((item) => (
-                  <button 
+                  <Link 
                     key={item.label}
-                    className={`w-full flex items-center justify-between px-6 py-4 transition-all ${item.active ? "bg-primary/5 text-primary border-l-4 border-primary" : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
+                    href={item.href}
+                    className={`w-full flex items-center justify-between px-6 py-4 transition-all ${
+                      item.href === "/profile" ? "bg-primary/5 text-primary border-l-4 border-primary" : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    }`}
                   >
                     <div className="flex items-center gap-3">
                       <item.icon className="h-5 w-5" />
                       <span className="text-sm font-bold uppercase tracking-wider">{item.label}</span>
                     </div>
                     <ChevronRight className="h-4 w-4 opacity-30" />
-                  </button>
+                  </Link>
                 ))}
-                <button className="w-full flex items-center gap-3 px-6 py-6 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all mt-4 border-t border-slate-50 dark:border-slate-800">
-                  <LogOut className="h-5 w-5" />
-                  <span className="text-sm font-bold uppercase tracking-wider">Log Out</span>
-                </button>
+                <LogoutButton />
               </nav>
             </aside>
 
@@ -80,7 +80,9 @@ export default async function ProfilePage() {
               <div className="bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[48px] border border-slate-100 dark:border-slate-800 shadow-xl">
                 <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-50 dark:border-slate-800">
                     <h3 className="text-2xl font-extrabold uppercase tracking-tight">Recent Orders</h3>
-                    <Button variant="ghost" className="text-primary font-bold uppercase tracking-widest text-xs">View All</Button>
+                    <Link href="/account/orders">
+                      <Button variant="ghost" className="text-primary font-bold uppercase tracking-widest text-xs">View All</Button>
+                    </Link>
                 </div>
                 
                 <div className="space-y-6">
@@ -141,12 +143,16 @@ export default async function ProfilePage() {
                 <div className="p-10 rounded-[48px] bg-primary text-white shadow-2xl shadow-primary/20 space-y-6">
                     <h4 className="text-2xl font-extrabold uppercase tracking-tight">Shipping Addresses</h4>
                     <p className="text-indigo-100 font-medium">Manage your delivery locations for faster checkout.</p>
-                    <Button className="bg-white text-primary hover:bg-indigo-50 font-bold rounded-2xl uppercase tracking-widest">Manage Addresses</Button>
+                    <Link href="/account/addresses">
+                      <Button className="bg-white text-primary hover:bg-indigo-50 font-bold rounded-2xl uppercase tracking-widest">Manage Addresses</Button>
+                    </Link>
                 </div>
                 <div className="p-10 rounded-[48px] bg-slate-900 text-white shadow-2xl space-y-6">
                     <h4 className="text-2xl font-extrabold uppercase tracking-tight">Security Settings</h4>
                     <p className="text-slate-400 font-medium">Update your password and enable two-factor authentication.</p>
-                    <Button variant="outline" className="border-slate-700 text-white hover:bg-slate-800 font-bold rounded-2xl uppercase tracking-widest">Privacy Settings</Button>
+                    <Link href="/account/settings">
+                      <Button variant="outline" className="border-slate-700 text-white hover:bg-slate-800 font-bold rounded-2xl uppercase tracking-widest">Privacy Settings</Button>
+                    </Link>
                 </div>
               </div>
             </div>
