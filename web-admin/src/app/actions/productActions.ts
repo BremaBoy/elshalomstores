@@ -129,13 +129,13 @@ export async function uploadImage(formData: FormData, bucket: string = 'products
   }
 }
 
-export async function bulkImportProducts(products: BulkImportProduct[]) {
+export async function bulkImportProducts(products: BulkImportProduct[], startingRow = 2) {
   try {
     if (!Array.isArray(products) || products.length === 0) {
       throw new Error('No products were supplied for import.')
     }
-    if (products.length > 2000) {
-      throw new Error('A single CSV import is limited to 2,000 products.')
+    if (products.length > 100) {
+      throw new Error('Each database import request is limited to 100 products.')
     }
 
     const supabaseAdmin = getAdminClient()
@@ -187,10 +187,11 @@ export async function bulkImportProducts(products: BulkImportProduct[]) {
       const category = categoryMap[categoryKey]
       const price = Number(product.price)
       const stock = Number(product.stock ?? 0)
-      if (!String(product.name || '').trim()) throw new Error(`Row ${index + 2}: product name is required.`)
-      if (!Number.isFinite(price) || price < 0) throw new Error(`Row ${index + 2}: price is invalid.`)
-      if (!category) throw new Error(`Row ${index + 2}: category is invalid.`)
-      if (!Number.isFinite(stock) || stock < 0) throw new Error(`Row ${index + 2}: stock is invalid.`)
+      const rowNumber = startingRow + index
+      if (!String(product.name || '').trim()) throw new Error(`Row ${rowNumber}: product name is required.`)
+      if (!Number.isFinite(price) || price < 0) throw new Error(`Row ${rowNumber}: price is invalid.`)
+      if (!category) throw new Error(`Row ${rowNumber}: category is invalid.`)
+      if (!Number.isFinite(stock) || stock < 0) throw new Error(`Row ${rowNumber}: stock is invalid.`)
 
       const discountPrice =
         product.discount_price === null || product.discount_price === undefined
@@ -214,21 +215,11 @@ export async function bulkImportProducts(products: BulkImportProduct[]) {
       }
     })
 
-    const chunkSize = 50
-    let importedCount = 0
-    for (let i = 0; i < finalProducts.length; i += chunkSize) {
-      const chunk = finalProducts.slice(i, i + chunkSize)
-      const { error } = await supabaseAdmin.from('products').insert(chunk)
-      if (error) {
-        throw new Error(
-          `${importedCount} product(s) were imported before a database error stopped the import: ${error.message}`
-        )
-      }
-      importedCount += chunk.length
-    }
+    const { error } = await supabaseAdmin.from('products').insert(finalProducts)
+    if (error) throw error
     
     revalidatePath('/dashboard/products')
-    return { success: true, count: importedCount }
+    return { success: true, count: finalProducts.length }
   } catch (error: unknown) {
     console.error('Bulk Import Error:', error)
     return {

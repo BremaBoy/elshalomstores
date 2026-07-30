@@ -14,7 +14,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { ProductForm } from '@/components/forms/ProductForm'
-import { CSVImporter } from '@/components/ui/CSVImporter'
+import { CSVImporter, type CSVBatchContext } from '@/components/ui/CSVImporter'
 import { Category, Product } from '@/types'
 import { supabase, supabaseAuth } from '@/lib/supabase'
 import { createProduct, updateProduct, deleteProduct as removeProduct, bulkImportProducts } from '@/app/actions/productActions'
@@ -29,7 +29,6 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'pending'>('all')
-  const [importProgress, setImportProgress] = useState<number | null>(null)
 
   // Fetch products and categories on mount
   useEffect(() => {
@@ -151,68 +150,103 @@ export default function ProductsPage() {
     return ['true', '1', 'yes', 'y', 'on'].includes(String(value ?? '').trim().toLowerCase())
   }
 
-  const handleCSVImport = async (data: Record<string, string>[]) => {
-    setIsSubmitting(true)
-    setImportProgress(0)
-    const total = data.length
+  const formatCSVRows = (data: Record<string, string>[], startRow: number) => {
+    const rowErrors: string[] = []
+    const formatted = data.map((item, index) => {
+      const rowNumber = startRow + index
+      const name = String(findBestMatch(item, 'name') || '').trim()
+      const price = findBestMatch(item, 'price')
+      const rawCategory = findBestMatch(item, 'category')
+      const categoryInput = String(rawCategory || '').trim()
+      const matchedCategory = categories.find(c =>
+        c.name.toLowerCase().trim() === categoryInput.toLowerCase() ||
+        c.id === categoryInput
+      )
+      const stock = findBestMatch(item, 'stock')
+      const discountPrice = findBestMatch(item, 'discount_price')
 
-    try {
-      const rowErrors: string[] = []
-      const formatted = data.map((item, index) => {
-        const rowNumber = index + 2
-        const name = String(findBestMatch(item, 'name') || '').trim()
-        const price = findBestMatch(item, 'price')
-        const rawCategory = findBestMatch(item, 'category')
-        const categoryInput = String(rawCategory || '').trim()
-        const matchedCategory = categories.find(c => 
-          c.name.toLowerCase().trim() === categoryInput.toLowerCase() ||
-          c.id === categoryInput
+      if (!name) rowErrors.push(`row ${rowNumber}: product name is required`)
+      if (typeof price !== 'number' || price < 0) rowErrors.push(`row ${rowNumber}: price must be a valid non-negative number`)
+      if (!categoryInput) rowErrors.push(`row ${rowNumber}: category is required`)
+      if (typeof stock === 'number' && stock < 0) rowErrors.push(`row ${rowNumber}: stock cannot be negative`)
+      if (typeof discountPrice === 'number' && discountPrice < 0) rowErrors.push(`row ${rowNumber}: discount price cannot be negative`)
+
+      const productData = {
+        name,
+        description: findBestMatch(item, 'description') || 'No description provided.',
+        price,
+        // Preserve unknown category names so the server action can create them.
+        category: matchedCategory ? matchedCategory.id : categoryInput,
+        stock: typeof stock === 'number' ? stock : 0,
+        image: findBestMatch(item, 'image') || '',
+        is_new: parseBoolean(findBestMatch(item, 'is_new')),
+        is_sale: parseBoolean(findBestMatch(item, 'is_sale')),
+        discount_price: typeof discountPrice === 'number' && discountPrice > 0 ? discountPrice : null,
+      }
+      return { ...productData, status: validateProduct(productData) }
+    })
+
+    if (rowErrors.length > 0) {
+      const displayedErrors = rowErrors.slice(0, 8).join('; ')
+      const remaining = rowErrors.length > 8 ? `; plus ${rowErrors.length - 8} more issue(s)` : ''
+      throw new Error(`Please fix the CSV before importing: ${displayedErrors}${remaining}`)
+    }
+
+    return formatted
+  }
+
+  const validateCSVRows = (data: Record<string, string>[], startRow: number) => {
+    formatCSVRows(data, startRow)
+  }
+
+  const getSafeRequestChunk = <T,>(rows: T[], offset: number, startingRow: number) => {
+    const maxProductsPerRequest = 100
+    const maxSerializedBytes = 3 * 1024 * 1024
+    let chunkSize = Math.min(maxProductsPerRequest, rows.length - offset)
+
+    while (chunkSize > 0) {
+      const chunk = rows.slice(offset, offset + chunkSize)
+      const serializedBytes = new Blob([JSON.stringify(chunk)]).size
+      if (serializedBytes <= maxSerializedBytes) return chunk
+      chunkSize = Math.floor(chunkSize / 2)
+    }
+
+    throw new Error(`Row ${startingRow + offset} is too large to send to the server.`)
+  }
+
+  const handleCSVBatch = async (data: Record<string, string>[], context: CSVBatchContext) => {
+    const formatted = formatCSVRows(data, context.startRow)
+    let importedInBatch = 0
+
+    while (importedInBatch < formatted.length) {
+      const requestChunk = getSafeRequestChunk(formatted, importedInBatch, context.startRow)
+      const result = await bulkImportProducts(
+        requestChunk,
+        context.startRow + importedInBatch,
+      )
+
+      if (!result.success) {
+        throw new Error(
+          `Batch ${context.batchNumber} of ${context.totalBatches} stopped: ${result.error}`
         )
-        const stock = findBestMatch(item, 'stock')
-        const discountPrice = findBestMatch(item, 'discount_price')
-
-        if (!name) rowErrors.push(`row ${rowNumber}: product name is required`)
-        if (typeof price !== 'number' || price < 0) rowErrors.push(`row ${rowNumber}: price must be a valid non-negative number`)
-        if (!categoryInput) rowErrors.push(`row ${rowNumber}: category is required`)
-        if (typeof stock === 'number' && stock < 0) rowErrors.push(`row ${rowNumber}: stock cannot be negative`)
-        if (typeof discountPrice === 'number' && discountPrice < 0) rowErrors.push(`row ${rowNumber}: discount price cannot be negative`)
-
-        const productData = {
-          name,
-          description: findBestMatch(item, 'description') || 'No description provided.',
-          price: findBestMatch(item, 'price'),
-          // Preserve unknown category names so the server action can create them.
-          category: matchedCategory ? matchedCategory.id : categoryInput,
-          stock: typeof stock === 'number' ? stock : 0,
-          image: findBestMatch(item, 'image') || '',
-          is_new: parseBoolean(findBestMatch(item, 'is_new')),
-          is_sale: parseBoolean(findBestMatch(item, 'is_sale')),
-          discount_price: typeof discountPrice === 'number' && discountPrice > 0 ? discountPrice : null,
-        }
-        return { ...productData, status: validateProduct(productData) }
-      })
-
-      if (rowErrors.length > 0) {
-        const displayedErrors = rowErrors.slice(0, 8).join('; ')
-        const remaining = rowErrors.length > 8 ? `; plus ${rowErrors.length - 8} more issue(s)` : ''
-        throw new Error(`Please fix the CSV before importing: ${displayedErrors}${remaining}`)
       }
 
-      setImportProgress(50) // Basic progress since server action handles the rest
-      const result = await bulkImportProducts(formatted)
-      
-      if (!result.success) throw new Error(result.error)
+      importedInBatch += result.count ?? requestChunk.length
+      context.reportProgress(importedInBatch)
+    }
 
-      setImportProgress(100)
+    return importedInBatch
+  }
+
+  const handleCSVComplete = async (importedRows: number, totalBatches: number) => {
+    try {
       await fetchData()
       setShowImport(false)
-      alert(`Successfully imported ${result.count ?? total} products!`)
+      alert(
+        `Successfully imported ${importedRows.toLocaleString()} products in ${totalBatches.toLocaleString()} batch${totalBatches === 1 ? '' : 'es'}!`
+      )
     } catch (err: unknown) {
-      console.error('CSV Import Error:', err)
-      throw err instanceof Error ? err : new Error('CSV import failed.')
-    } finally {
-      setIsSubmitting(false)
-      setImportProgress(null)
+      throw err instanceof Error ? err : new Error('The products were imported, but the product list could not be refreshed.')
     }
   }
 
@@ -408,14 +442,16 @@ export default function ProductsPage() {
           <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-lg shadow-2xl">
             <div className="p-6 border-b border-neutral-800 flex items-center justify-between text-white">
               <h2 className="text-xl font-bold">Import Products</h2>
-              <button onClick={() => setShowImport(false)} disabled={importProgress !== null} className="text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowImport(false)} disabled={isSubmitting} className="text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6">
               <CSVImporter 
                 title="Bulk Upload Products"
                 expectedHeaders={['name', 'description', 'price', 'category', 'stock', 'image', 'is_new', 'is_sale']}
-                onData={handleCSVImport}
-                progress={importProgress}
+                onValidate={validateCSVRows}
+                onBatch={handleCSVBatch}
+                onComplete={handleCSVComplete}
+                onBusyChange={setIsSubmitting}
               />
             </div>
           </div>
