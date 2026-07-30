@@ -79,7 +79,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <div className="group relative bg-[#FCF8F1] rounded-[1.75rem] border border-black/10 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-black/15 hover:-translate-y-2 text-text-primary">
+    <div className="group relative bg-bg rounded-2xl border border-border overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-black/10 hover:-translate-y-1 text-text-primary">
       {/* Badges */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
         {product.isNew && <Badge variant="primary">New Arrival</Badge>}
@@ -120,7 +120,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </div>
 
       {/* Image Container */}
-      <Link href={`/product/${product.id}`} className="block relative aspect-[4/5] overflow-hidden bg-card">
+      <Link href={`/product/${product.id}`} className="block relative aspect-[4/3] overflow-hidden bg-card">
         <Image
           src={imgSrc}
           alt={product.name}
@@ -133,7 +133,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </Link>
 
       {/* Content */}
-      <div className="p-5 space-y-3">
+      <div className="p-4 space-y-2">
         <div className="flex justify-between items-start">
           <p className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em]">
             {product.category}
@@ -147,14 +147,14 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </div>
 
         <Link href={`/product/${product.id}`}>
-          <h3 className="text-base md:text-lg font-bold text-text-primary line-clamp-1 group-hover:text-primary transition-colors tracking-tight">
+          <h3 className="text-sm md:text-base font-bold text-text-primary line-clamp-1 group-hover:text-primary transition-colors tracking-tight">
             {product.name}
           </h3>
         </Link>
         
         {/* Price Section */}
         <div className="flex items-baseline gap-2">
-          <span className="text-xl font-black text-primary tracking-tighter">
+          <span className="text-lg font-black text-primary tracking-tighter">
             ₦{(product.discountPrice || product.price).toLocaleString()}
           </span>
           {product.discountPrice && (
@@ -168,7 +168,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <Button
           onClick={handleAddToCart}
           variant={isOutOfStock ? "outline" : "primary"}
-          className={`w-full mt-4 h-12 rounded-full font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${
+          className={`w-full mt-2 h-10 rounded-xl font-black uppercase tracking-widest text-[9px] transition-all shadow-md ${
             isOutOfStock ? "border-amber-200 text-amber-600 hover:bg-amber-50" : "shadow-primary/20"
           }`}
         >
