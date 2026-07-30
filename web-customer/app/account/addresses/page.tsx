@@ -1,24 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, Plus, Trash2, Home, Briefcase, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
-const SAMPLE_ADDRESSES = [
-  {
-    id: "1",
-    label: "Home",
-    icon: Home,
-    name: "John Doe",
-    street: "14 Admiralty Way",
-    city: "Lekki",
-    state: "Lagos State",
-    isDefault: true,
-  },
-];
-
 export default function AddressesPage() {
-  const [addresses, setAddresses] = useState(SAMPLE_ADDRESSES);
+  const [addresses, setAddresses] = useState<Array<{
+    id: string;
+    label: string;
+    icon: typeof Home;
+    name: string;
+    street: string;
+    city: string;
+    state: string;
+    isDefault: boolean;
+  }>>([]);
+  const [loaded, setLoaded] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     label: "Home",
@@ -27,6 +24,38 @@ export default function AddressesPage() {
     city: "",
     state: "",
   });
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("elshalom-addresses");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Hydrate browser-persisted addresses after the client mounts.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setAddresses(parsed.map((address: { label: string }) => ({
+          ...address,
+          icon: address.label === "Work" ? Briefcase : Home,
+        })));
+      } catch {
+        window.localStorage.removeItem("elshalom-addresses");
+      }
+    }
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return;
+    const serializable = addresses.map((address) => ({
+      id: address.id,
+      label: address.label,
+      name: address.name,
+      street: address.street,
+      city: address.city,
+      state: address.state,
+      isDefault: address.isDefault,
+    }));
+    window.localStorage.setItem("elshalom-addresses", JSON.stringify(serializable));
+  }, [addresses, loaded]);
 
   const handleDelete = (id: string) => {
     setAddresses((prev) => prev.filter((a) => a.id !== id));
@@ -52,10 +81,10 @@ export default function AddressesPage() {
   };
 
   return (
-    <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-xl min-h-[600px] space-y-10">
+    <div className="bg-card text-text-primary p-8 md:p-12 rounded-[48px] border border-border shadow-xl min-h-[600px] space-y-10">
       <div className="flex justify-between items-center pb-6 border-b border-slate-50">
         <div>
-          <h3 className="text-2xl font-black uppercase tracking-tight text-slate-900">
+          <h3 className="text-2xl font-black uppercase tracking-tight text-text-primary">
             Saved <span className="text-primary">Addresses</span>
           </h3>
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
@@ -73,8 +102,8 @@ export default function AddressesPage() {
 
       {/* Add Form */}
       {showForm && (
-        <div className="bg-slate-50 p-8 rounded-[32px] border border-slate-100 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
-          <h4 className="text-sm font-black uppercase tracking-widest text-slate-700">New Address</h4>
+        <div className="bg-bg p-8 rounded-[32px] border border-border space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+          <h4 className="text-sm font-black uppercase tracking-widest text-text-primary">New Address</h4>
 
           <div className="flex gap-4">
             {["Home", "Work", "Other"].map((type) => (
@@ -84,7 +113,7 @@ export default function AddressesPage() {
                 className={`px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all ${
                   form.label === type
                     ? "bg-primary text-white border-primary"
-                    : "bg-white text-slate-500 border-slate-200 hover:border-primary/30"
+                    : "bg-bg text-text-secondary border-border hover:border-primary/30"
                 }`}
               >
                 {type}
@@ -108,7 +137,7 @@ export default function AddressesPage() {
                   placeholder={placeholder}
                   value={form[field as keyof typeof form]}
                   onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
-                  className="w-full h-12 bg-white border border-slate-200 rounded-2xl px-5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                  className="w-full h-12 bg-bg text-text-primary border border-border rounded-2xl px-5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                 />
               </div>
             ))}
@@ -133,7 +162,7 @@ export default function AddressesPage() {
       <div className="space-y-4">
         {addresses.length === 0 ? (
           <div className="text-center py-20 space-y-6">
-            <div className="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto">
+            <div className="h-24 w-24 bg-bg rounded-full flex items-center justify-center mx-auto">
               <MapPin className="h-12 w-12 text-slate-200" />
             </div>
             <div>
@@ -152,16 +181,16 @@ export default function AddressesPage() {
               className={`flex items-start justify-between p-6 rounded-3xl border-2 transition-all ${
                 addr.isDefault
                   ? "border-primary/20 bg-primary/5"
-                  : "border-slate-100 bg-slate-50/50 hover:border-slate-200"
+                  : "border-border bg-bg hover:border-primary/30"
               }`}
             >
               <div className="flex items-start gap-5">
-                <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                <div className="h-12 w-12 bg-bg rounded-2xl flex items-center justify-center shadow-sm border border-border flex-shrink-0">
                   <addr.icon className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <div className="flex items-center gap-3 mb-1">
-                    <p className="text-sm font-black uppercase tracking-wider text-slate-900">
+                    <p className="text-sm font-black uppercase tracking-wider text-text-primary">
                       {addr.label}
                     </p>
                     {addr.isDefault && (
@@ -171,7 +200,7 @@ export default function AddressesPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-bold text-slate-700">{addr.name}</p>
+                  <p className="text-sm font-bold text-text-primary">{addr.name}</p>
                   <p className="text-sm text-slate-500 font-medium">
                     {addr.street}, {addr.city}, {addr.state}
                   </p>

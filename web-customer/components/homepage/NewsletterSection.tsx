@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/Button";
 
 export const NewsletterSection = () => {
   return (
-    <section className="py-24 md:py-32 bg-[#F4C95D]">
+    <section className="py-24 md:py-32 bg-primary/10">
       <Container>
         <div className="flex flex-col lg:flex-row items-center justify-between gap-16 bg-secondary text-white p-10 md:p-20 rounded-[3rem] shadow-2xl shadow-black/10 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           
           <div className="space-y-6 text-center lg:text-left relative z-10">
             <div className="h-16 w-16 bg-primary/10 flex items-center justify-center rounded-[2rem] mx-auto lg:mx-0 shadow-inner">
-              <Mail className="h-8 w-8 text-[#F4C95D]" />
+              <Mail className="h-8 w-8 text-violet-300" />
             </div>
             <h2 className="text-4xl md:text-6xl font-black text-white leading-none tracking-tighter">
               The good stuff, <br /> straight to you.
@@ -29,7 +29,7 @@ export const NewsletterSection = () => {
                   type="email"
                   placeholder="Your email address"
                   required
-                  className="w-full h-16 bg-white/10 border border-white/20 rounded-full px-8 outline-none focus:border-[#F4C95D] transition-all font-bold text-white placeholder:text-white/50"
+                  className="w-full h-16 bg-white/10 border border-white/20 rounded-full px-8 outline-none focus:border-violet-300 transition-all font-bold text-white placeholder:text-white/50"
                 />
               </div>
               <Button className="h-16 w-full rounded-full font-black uppercase tracking-[0.2em] gap-3 text-xs shadow-xl shadow-black/20">

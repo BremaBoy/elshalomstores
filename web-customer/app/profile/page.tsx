@@ -30,26 +30,26 @@ export default async function ProfilePage() {
   });
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-900/30">
+    <main className="min-h-screen bg-bg text-text-primary">
       <Header />
       <div className="pt-32 pb-20">
         <Container>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
             {/* Sidebar Navigation */}
             <aside className="lg:col-span-1 space-y-4">
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-xl text-center">
+              <div className="bg-card p-8 rounded-[40px] border border-border shadow-xl text-center">
                 <div className="h-24 w-24 bg-primary/10 rounded-full mx-auto flex items-center justify-center mb-6">
                   <User className="h-12 w-12 text-primary" />
                 </div>
                 <h2 className="text-xl font-extrabold uppercase tracking-tight">{user.user_metadata?.full_name || user.email?.split('@')[0]}</h2>
-                <p className="text-sm text-slate-500 font-medium mb-6">{user.email}</p>
-                <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Member Since</p>
+                <p className="text-sm text-text-secondary font-medium mb-6">{user.email}</p>
+                <div className="pt-6 border-t border-border">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Member Since</p>
                   <p className="text-xs font-bold">{joinedDate}</p>
                 </div>
               </div>
 
-              <nav className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-lg overflow-hidden">
+              <nav className="bg-card rounded-[32px] border border-border shadow-lg overflow-hidden">
                 {[
                   { label: "My Profile", icon: User, href: "/profile" },
                   { label: "Orders", icon: Package, href: "/account/orders" },
@@ -61,7 +61,7 @@ export default async function ProfilePage() {
                     key={item.label}
                     href={item.href}
                     className={`w-full flex items-center justify-between px-6 py-4 transition-all ${
-                      item.href === "/profile" ? "bg-primary/5 text-primary border-l-4 border-primary" : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      item.href === "/profile" ? "bg-primary/10 text-primary border-l-4 border-primary" : "text-text-secondary hover:bg-primary/5"
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -77,8 +77,8 @@ export default async function ProfilePage() {
 
             {/* Main Content */}
             <div className="lg:col-span-3 space-y-12">
-              <div className="bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[48px] border border-slate-100 dark:border-slate-800 shadow-xl">
-                <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-50 dark:border-slate-800">
+              <div className="bg-card p-8 md:p-12 rounded-[48px] border border-border shadow-xl">
+                <div className="flex justify-between items-center mb-10 pb-6 border-b border-border">
                     <h3 className="text-2xl font-extrabold uppercase tracking-tight">Recent Orders</h3>
                     <Link href="/account/orders">
                       <Button variant="ghost" className="text-primary font-bold uppercase tracking-widest text-xs">View All</Button>
@@ -125,11 +125,11 @@ export default async function ProfilePage() {
                     ))
                   ) : (
                     <div className="py-20 text-center">
-                      <div className="h-20 w-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Package className="h-10 w-10 text-slate-300" />
+                      <div className="h-20 w-20 bg-bg rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Package className="h-10 w-10 text-text-secondary/40" />
                       </div>
-                      <h4 className="text-lg font-bold text-slate-400 uppercase tracking-widest">No orders yet</h4>
-                      <p className="text-slate-500 text-sm mt-2">Start shopping to see your orders here!</p>
+                      <h4 className="text-lg font-bold text-text-secondary uppercase tracking-widest">No orders yet</h4>
+                      <p className="text-text-secondary text-sm mt-2">Start shopping to see your orders here!</p>
                       <Link href="/shop" className="mt-8 inline-block">
                         <Button className="rounded-full px-8">Browse Shop</Button>
                       </Link>

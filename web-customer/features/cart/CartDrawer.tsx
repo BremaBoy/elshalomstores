@@ -4,6 +4,7 @@ import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cartStore";
 
@@ -23,7 +24,7 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
 
   if (!mounted) return null;
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
@@ -154,6 +155,7 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
           )}
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 };

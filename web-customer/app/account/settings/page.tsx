@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Shield, Bell, Lock, Trash2, Eye, EyeOff, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { supabase } from "@/lib/supabase";
@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPass, setShowNewPass] = useState(false);
@@ -22,6 +21,20 @@ export default function SettingsPage() {
     newsletter: false,
     sms: false,
   });
+  const [preferencesSaved, setPreferencesSaved] = useState(false);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("elshalom-notification-preferences");
+    if (saved) {
+      try {
+        // Hydrate browser-persisted preferences after the client mounts.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setNotifications(JSON.parse(saved));
+      } catch {
+        window.localStorage.removeItem("elshalom-notification-preferences");
+      }
+    }
+  }, []);
 
   const handlePasswordUpdate = async () => {
     if (!newPassword || newPassword !== confirmPassword) {
@@ -41,31 +54,34 @@ export default function SettingsPage() {
       setPasswordMsg({ type: "error", text: error.message });
     } else {
       setPasswordMsg({ type: "success", text: "Password updated successfully!" });
-      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     }
   };
 
   const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
-      "⚠️ Are you sure you want to delete your account? This action is irreversible and all your data will be permanently removed."
+    router.push("/contact?subject=Account%20deletion");
+  };
+
+  const savePreferences = () => {
+    window.localStorage.setItem(
+      "elshalom-notification-preferences",
+      JSON.stringify(notifications)
     );
-    if (!confirmed) return;
-    await supabase.auth.signOut();
-    router.push("/");
+    setPreferencesSaved(true);
+    window.setTimeout(() => setPreferencesSaved(false), 2500);
   };
 
   return (
     <div className="space-y-8">
       {/* Password Section */}
-      <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-xl space-y-8">
+      <div className="bg-card text-text-primary p-8 md:p-12 rounded-[48px] border border-border shadow-xl space-y-8">
         <div className="flex items-center gap-4 pb-6 border-b border-slate-50">
           <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center flex-shrink-0">
             <Lock className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">
+            <h3 className="text-xl font-black uppercase tracking-tight text-text-primary">
               Change Password
             </h3>
             <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">
@@ -77,19 +93,6 @@ export default function SettingsPage() {
         <div className="space-y-5 max-w-lg">
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
-              Current Password
-            </label>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
               New Password
             </label>
             <div className="relative">
@@ -98,7 +101,7 @@ export default function SettingsPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Min. 8 characters"
-                className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 pr-12 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                className="w-full h-14 bg-bg text-text-primary border border-border rounded-2xl px-6 pr-12 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               />
               <button
                 type="button"
@@ -120,7 +123,7 @@ export default function SettingsPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Repeat new password"
-                className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 pr-12 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                className="w-full h-14 bg-bg text-text-primary border border-border rounded-2xl px-6 pr-12 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               />
               <button
                 type="button"
@@ -160,13 +163,13 @@ export default function SettingsPage() {
       </div>
 
       {/* Notification Preferences */}
-      <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-xl space-y-8">
+      <div className="bg-card text-text-primary p-8 md:p-12 rounded-[48px] border border-border shadow-xl space-y-8">
         <div className="flex items-center gap-4 pb-6 border-b border-slate-50">
           <div className="h-12 w-12 bg-blue-500/10 rounded-2xl flex items-center justify-center flex-shrink-0">
             <Bell className="h-6 w-6 text-blue-600" />
           </div>
           <div>
-            <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">
+            <h3 className="text-xl font-black uppercase tracking-tight text-text-primary">
               Notifications
             </h3>
             <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">
@@ -182,9 +185,9 @@ export default function SettingsPage() {
             { key: "newsletter", label: "Newsletter", desc: "Weekly product highlights and store news" },
             { key: "sms", label: "SMS Alerts", desc: "Important alerts sent to your phone number" },
           ].map(({ key, label, desc }) => (
-            <div key={key} className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl">
+            <div key={key} className="flex items-center justify-between p-5 bg-bg rounded-2xl border border-border">
               <div>
-                <p className="text-sm font-bold text-slate-900 uppercase tracking-wide">{label}</p>
+                <p className="text-sm font-bold text-text-primary uppercase tracking-wide">{label}</p>
                 <p className="text-xs text-slate-500 font-medium mt-0.5">{desc}</p>
               </div>
               <button
@@ -203,13 +206,13 @@ export default function SettingsPage() {
           ))}
         </div>
 
-        <Button className="h-12 px-8 text-[10px] font-black uppercase tracking-widest rounded-2xl">
-          Save Preferences
+        <Button onClick={savePreferences} className="h-12 px-8 text-[10px] font-black uppercase tracking-widest rounded-2xl">
+          {preferencesSaved ? "Preferences Saved" : "Save Preferences"}
         </Button>
       </div>
 
       {/* Danger Zone */}
-      <div className="bg-white p-8 md:p-12 rounded-[48px] border-2 border-red-100 space-y-8">
+      <div className="bg-card text-text-primary p-8 md:p-12 rounded-[48px] border-2 border-red-500/20 space-y-8">
         <div className="flex items-center gap-4 pb-6 border-b border-red-50">
           <div className="h-12 w-12 bg-red-50 rounded-2xl flex items-center justify-center flex-shrink-0">
             <Shield className="h-6 w-6 text-red-500" />
@@ -230,7 +233,7 @@ export default function SettingsPage() {
               Delete Account
             </p>
             <p className="text-xs text-red-500 font-medium">
-              Permanently remove your account and all associated data. This cannot be undone.
+              Send a verified deletion request to support for secure processing.
             </p>
           </div>
           <Button
@@ -238,7 +241,7 @@ export default function SettingsPage() {
             className="bg-red-500 hover:bg-red-600 text-white h-12 px-8 text-[10px] font-black uppercase tracking-widest rounded-2xl gap-2 flex-shrink-0 shadow-lg shadow-red-200"
           >
             <Trash2 className="h-4 w-4" />
-            Delete Account
+            Request Deletion
           </Button>
         </div>
       </div>

@@ -39,7 +39,7 @@ export const HeroSliderClient = ({ slides: initialSlides }: { slides: HeroSlide[
   const slides = initialSlides.length > 0 ? initialSlides : fallbackSlides;
 
   return (
-    <section className="relative min-h-[720px] h-[88vh] max-h-[900px] overflow-hidden bg-secondary">
+    <section className="relative min-h-[720px] h-[88vh] max-h-[900px] overflow-hidden bg-black">
       <Swiper
         modules={[Pagination, Autoplay, EffectFade]}
         pagination={{ clickable: true, el: ".swiper-pagination-custom" }}
@@ -60,7 +60,7 @@ export const HeroSliderClient = ({ slides: initialSlides }: { slides: HeroSlide[
                   priority
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#11271e]/95 via-[#11271e]/70 to-[#11271e]/5 z-10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/5 z-10" />
                 <div className="absolute inset-0 z-10 opacity-20" style={{backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "28px 28px"}} />
               </div>
 
@@ -68,7 +68,7 @@ export const HeroSliderClient = ({ slides: initialSlides }: { slides: HeroSlide[
               <Container className="h-full relative z-20">
                 <div className="flex flex-col justify-center h-full max-w-3xl text-white pt-20">
                   <div className="animate-in fade-in slide-in-from-bottom-6 duration-1000">
-                    <span className="eyebrow text-[#F4C95D] mb-8">
+                    <span className="eyebrow text-violet-300 mb-8">
                       {slide.badge}
                     </span>
                     <h1 className="display-title mb-8 max-w-3xl">

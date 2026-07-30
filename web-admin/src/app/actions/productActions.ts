@@ -3,6 +3,19 @@
 import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
+interface BulkImportProduct {
+  name: string
+  description?: string | number | null
+  price: string | number | null
+  discount_price?: string | number | null
+  image?: string | number | null
+  category: string
+  stock?: string | number | null
+  is_new?: boolean
+  is_sale?: boolean
+  status?: 'active' | 'pending'
+}
+
 function getAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -116,52 +129,148 @@ export async function uploadImage(formData: FormData, bucket: string = 'products
   }
 }
 
-export async function bulkImportProducts(products: any[]) {
+export async function createProductImageUploadTarget(contentType: string) {
   try {
+    if (!contentType.startsWith('image/')) {
+      throw new Error('Only embedded image files can be restored.')
+    }
+
+    const extensionByType: Record<string, string> = {
+      'image/avif': 'avif',
+      'image/gif': 'gif',
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/svg+xml': 'svg',
+      'image/webp': 'webp',
+    }
+    const extension = extensionByType[contentType] || 'bin'
+    const filePath = `csv-imports/${crypto.randomUUID()}.${extension}`
     const supabaseAdmin = getAdminClient()
-    
-    const uniqueCategoryInputs = Array.from(new Set(products.map(p => p.category).filter(Boolean)))
-    const { data: existingCategories } = await supabaseAdmin.from('categories').select('id, name')
+
+    // Creating an existing bucket returns an error, so the signing request
+    // below is the authoritative check that the bucket is ready.
+    await supabaseAdmin.storage.createBucket('products', { public: true })
+
+    const { data, error } = await supabaseAdmin.storage
+      .from('products')
+      .createSignedUploadUrl(filePath)
+    if (error) throw error
+
+    const { data: publicUrlData } = supabaseAdmin.storage
+      .from('products')
+      .getPublicUrl(filePath)
+
+    return {
+      success: true,
+      path: data.path,
+      token: data.token,
+      publicUrl: publicUrlData.publicUrl,
+    }
+  } catch (error: unknown) {
+    console.error('Create product image upload target error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'The embedded image upload could not be prepared.',
+    }
+  }
+}
+
+export async function bulkImportProducts(products: BulkImportProduct[], startingRow = 2) {
+  try {
+    if (!Array.isArray(products) || products.length === 0) {
+      throw new Error('No products were supplied for import.')
+    }
+    if (products.length > 100) {
+      throw new Error('Each database import request is limited to 100 products.')
+    }
+
+    const supabaseAdmin = getAdminClient()
+    const uniqueCategoryInputs = Array.from(
+      new Set(products.map(product => String(product.category || '').trim()).filter(Boolean))
+    )
+    const { data: existingCategories, error: categoriesError } = await supabaseAdmin
+      .from('categories')
+      .select('id, name')
+    if (categoriesError) throw categoriesError
     
     const categoryMap: Record<string, string> = {}
     existingCategories?.forEach(cat => {
       categoryMap[cat.name.toLowerCase().trim()] = cat.id
-      categoryMap[cat.id] = cat.id
+      categoryMap[String(cat.id).toLowerCase().trim()] = cat.id
     })
 
     for (const catInput of uniqueCategoryInputs) {
-      const lowInput = String(catInput).toLowerCase().trim()
+      const lowInput = catInput.toLowerCase()
       if (!categoryMap[lowInput]) {
+        const baseId =
+          catInput
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '') || `category-${Date.now()}`
+        let categoryId = baseId
+        let suffix = 2
+        while (Object.values(categoryMap).includes(categoryId)) {
+          categoryId = `${baseId}-${suffix}`
+          suffix += 1
+        }
+
         const { data: newCat, error: catError } = await supabaseAdmin
           .from('categories')
-          .insert([{ name: catInput }])
-          .select()
+          .insert([{ id: categoryId, name: catInput }])
+          .select('id, name')
           .single()
         
-        if (!catError && newCat) {
-          categoryMap[lowInput] = newCat.id
-        } else if (existingCategories && existingCategories.length > 0) {
-          categoryMap[lowInput] = existingCategories[0].id
-        }
+        if (catError) throw new Error(`Could not create category "${catInput}": ${catError.message}`)
+        if (!newCat) throw new Error(`Could not create category "${catInput}".`)
+        categoryMap[lowInput] = newCat.id
+        categoryMap[String(newCat.id).toLowerCase()] = newCat.id
       }
     }
 
-    const finalProducts = products.map(p => ({
-      ...p,
-      category: categoryMap[String(p.category).toLowerCase().trim()] || (existingCategories?.[0]?.id || p.category)
-    }))
+    const finalProducts = products.map((product, index) => {
+      const categoryKey = String(product.category || '').toLowerCase().trim()
+      const category = categoryMap[categoryKey]
+      const price = Number(product.price)
+      const stock = Number(product.stock ?? 0)
+      const rowNumber = startingRow + index
+      if (!String(product.name || '').trim()) throw new Error(`Row ${rowNumber}: product name is required.`)
+      if (!Number.isFinite(price) || price < 0) throw new Error(`Row ${rowNumber}: price is invalid.`)
+      if (!category) throw new Error(`Row ${rowNumber}: category is invalid.`)
+      if (!Number.isFinite(stock) || stock < 0) throw new Error(`Row ${rowNumber}: stock is invalid.`)
 
-    const chunkSize = 50
-    for (let i = 0; i < finalProducts.length; i += chunkSize) {
-      const chunk = finalProducts.slice(i, i + chunkSize)
-      const { error } = await supabaseAdmin.from('products').insert(chunk)
-      if (error) throw error
-    }
+      const discountPrice =
+        product.discount_price === null || product.discount_price === undefined
+          ? null
+          : Number(product.discount_price)
+
+      return {
+        name: String(product.name).trim(),
+        description: String(product.description || 'No description provided.').trim(),
+        price,
+        discount_price:
+          discountPrice !== null && Number.isFinite(discountPrice) && discountPrice >= 0
+            ? discountPrice
+            : null,
+        image: String(product.image || '').trim(),
+        category,
+        stock: Math.trunc(stock),
+        is_new: Boolean(product.is_new),
+        is_sale: Boolean(product.is_sale),
+        status: product.status === 'active' ? 'active' : 'pending',
+      }
+    })
+
+    const { error } = await supabaseAdmin.from('products').insert(finalProducts)
+    if (error) throw error
     
     revalidatePath('/dashboard/products')
     return { success: true, count: finalProducts.length }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Bulk Import Error:', error)
-    return { success: false, error: error.message }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'The products could not be imported.',
+    }
   }
 }

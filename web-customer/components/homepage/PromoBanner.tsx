@@ -15,7 +15,7 @@ export const PromoBanner = () => {
             fill
             className="object-cover transition-transform duration-1000 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#11271e] via-[#11271e]/75 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-transparent" />
           
           <div className="absolute inset-0 flex flex-col justify-center p-12 md:p-24 text-white max-w-3xl space-y-8">
             <div className="animate-in fade-in slide-in-from-left-4 duration-1000">
@@ -26,7 +26,7 @@ export const PromoBanner = () => {
                 More joy. <br /> Less spend.
               </h2>
               <p className="text-lg md:text-xl text-white/80 max-w-md font-medium leading-relaxed mb-8">
-                Meet your next favorite find. Use code <span className="font-black text-secondary bg-[#F4C95D] px-2 py-1 rounded-lg">ELSHALOM30</span> for 30% off.
+                Meet your next favorite find from our thoughtfully selected everyday collection.
               </p>
               <div>
                 <Link href="/shop">

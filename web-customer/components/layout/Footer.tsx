@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 
 export const Footer = () => {
@@ -27,7 +27,7 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="bg-[#10261d] text-white pt-20 pb-10">
+    <footer className="bg-black text-white pt-20 pb-10">
       <Container>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand Info */}
@@ -40,22 +40,11 @@ export const Footer = () => {
             <p className="text-white/55 text-base leading-relaxed max-w-xs">
               Thoughtful products for better everyday living—selected with care and delivered across Nigeria.
             </p>
-            <div className="flex gap-4">
-              {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  className="h-11 w-11 rounded-xl border border-border flex items-center justify-center text-text-secondary hover:bg-primary hover:text-white hover:border-primary hover:-translate-y-1 transition-all shadow-sm"
-                >
-                  <Icon className="h-5 w-5" />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-8">
-            <h4 className="font-black text-[#F4C95D] uppercase tracking-widest text-[10px]">Shop Collection</h4>
+            <h4 className="font-black text-violet-300 uppercase tracking-widest text-[10px]">Shop Collection</h4>
             <ul className="space-y-4">
               {footerLinks.shop.map((link) => (
                 <li key={link.name}>
@@ -91,13 +80,13 @@ export const Footer = () => {
                 <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
                   <MapPin className="h-5 w-5 text-primary" />
                 </div>
-                    <span className="text-white/55 text-sm font-medium leading-relaxed">Lagos, Nigeria</span>
+                    <span className="text-white/55 text-sm font-medium leading-relaxed">199, Igbe Road, Ikorodu, Lagos</span>
               </li>
               <li className="flex items-center gap-4">
                 <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
                   <Phone className="h-5 w-5 text-primary" />
                 </div>
-                <span className="text-text-secondary text-sm font-bold tracking-tight">+234 800 123 4567</span>
+                <a href="tel:+2348023980907" className="text-text-secondary text-sm font-bold tracking-tight hover:text-primary">+2348023980907</a>
               </li>
               <li className="flex items-center gap-4">
                 <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">

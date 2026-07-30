@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import Link from "next/link";
 import { Mail, Lock, User, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -36,13 +37,16 @@ function RegisterContent() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-900">
+    <main className="min-h-screen flex flex-col md:flex-row bg-slate-50">
       {/* Form Side */}
-      <div className="flex-grow flex items-center justify-center p-8 md:p-16 lg:p-24 bg-white dark:bg-slate-950 order-2 md:order-1">
+      <div className="relative flex-grow flex items-center justify-center p-8 pt-24 md:p-16 lg:p-24 bg-bg text-text-primary order-2 md:order-1">
+        <div className="absolute left-6 top-6 md:left-8 md:top-8">
+          <ThemeToggle className="border border-border bg-card shadow-sm hover:bg-primary/10" />
+        </div>
         <div className="w-full max-w-md space-y-10">
           <div className="space-y-2 text-center md:text-left">
-            <h2 className="text-4xl font-extrabold uppercase tracking-tight text-slate-900 dark:text-white">Create Account</h2>
-            <p className="text-slate-500 font-medium tracking-wide">Join thousands of happy shoppers today</p>
+            <h2 className="text-4xl font-extrabold uppercase tracking-tight text-text-primary">Create Account</h2>
+            <p className="text-text-secondary font-medium tracking-wide">Join thousands of happy shoppers today</p>
           </div>
 
           {error && (
@@ -53,7 +57,7 @@ function RegisterContent() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Full Name</label>
+              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Full Name</label>
               <div className="relative">
                 <input 
                   type="text" 
@@ -61,14 +65,14 @@ function RegisterContent() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe" 
                   required
-                  className="w-full h-14 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl pl-12 pr-6 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                  className="w-full h-14 bg-card border border-border rounded-2xl pl-12 pr-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                 />
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-secondary" />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Email Address</label>
+              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Email Address</label>
               <div className="relative">
                 <input 
                   type="email" 
@@ -76,14 +80,14 @@ function RegisterContent() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com" 
                   required
-                  className="w-full h-14 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl pl-12 pr-6 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                  className="w-full h-14 bg-card border border-border rounded-2xl pl-12 pr-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                 />
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-secondary" />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Password</label>
+              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Password</label>
               <div className="relative">
                 <input 
                   type="password" 
@@ -91,9 +95,9 @@ function RegisterContent() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Minimum 8 characters" 
                   required
-                  className="w-full h-14 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl pl-12 pr-6 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                  className="w-full h-14 bg-card border border-border rounded-2xl pl-12 pr-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                 />
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-secondary" />
               </div>
             </div>
 
@@ -107,7 +111,7 @@ function RegisterContent() {
             </Button>
           </form>
 
-          <p className="text-center text-sm font-medium text-slate-500">
+          <p className="text-center text-sm font-medium text-text-secondary">
             Already have an account? <Link href="/auth/login" className="font-bold text-primary hover:underline">Sign in instead</Link>
           </p>
         </div>
@@ -144,7 +148,7 @@ function RegisterContent() {
 import { Suspense } from 'react';
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900"><p>Loading...</p></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-bg text-text-primary"><p>Loading...</p></div>}>
       <RegisterContent />
     </Suspense>
   )

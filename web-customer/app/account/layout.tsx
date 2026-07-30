@@ -6,6 +6,8 @@ import { createServer } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import { AccountSidebar } from "@/components/account/AccountSidebar";
 
+export const dynamic = "force-dynamic";
+
 export default async function AccountLayout({
   children,
 }: {
@@ -19,7 +21,7 @@ export default async function AccountLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-bg text-text-primary">
       <Header />
       <div className="pt-32 pb-20">
         <Container>

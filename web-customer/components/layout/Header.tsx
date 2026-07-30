@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, User, Search, Menu, ArrowUpRight } from "lucide-react";
+import { ShoppingBag, User, Menu, ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { MobileMenu } from "./MobileMenu";
@@ -13,6 +13,7 @@ import { NotificationBell } from "./NotificationBell";
 
 import { supabase } from "@/lib/supabase";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { InstantSearch } from "@/components/search/InstantSearch";
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,6 +23,7 @@ export const Header = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
+  const hasSolidBackground = isScrolled || pathname !== "/";
   const cartItemCount = useCartStore((state) => state.getTotalItems());
 
   useEffect(() => {
@@ -50,15 +52,14 @@ export const Header = () => {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Shop", href: "/shop" },
-    { name: "Categories", href: "/categories" },
     { name: "Contact", href: "/contact" },
   ];
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-[#FCF8F1]/92 dark:bg-slate-900/90 backdrop-blur-xl border-b border-border dark:border-slate-800 py-2"
+        hasSolidBackground
+          ? "bg-bg/92 backdrop-blur-xl border-b border-border py-2"
           : "bg-transparent py-4 text-white"
       }`}
     >
@@ -66,27 +67,20 @@ export const Header = () => {
         <div className="flex items-center justify-between gap-6">
           {/* Mobile Menu Toggle */}
           <button
-            className="lg:hidden p-2 text-text-secondary hover:text-primary transition-colors"
+            className={`lg:hidden p-2 hover:text-primary transition-colors ${hasSolidBackground ? "text-text-secondary" : "text-white"}`}
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="h-6 w-6" />
           </button>
 
           <Link href="/" className="flex-shrink-0 group">
-            <span className={`text-xl md:text-2xl font-black tracking-[-.06em] transition-transform group-hover:scale-105 inline-block uppercase ${isScrolled ? "text-secondary dark:text-white" : "text-white"}`}>
+            <span className={`text-xl md:text-2xl font-black tracking-[-.06em] transition-transform group-hover:scale-105 inline-block uppercase ${hasSolidBackground ? "text-text-primary" : "text-white"}`}>
               ELSHALOM<span className="text-primary">/</span>STORES
             </span>
           </Link>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden lg:flex flex-grow max-w-xl relative group">
-            <input
-              type="text"
-              placeholder="Search for premium products..."
-              className={`w-full border rounded-full py-2.5 pl-11 pr-4 text-sm outline-none transition-all focus:ring-4 focus:ring-primary/10 ${isScrolled ? "bg-white border-border placeholder:text-text-secondary/60" : "bg-white/10 border-white/20 text-white placeholder:text-white/60 backdrop-blur-md"}`}
-            />
-            <Search className={`absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 group-focus-within:text-primary transition-colors ${isScrolled ? "text-text-secondary" : "text-white/70"}`} />
-          </div>
+          <InstantSearch transparent={!hasSolidBackground} />
 
           {/* Actions */}
           <div className="flex items-center gap-2 md:gap-4">
@@ -97,7 +91,7 @@ export const Header = () => {
                   key={link.name}
                   href={link.href}
                   className={`text-[11px] uppercase tracking-[.14em] font-black transition-colors hover:text-primary ${
-                    pathname === link.href ? "text-primary" : isScrolled ? "text-text-secondary dark:text-slate-300" : "text-white/80"
+                    pathname === link.href ? "text-primary" : hasSolidBackground ? "text-text-secondary" : "text-white/80"
                   }`}
                 >
                   {link.name}
@@ -106,20 +100,20 @@ export const Header = () => {
             </nav>
 
             <div className="flex items-center gap-1 md:gap-2">
-              <ThemeToggle />
+              <ThemeToggle className={hasSolidBackground ? "" : "!text-white hover:!text-primary"} />
 
               {mounted && user ? (
                 <div className="flex items-center gap-1 md:gap-2">
                   <NotificationBell userId={user.id} />
                   <Link href="/profile">
-                    <Button variant="ghost" size="icon" className="text-text-secondary dark:text-slate-300 hover:text-primary">
+                    <Button variant="ghost" size="icon" className={hasSolidBackground ? "text-text-secondary hover:text-primary" : "text-white hover:text-primary"}>
                       <User className="h-5 w-5" />
                     </Button>
                   </Link>
                 </div>
               ) : mounted ? (
                 <Link href="/auth/login" className="hidden sm:block">
-                  <Button variant="ghost" className="text-text-secondary dark:text-slate-300 hover:text-primary font-bold uppercase tracking-widest text-[10px]">
+                  <Button variant="ghost" className={`${hasSolidBackground ? "text-text-secondary" : "text-white"} hover:text-primary font-bold uppercase tracking-widest text-[10px]`}>
                     Sign In <ArrowUpRight className="h-3 w-3 ml-1" />
                   </Button>
                 </Link>
@@ -128,7 +122,7 @@ export const Header = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative text-text-secondary dark:text-slate-300 hover:text-primary"
+                className={`relative ${hasSolidBackground ? "text-text-secondary" : "text-white"} hover:text-primary`}
                 onClick={() => setIsCartOpen(true)}
               >
                 <ShoppingBag className="h-5 w-5" />
