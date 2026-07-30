@@ -73,7 +73,7 @@ export const Header = () => {
           </button>
 
           <Link href="/" className="flex-shrink-0 group">
-            <span className={`text-xl md:text-2xl font-black tracking-[-.06em] transition-transform group-hover:scale-105 inline-block uppercase ${isScrolled ? "text-secondary dark:text-white" : "text-white"}`}>
+            <span className={`text-xl md:text-2xl font-black tracking-[-.06em] transition-transform group-hover:scale-105 inline-block uppercase ${isScrolled ? "text-text-primary" : "text-white"}`}>
               ELSHALOM<span className="text-primary">/</span>STORES
             </span>
           </Link>
