@@ -30,7 +30,9 @@ export default function ForgotPasswordPage() {
       }
 
       // 2. Request reset
-      const redirectUrl = process.env.NEXT_PUBLIC_ADMIN_URL || window.location.origin
+      // Use the origin serving the admin app so preview/production deployments
+      // cannot generate recovery links for a stale configured domain.
+      const redirectUrl = window.location.origin.replace(/\/+$/, '')
       const { error: resetError } = await supabaseAuth.auth.resetPasswordForEmail(email, {
         redirectTo: `${redirectUrl}/reset-password`,
       })
