@@ -32,6 +32,8 @@ interface ImportState {
   batchNumber: number
   totalBatches: number
   batchProgress: number
+  batchProcessedRows: number
+  batchTotalRows: number
   processedRows: number
   totalRows: number
 }
@@ -141,6 +143,8 @@ export function CSVImporter({
               batchNumber: 0,
               totalBatches: 0,
               batchProgress: 0,
+              batchProcessedRows: 0,
+              batchTotalRows: 0,
               processedRows: totalRows,
               totalRows,
             })
@@ -188,6 +192,8 @@ export function CSVImporter({
           batchNumber,
           totalBatches,
           batchProgress: 0,
+          batchProcessedRows: 0,
+          batchTotalRows: rows.length,
           processedRows,
           totalRows,
         })
@@ -205,6 +211,8 @@ export function CSVImporter({
               batchNumber,
               totalBatches,
               batchProgress: Math.round((safeProcessed / rows.length) * 100),
+              batchProcessedRows: safeProcessed,
+              batchTotalRows: rows.length,
               processedRows: completedBeforeBatch + safeProcessed,
               totalRows,
             })
@@ -279,6 +287,8 @@ export function CSVImporter({
       batchNumber: 0,
       totalBatches: 0,
       batchProgress: 0,
+      batchProcessedRows: 0,
+      batchTotalRows: 0,
       processedRows: 0,
       totalRows: 0,
     })
@@ -309,6 +319,10 @@ export function CSVImporter({
     importState?.phase === 'importing' && importState.totalRows > 0
       ? Math.round((importState.processedRows / importState.totalRows) * 100)
       : 0
+  const batchesRemaining =
+    importState?.phase === 'importing'
+      ? Math.max(0, importState.totalBatches - importState.batchNumber)
+      : 0
 
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
@@ -336,28 +350,55 @@ export function CSVImporter({
       )}
 
       {isImporting && importState.phase === 'importing' && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
             <span className="text-neutral-300 flex items-center gap-2 text-sm font-semibold">
               <Loader2 className="w-4 h-4 animate-spin text-primary" />
               Batch {importState.batchNumber.toLocaleString()} of {importState.totalBatches.toLocaleString()}
             </span>
-            <span className="font-bold text-primary tabular-nums text-lg">{importState.batchProgress}%</span>
+            <span className="text-xs font-semibold text-neutral-400">
+              {batchesRemaining.toLocaleString()} remaining after this batch
+            </span>
           </div>
-          <div className="h-3 w-full bg-neutral-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full transition-all duration-300 ease-out relative"
-              style={{ width: `${importState.batchProgress}%` }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse rounded-full" />
+
+          <div className="space-y-2 rounded-lg border border-neutral-800 bg-neutral-950/60 p-3">
+            <div className="flex items-center justify-between text-xs">
+              <div>
+                <p className="font-semibold text-neutral-300">Current batch progress</p>
+                <p className="mt-0.5 text-neutral-500">
+                  {importState.batchProcessedRows.toLocaleString()} / {importState.batchTotalRows.toLocaleString()} products
+                </p>
+              </div>
+              <span className="font-bold text-primary tabular-nums text-lg">{importState.batchProgress}%</span>
+            </div>
+            <div className="h-3 w-full bg-neutral-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-300 ease-out relative"
+                style={{ width: `${importState.batchProgress}%` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse rounded-full" />
+              </div>
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs text-neutral-500">
-            <span>
-              {importState.processedRows.toLocaleString()} / {importState.totalRows.toLocaleString()} products
-            </span>
-            <span>{overallProgress}% overall</span>
+
+          <div className="space-y-2 rounded-lg border border-neutral-800 bg-neutral-950/60 p-3">
+            <div className="flex items-center justify-between text-xs">
+              <div>
+                <p className="font-semibold text-neutral-300">Overall import progress</p>
+                <p className="mt-0.5 text-neutral-500">
+                  {importState.processedRows.toLocaleString()} / {importState.totalRows.toLocaleString()} products
+                </p>
+              </div>
+              <span className="font-bold text-white tabular-nums text-lg">{overallProgress}%</span>
+            </div>
+            <div className="h-2.5 w-full bg-neutral-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-primary/70 to-primary rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${overallProgress}%` }}
+              />
+            </div>
           </div>
+
           <p className="text-xs text-neutral-500 text-center">Please wait — do not close this window</p>
         </div>
       )}
