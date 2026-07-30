@@ -58,7 +58,7 @@ export const Header = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-[#FCF8F1]/92 dark:bg-slate-900/90 backdrop-blur-xl border-b border-border dark:border-slate-800 py-2"
+          ? "bg-bg/92 backdrop-blur-xl border-b border-border py-2"
           : "bg-transparent py-4 text-white"
       }`}
     >
@@ -66,7 +66,7 @@ export const Header = () => {
         <div className="flex items-center justify-between gap-6">
           {/* Mobile Menu Toggle */}
           <button
-            className="lg:hidden p-2 text-text-secondary hover:text-primary transition-colors"
+            className={`lg:hidden p-2 hover:text-primary transition-colors ${isScrolled ? "text-text-secondary" : "text-white"}`}
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="h-6 w-6" />
@@ -83,7 +83,7 @@ export const Header = () => {
             <input
               type="text"
               placeholder="Search for premium products..."
-              className={`w-full border rounded-full py-2.5 pl-11 pr-4 text-sm outline-none transition-all focus:ring-4 focus:ring-primary/10 ${isScrolled ? "bg-white border-border placeholder:text-text-secondary/60" : "bg-white/10 border-white/20 text-white placeholder:text-white/60 backdrop-blur-md"}`}
+              className={`w-full border rounded-full py-2.5 pl-11 pr-4 text-sm outline-none transition-all focus:ring-4 focus:ring-primary/10 ${isScrolled ? "bg-card border-border text-text-primary placeholder:text-text-secondary/60" : "bg-white/10 border-white/20 text-white placeholder:text-white/60 backdrop-blur-md"}`}
             />
             <Search className={`absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 group-focus-within:text-primary transition-colors ${isScrolled ? "text-text-secondary" : "text-white/70"}`} />
           </div>
@@ -106,20 +106,20 @@ export const Header = () => {
             </nav>
 
             <div className="flex items-center gap-1 md:gap-2">
-              <ThemeToggle />
+              <ThemeToggle className={isScrolled ? "" : "!text-white hover:!text-primary"} />
 
               {mounted && user ? (
                 <div className="flex items-center gap-1 md:gap-2">
                   <NotificationBell userId={user.id} />
                   <Link href="/profile">
-                    <Button variant="ghost" size="icon" className="text-text-secondary dark:text-slate-300 hover:text-primary">
+                    <Button variant="ghost" size="icon" className={isScrolled ? "text-text-secondary hover:text-primary" : "text-white hover:text-primary"}>
                       <User className="h-5 w-5" />
                     </Button>
                   </Link>
                 </div>
               ) : mounted ? (
                 <Link href="/auth/login" className="hidden sm:block">
-                  <Button variant="ghost" className="text-text-secondary dark:text-slate-300 hover:text-primary font-bold uppercase tracking-widest text-[10px]">
+                  <Button variant="ghost" className={`${isScrolled ? "text-text-secondary" : "text-white"} hover:text-primary font-bold uppercase tracking-widest text-[10px]`}>
                     Sign In <ArrowUpRight className="h-3 w-3 ml-1" />
                   </Button>
                 </Link>
@@ -128,7 +128,7 @@ export const Header = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative text-text-secondary dark:text-slate-300 hover:text-primary"
+                className={`relative ${isScrolled ? "text-text-secondary" : "text-white"} hover:text-primary`}
                 onClick={() => setIsCartOpen(true)}
               >
                 <ShoppingBag className="h-5 w-5" />

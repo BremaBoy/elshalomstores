@@ -6,9 +6,9 @@
 @import "swiper/css/effect-fade";
 
 @theme {
-  --color-primary: #E4572E;
-  --color-primary-hover: #C94320;
-  --color-secondary: #18392B;
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: #09090B;
   
   --color-bg: var(--background);
   --color-card: var(--card);
@@ -23,21 +23,23 @@
   --foreground: #17211B;
   --card: #F3EDDF;
   --card-foreground: #17211B;
-  --primary: #E4572E;
+  --primary: #6D28D9;
+  --primary-hover: #5B21B6;
   --primary-foreground: #FFFFFF;
   --border: #DED6C6;
   --muted: #69736D;
 }
 
 .dark {
-  --background: #0f172a;
-  --foreground: #f8fafc;
-  --card: #1e293b;
-  --card-foreground: #f8fafc;
-  --primary: #8b5cf6;
+  --background: #050505;
+  --foreground: #FAFAFA;
+  --card: #111113;
+  --card-foreground: #FAFAFA;
+  --primary: #A78BFA;
+  --primary-hover: #8B5CF6;
   --primary-foreground: #ffffff;
-  --border: #334155;
-  --muted: #94a3b8;
+  --border: #27272A;
+  --muted: #A1A1AA;
 }
 
 body {
@@ -48,7 +50,7 @@ body {
 }
 
 ::selection {
-  background: #E4572E;
+  background: var(--primary);
   color: white;
 }
 

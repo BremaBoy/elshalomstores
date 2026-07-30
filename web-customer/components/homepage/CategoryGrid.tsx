@@ -42,10 +42,10 @@ export const CategoryGrid = async () => {
                 <div className={`absolute inset-0 ${cat.color} opacity-10 group-hover:opacity-20 transition-opacity`} />
               )}
               
-              <div className="absolute inset-0 bg-gradient-to-t from-[#10261d]/90 via-[#10261d]/5 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/5 to-transparent" />
               
               <div className="absolute bottom-0 left-0 right-0 p-8 space-y-4">
-                <div className="h-12 w-12 bg-[#F4C95D] rounded-full flex items-center justify-center text-2xl shadow-lg shadow-black/10 transform group-hover:-translate-y-2 transition-all duration-500">
+                <div className="h-12 w-12 bg-violet-300 text-black rounded-full flex items-center justify-center text-2xl shadow-lg shadow-black/10 transform group-hover:-translate-y-2 transition-all duration-500">
                   {cat.icon || '📦'}
                 </div>
                 <div>

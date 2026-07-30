@@ -42,18 +42,18 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
 
       {/* Drawer */}
       <div
-        className={`fixed inset-y-0 left-0 w-[300px] bg-white z-[70] transition-transform duration-500 ease-in-out transform shadow-2xl ${
+        className={`fixed inset-y-0 left-0 w-[300px] bg-bg text-text-primary z-[70] transition-transform duration-500 ease-in-out transform shadow-2xl ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border dark:border-slate-800">
-            <span className="text-xl font-black text-primary tracking-tighter">ELSHALOM<span className="text-secondary dark:text-slate-300">STORES</span></span>
+            <span className="text-xl font-black text-text-primary tracking-[-.06em]">ELSHALOM<span className="text-primary">/</span>STORES</span>
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <button onClick={onClose} className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full transition-colors">
-                <X className="h-6 w-6 text-text-secondary dark:text-slate-400" />
+              <button onClick={onClose} className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors">
+                <X className="h-6 w-6 text-text-secondary" />
               </button>
             </div>
           </div>
@@ -77,7 +77,7 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
               <Link
                 key={link.name}
                 href={link.href}
-                className="flex items-center justify-between px-6 py-4 rounded-xl hover:bg-slate-50 transition-colors group"
+                className="flex items-center justify-between px-6 py-4 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors group"
                 onClick={onClose}
               >
                 <span className="font-bold text-sm text-text-secondary group-hover:text-primary transition-colors">{link.name}</span>
@@ -86,7 +86,7 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
             ))}
 
           {/* Footer */}
-          <div className="p-6 border-t border-border bg-slate-50/50">
+          <div className="p-6 border-t border-border bg-card">
             <Link href="/cart" onClick={onClose}>
               <Button className="w-full gap-3 h-12 rounded-xl shadow-lg shadow-primary/20">
                 <ShoppingCart className="h-5 w-5" />
