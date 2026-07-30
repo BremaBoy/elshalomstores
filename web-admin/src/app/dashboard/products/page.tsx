@@ -9,15 +9,23 @@ import {
   Trash2,
   X,
   Upload,
+  Download,
   ArrowUpDown,
   Loader2,
   AlertCircle
 } from 'lucide-react'
+import Papa from 'papaparse'
 import { ProductForm } from '@/components/forms/ProductForm'
 import { CSVImporter, type CSVBatchContext } from '@/components/ui/CSVImporter'
 import { Category, Product } from '@/types'
 import { supabase, supabaseAuth } from '@/lib/supabase'
-import { createProduct, updateProduct, deleteProduct as removeProduct, bulkImportProducts } from '@/app/actions/productActions'
+import {
+  createProduct,
+  updateProduct,
+  deleteProduct as removeProduct,
+  bulkImportProducts,
+  createProductImageUploadTarget,
+} from '@/app/actions/productActions'
 
 export default function ProductsPage() {
   const [showForm, setShowForm] = useState(false)
@@ -29,6 +37,16 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'pending'>('all')
+  const [showExport, setShowExport] = useState(false)
+  const [exportScope, setExportScope] = useState<'all' | 'category'>('all')
+  const [exportCategory, setExportCategory] = useState('')
+  const [isExporting, setIsExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+  const [exportProgress, setExportProgress] = useState<{
+    stage: 'loading' | 'embedding' | 'preparing'
+    current: number
+    total: number
+  } | null>(null)
 
   // Fetch products and categories on mount
   useEffect(() => {
@@ -100,6 +118,176 @@ export default function ProductsPage() {
       setProducts(products.filter(p => p.id !== id))
     } catch (err: any) {
       alert(`Error deleting product: ${err.message}`)
+    }
+  }
+
+  const readBlobAsDataUrl = (blob: Blob) => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(String(reader.result))
+      reader.onerror = () => reject(reader.error || new Error('The image could not be embedded.'))
+      reader.readAsDataURL(blob)
+    })
+  }
+
+  const fetchProductsForExport = async () => {
+    const pageSize = 1_000
+    const exportedProducts: Product[] = []
+    let from = 0
+
+    while (true) {
+      let query = supabaseAuth
+        .from('products')
+        .select('*')
+        .order('id', { ascending: true })
+        .range(from, from + pageSize - 1)
+
+      if (exportScope === 'category') {
+        query = query.eq('category', exportCategory)
+      }
+
+      const { data, error: queryError } = await query
+      if (queryError) throw queryError
+
+      const page = (data || []) as Product[]
+      exportedProducts.push(...page)
+      setExportProgress({
+        stage: 'loading',
+        current: exportedProducts.length,
+        total: 0,
+      })
+
+      if (page.length < pageSize) break
+      from += pageSize
+    }
+
+    return exportedProducts
+  }
+
+  const embedExportImages = async (productsToExport: Product[]) => {
+    const rows = new Array<Record<string, string | number | boolean | null>>(productsToExport.length)
+    const categoryNames = new Map(categories.map(category => [category.id, category.name]))
+    const embeddedImageCache = new Map<string, Promise<string>>()
+    let nextIndex = 0
+    let completed = 0
+    const workerCount = Math.min(4, productsToExport.length)
+
+    const worker = async () => {
+      while (nextIndex < productsToExport.length) {
+        const index = nextIndex
+        nextIndex += 1
+        const product = productsToExport[index]
+        let embeddedImage = ''
+
+        if (product.image) {
+          if (product.image.startsWith('data:image/')) {
+            embeddedImage = product.image
+          } else {
+            let embeddingPromise = embeddedImageCache.get(product.image)
+            if (!embeddingPromise) {
+              embeddingPromise = (async () => {
+                let imageResponse: Response
+                try {
+                  imageResponse = await fetch(product.image, { cache: 'no-store' })
+                } catch {
+                  throw new Error(
+                    `The image for "${product.name}" could not be embedded. Confirm that its image URL permits downloads.`
+                  )
+                }
+
+                if (!imageResponse.ok) {
+                  throw new Error(
+                    `The image for "${product.name}" returned HTTP ${imageResponse.status}; export was stopped so no image is omitted.`
+                  )
+                }
+
+                const imageBlob = await imageResponse.blob()
+                if (!imageBlob.type.startsWith('image/')) {
+                  throw new Error(`The image URL for "${product.name}" did not return an image file.`)
+                }
+                return readBlobAsDataUrl(imageBlob)
+              })()
+              embeddedImageCache.set(product.image, embeddingPromise)
+            }
+            embeddedImage = await embeddingPromise
+          }
+        }
+
+        rows[index] = {
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          discount_price: product.discount_price ?? null,
+          category: categoryNames.get(product.category) || product.category,
+          stock: product.stock,
+          image: embeddedImage,
+          is_new: product.is_new,
+          is_sale: product.is_sale,
+          status: product.status,
+        }
+
+        completed += 1
+        setExportProgress({
+          stage: 'embedding',
+          current: completed,
+          total: productsToExport.length,
+        })
+      }
+    }
+
+    await Promise.all(Array.from({ length: workerCount }, () => worker()))
+    return rows
+  }
+
+  const handleProductExport = async () => {
+    if (exportScope === 'category' && !exportCategory) {
+      setExportError('Choose a category to export.')
+      return
+    }
+
+    setIsExporting(true)
+    setExportError(null)
+    setExportProgress({ stage: 'loading', current: 0, total: 0 })
+
+    try {
+      const productsToExport = await fetchProductsForExport()
+      if (productsToExport.length === 0) {
+        throw new Error('No products were found for this export.')
+      }
+
+      setExportProgress({ stage: 'embedding', current: 0, total: productsToExport.length })
+      const exportRows = await embedExportImages(productsToExport)
+      setExportProgress({ stage: 'preparing', current: productsToExport.length, total: productsToExport.length })
+
+      const csv = Papa.unparse(exportRows, {
+        columns: ['name', 'description', 'price', 'discount_price', 'category', 'stock', 'image', 'is_new', 'is_sale', 'status'],
+      })
+      const csvBlob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+      if (csvBlob.size > 500 * 1024 * 1024) {
+        throw new Error('The embedded-image CSV is larger than 500 MB. Export a smaller category instead.')
+      }
+
+      const categoryName = categories.find(category => category.id === exportCategory)?.name || 'all-products'
+      const safeName = (exportScope === 'category' ? categoryName : 'all-products')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+      const objectUrl = URL.createObjectURL(csvBlob)
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = `elshalom-${safeName || 'products'}-${new Date().toISOString().slice(0, 10)}.csv`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0)
+      setShowExport(false)
+    } catch (exportFailure) {
+      setExportError(
+        exportFailure instanceof Error ? exportFailure.message : 'The product export could not be completed.'
+      )
+    } finally {
+      setIsExporting(false)
+      setExportProgress(null)
     }
   }
 
@@ -199,6 +387,66 @@ export default function ProductsPage() {
     formatCSVRows(data, startRow)
   }
 
+  const restoreEmbeddedImages = async (
+    productsToRestore: ReturnType<typeof formatCSVRows>,
+    startingRow: number,
+  ) => {
+    const restoredProducts = productsToRestore.map(product => ({
+      ...product,
+      image: String(product.image || ''),
+    }))
+    const embeddedIndexes = restoredProducts
+      .map((product, index) => product.image.startsWith('data:image/') ? index : -1)
+      .filter(index => index >= 0)
+    let nextEmbeddedIndex = 0
+    const workerCount = Math.min(4, embeddedIndexes.length)
+
+    const worker = async () => {
+      while (nextEmbeddedIndex < embeddedIndexes.length) {
+        const embeddedListIndex = nextEmbeddedIndex
+        nextEmbeddedIndex += 1
+        const productIndex = embeddedIndexes[embeddedListIndex]
+        const product = restoredProducts[productIndex]
+        const imageResponse = await fetch(product.image)
+        const imageBlob = await imageResponse.blob()
+
+        if (!imageBlob.type.startsWith('image/')) {
+          throw new Error(`Row ${startingRow + productIndex}: the embedded image is invalid.`)
+        }
+
+        const uploadTarget = await createProductImageUploadTarget(imageBlob.type)
+        if (
+          !uploadTarget.success ||
+          !uploadTarget.path ||
+          !uploadTarget.token ||
+          !uploadTarget.publicUrl
+        ) {
+          throw new Error(
+            `Row ${startingRow + productIndex}: ${uploadTarget.error || 'the embedded image upload could not be prepared.'}`
+          )
+        }
+
+        const { error: uploadError } = await supabaseAuth.storage
+          .from('products')
+          .uploadToSignedUrl(uploadTarget.path, uploadTarget.token, imageBlob, {
+            contentType: imageBlob.type,
+            cacheControl: '31536000',
+          })
+        if (uploadError) {
+          throw new Error(`Row ${startingRow + productIndex}: image upload failed: ${uploadError.message}`)
+        }
+
+        restoredProducts[productIndex] = {
+          ...product,
+          image: uploadTarget.publicUrl,
+        }
+      }
+    }
+
+    await Promise.all(Array.from({ length: workerCount }, () => worker()))
+    return restoredProducts
+  }
+
   const getSafeRequestChunk = <T,>(rows: T[], offset: number, startingRow: number) => {
     const maxProductsPerRequest = 100
     const maxSerializedBytes = 3 * 1024 * 1024
@@ -216,10 +464,11 @@ export default function ProductsPage() {
 
   const handleCSVBatch = async (data: Record<string, string>[], context: CSVBatchContext) => {
     const formatted = formatCSVRows(data, context.startRow)
+    const restoredProducts = await restoreEmbeddedImages(formatted, context.startRow)
     let importedInBatch = 0
 
-    while (importedInBatch < formatted.length) {
-      const requestChunk = getSafeRequestChunk(formatted, importedInBatch, context.startRow)
+    while (importedInBatch < restoredProducts.length) {
+      const requestChunk = getSafeRequestChunk(restoredProducts, importedInBatch, context.startRow)
       const result = await bulkImportProducts(
         requestChunk,
         context.startRow + importedInBatch,
@@ -254,6 +503,16 @@ export default function ProductsPage() {
     if (activeTab === 'all') return true
     return p.status === activeTab
   })
+  const exportProgressPercent =
+    exportProgress && exportProgress.total > 0
+      ? Math.min(100, Math.round((exportProgress.current / exportProgress.total) * 100))
+      : 0
+  const exportStageLabel =
+    exportProgress?.stage === 'loading'
+      ? 'Loading products'
+      : exportProgress?.stage === 'embedding'
+        ? 'Embedding product images'
+        : 'Preparing CSV download'
 
   return (
     <div className="space-y-6">
@@ -263,7 +522,17 @@ export default function ProductsPage() {
           <h1 className="text-2xl font-bold text-white">Products</h1>
           <p className="text-sm text-neutral-400">Manage your inventory and product listings</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => {
+              setExportError(null)
+              setShowExport(true)
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-800 text-neutral-300 rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Export Products
+          </button>
           <button 
             onClick={() => setShowImport(true)}
             className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-800 text-neutral-300 rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors"
@@ -432,6 +701,146 @@ export default function ProductsPage() {
                 onSubmit={handleProductSubmit}
                 isLoading={isSubmitting}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-lg shadow-2xl">
+            <div className="p-6 border-b border-neutral-800 flex items-center justify-between text-white">
+              <div>
+                <h2 className="text-xl font-bold">Export Products</h2>
+                <p className="mt-1 text-xs text-neutral-500">Images will be embedded inside the CSV.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowExport(false)}
+                disabled={isExporting}
+                aria-label="Close export products"
+                className="text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {!isExporting ? (
+                <>
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">What should be exported?</p>
+                    <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${exportScope === 'all' ? 'border-primary bg-primary/10' : 'border-neutral-800 bg-neutral-900 hover:border-neutral-700'}`}>
+                      <input
+                        type="radio"
+                        name="export-scope"
+                        value="all"
+                        checked={exportScope === 'all'}
+                        onChange={() => {
+                          setExportScope('all')
+                          setExportError(null)
+                        }}
+                        className="mt-1 accent-primary"
+                      />
+                      <span>
+                        <span className="block text-sm font-semibold text-white">All products</span>
+                        <span className="mt-1 block text-xs text-neutral-500">Export the complete product catalogue.</span>
+                      </span>
+                    </label>
+
+                    <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${exportScope === 'category' ? 'border-primary bg-primary/10' : 'border-neutral-800 bg-neutral-900 hover:border-neutral-700'}`}>
+                      <input
+                        type="radio"
+                        name="export-scope"
+                        value="category"
+                        checked={exportScope === 'category'}
+                        onChange={() => {
+                          setExportScope('category')
+                          setExportError(null)
+                        }}
+                        className="mt-1 accent-primary"
+                      />
+                      <span className="w-full">
+                        <span className="block text-sm font-semibold text-white">One category</span>
+                        <span className="mt-1 block text-xs text-neutral-500">Export every product from a selected category.</span>
+                        {exportScope === 'category' && (
+                          <select
+                            value={exportCategory}
+                            onChange={(event) => {
+                              setExportCategory(event.target.value)
+                              setExportError(null)
+                            }}
+                            onClick={(event) => event.stopPropagation()}
+                            className="mt-3 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white focus:border-primary focus:outline-none"
+                          >
+                            <option value="">Select a category</option>
+                            {categories.map(category => (
+                              <option key={category.id} value={category.id}>{category.name}</option>
+                            ))}
+                          </select>
+                        )}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="rounded-lg border border-primary/20 bg-primary/10 p-3 text-xs leading-relaxed text-neutral-300">
+                    Embedded images make the CSV much larger, but the file remains self-contained and can restore its images when imported again.
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-4 rounded-xl border border-neutral-800 bg-neutral-900 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2 text-sm font-semibold text-neutral-300">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      {exportStageLabel}
+                    </span>
+                    <span className="font-bold text-primary tabular-nums">{exportProgressPercent}%</span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-neutral-800">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all duration-300"
+                      style={{ width: `${exportProgressPercent}%` }}
+                    />
+                  </div>
+                  {exportProgress && exportProgress.total > 0 && (
+                    <p className="text-center text-xs text-neutral-500">
+                      {exportProgress.current.toLocaleString()} / {exportProgress.total.toLocaleString()} products
+                    </p>
+                  )}
+                  {exportProgress?.stage === 'loading' && exportProgress.current > 0 && (
+                    <p className="text-center text-xs text-neutral-500">
+                      {exportProgress.current.toLocaleString()} products loaded
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {exportError && (
+                <div role="alert" className="flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+                  <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  <span>{exportError}</span>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 border-t border-neutral-800 pt-5">
+                <button
+                  type="button"
+                  onClick={() => setShowExport(false)}
+                  disabled={isExporting}
+                  className="rounded-lg border border-neutral-800 px-4 py-2 text-sm font-medium text-neutral-300 hover:bg-neutral-900 disabled:opacity-40"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleProductExport}
+                  disabled={isExporting}
+                  className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                >
+                  {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                  {isExporting ? 'Exporting...' : 'Export CSV'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

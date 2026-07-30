@@ -129,6 +129,52 @@ export async function uploadImage(formData: FormData, bucket: string = 'products
   }
 }
 
+export async function createProductImageUploadTarget(contentType: string) {
+  try {
+    if (!contentType.startsWith('image/')) {
+      throw new Error('Only embedded image files can be restored.')
+    }
+
+    const extensionByType: Record<string, string> = {
+      'image/avif': 'avif',
+      'image/gif': 'gif',
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/svg+xml': 'svg',
+      'image/webp': 'webp',
+    }
+    const extension = extensionByType[contentType] || 'bin'
+    const filePath = `csv-imports/${crypto.randomUUID()}.${extension}`
+    const supabaseAdmin = getAdminClient()
+
+    // Creating an existing bucket returns an error, so the signing request
+    // below is the authoritative check that the bucket is ready.
+    await supabaseAdmin.storage.createBucket('products', { public: true })
+
+    const { data, error } = await supabaseAdmin.storage
+      .from('products')
+      .createSignedUploadUrl(filePath)
+    if (error) throw error
+
+    const { data: publicUrlData } = supabaseAdmin.storage
+      .from('products')
+      .getPublicUrl(filePath)
+
+    return {
+      success: true,
+      path: data.path,
+      token: data.token,
+      publicUrl: publicUrlData.publicUrl,
+    }
+  } catch (error: unknown) {
+    console.error('Create product image upload target error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'The embedded image upload could not be prepared.',
+    }
+  }
+}
+
 export async function bulkImportProducts(products: BulkImportProduct[], startingRow = 2) {
   try {
     if (!Array.isArray(products) || products.length === 0) {
