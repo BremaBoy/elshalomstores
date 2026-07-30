@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
       // cannot generate recovery links for a stale configured domain.
       const redirectUrl = window.location.origin.replace(/\/+$/, '')
       const { error: resetError } = await supabaseAuth.auth.resetPasswordForEmail(email, {
-        redirectTo: `${redirectUrl}/reset-password`,
+        redirectTo: `${redirectUrl}/auth/confirm`,
       })
       if (resetError) throw resetError
       setIsSent(true)
