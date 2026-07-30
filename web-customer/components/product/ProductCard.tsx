@@ -30,6 +30,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
   }, []);
 
@@ -78,7 +79,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <div className="group relative bg-white rounded-3xl border border-border overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2">
+    <div className="group relative bg-[#FCF8F1] rounded-[1.75rem] border border-black/10 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-black/15 hover:-translate-y-2 text-text-primary">
       {/* Badges */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
         {product.isNew && <Badge variant="primary">New Arrival</Badge>}
@@ -119,7 +120,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </div>
 
       {/* Image Container */}
-      <Link href={`/product/${product.id}`} className="block relative aspect-square overflow-hidden bg-card">
+      <Link href={`/product/${product.id}`} className="block relative aspect-[4/5] overflow-hidden bg-card">
         <Image
           src={imgSrc}
           alt={product.name}
@@ -132,7 +133,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </Link>
 
       {/* Content */}
-      <div className="p-6 space-y-3">
+      <div className="p-5 space-y-3">
         <div className="flex justify-between items-start">
           <p className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em]">
             {product.category}
@@ -146,7 +147,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </div>
 
         <Link href={`/product/${product.id}`}>
-          <h3 className="text-sm md:text-base font-black text-text-primary line-clamp-1 group-hover:text-primary transition-colors uppercase tracking-tight">
+          <h3 className="text-base md:text-lg font-bold text-text-primary line-clamp-1 group-hover:text-primary transition-colors tracking-tight">
             {product.name}
           </h3>
         </Link>
@@ -167,7 +168,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <Button
           onClick={handleAddToCart}
           variant={isOutOfStock ? "outline" : "primary"}
-          className={`w-full mt-4 h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${
+          className={`w-full mt-4 h-12 rounded-full font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${
             isOutOfStock ? "border-amber-200 text-amber-600 hover:bg-amber-50" : "shadow-primary/20"
           }`}
         >
