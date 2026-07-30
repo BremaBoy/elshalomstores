@@ -6,6 +6,8 @@ import { createServer } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import { AccountSidebar } from "@/components/account/AccountSidebar";
 
+export const dynamic = "force-dynamic";
+
 export default async function AccountLayout({
   children,
 }: {

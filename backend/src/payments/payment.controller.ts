@@ -28,22 +28,33 @@ export const initializePayment = async (req: any, res: Response, next: NextFunct
       res.status(404); throw new Error('Order not found');
     }
 
+    if (order.user_id !== req.user?.id) {
+      res.status(403); throw new Error('Not authorized to pay for this order');
+    }
+
     if (order.payment_status === 'successful' || order.payment_status === 'Paid') {
       res.status(400); throw new Error('Order is already paid');
     }
 
     let authUrl = '';
     let reference = `REF-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const customerSiteUrl = process.env.CUSTOMER_SITE_URL || process.env.CLIENT_URL;
+    if (!customerSiteUrl) {
+      throw new Error('CUSTOMER_SITE_URL is not configured');
+    }
 
     // 2. Initialize with correct gateway
-    const email = req.body.email || req.user?.email || 'customer@example.com';
+    const email = req.user?.email;
+    if (!email) {
+      res.status(400); throw new Error('A verified account email is required');
+    }
 
     if (gateway === 'paystack') {
       const response = await paystackService.initializePayment({
         email: email,
         amount: order.total_amount,
         reference: reference,
-        callback_url: `${process.env.CLIENT_URL}/checkout/verify?reference=${reference}&gateway=paystack`,
+        callback_url: `${customerSiteUrl}/checkout/verify?reference=${reference}&gateway=paystack`,
         metadata: { order_id: order.id }
       });
       authUrl = response.authorization_url;
@@ -57,7 +68,7 @@ export const initializePayment = async (req: any, res: Response, next: NextFunct
         },
         amount: order.total_amount,
         tx_ref: reference,
-        redirect_url: `${process.env.CLIENT_URL}/checkout/verify?reference=${reference}&gateway=flutterwave`,
+        redirect_url: `${customerSiteUrl}/checkout/verify?reference=${reference}&gateway=flutterwave`,
         meta: { order_id: order.id }
       });
       authUrl = response.data.link; // authorization_url in Flutterwave v3
@@ -215,7 +226,31 @@ export const verifyPaymentEndpoint = async (req: Request, res: Response, next: N
     }
 
     // 2. If successful, update DB (similar to webhook but as a safety net)
-    if (verifyData && (verifyData.status === 'success' || verifyData.status === 'successful')) {
+    const { data: paymentRecord } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('reference', reference)
+      .single();
+
+    if (!paymentRecord || paymentRecord.customer_id !== (req as any).user?.id) {
+      res.status(404); throw new Error('Payment record not found');
+    }
+
+    const verifiedAmount =
+      gateway === 'paystack'
+        ? Number(verifyData?.amount) / 100
+        : Number(verifyData?.amount);
+    const verifiedReference =
+      gateway === 'paystack' ? verifyData?.reference : verifyData?.tx_ref;
+    const isSuccessful =
+      verifyData && (verifyData.status === 'success' || verifyData.status === 'successful');
+    const isValidPayment =
+      isSuccessful &&
+      verifiedReference === reference &&
+      verifyData.currency === paymentRecord.currency &&
+      Math.abs(verifiedAmount - Number(paymentRecord.amount)) < 0.01;
+
+    if (isValidPayment) {
         const { data: payment } = await supabase
           .from('payments')
           .update({ 
@@ -236,8 +271,8 @@ export const verifyPaymentEndpoint = async (req: Request, res: Response, next: N
     }
 
     res.json({
-      success: true,
-      status: verifyData.status,
+      success: isValidPayment,
+      status: isValidPayment ? verifyData.status : 'verification_failed',
       data: verifyData
     });
 

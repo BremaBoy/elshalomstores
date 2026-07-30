@@ -6,23 +6,36 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { getProducts } from "@/products/getProducts";
 import { getCategories } from "@/products/getCategories";
-import { ChevronDown, Search } from "lucide-react";
+import { Check, Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import { ShopSort } from "@/components/shop/ShopSort";
 
 export default async function ShopPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+    sort?: string;
+    new?: string;
+    featured?: string;
+  }>;
 }) {
-  const { q = "" } = await searchParams;
+  const {
+    q = "",
+    category = "",
+    sort = "newest",
+    new: newOnly = "",
+    featured = "",
+  } = await searchParams;
   const query = q.trim().toLowerCase();
   const products = await getProducts();
   const categories = await getCategories();
   const matchingCategoryNames = categories
     .filter((category) => category.name.toLowerCase().includes(query))
     .map((category) => category.name.toLowerCase());
-  const filteredProducts = query
+  const searchedProducts = query
     ? products.filter((product) => {
         const name = product.name.toLowerCase();
         const category = (product.category || "").toLowerCase();
@@ -36,6 +49,30 @@ export default async function ShopPage({
         );
       })
     : products;
+  const filteredProducts = searchedProducts.filter((product) => {
+    if (newOnly === "true" && !product.isNew) return false;
+    if (featured === "true" && (product.rating || 0) < 4.5) return false;
+    if (!category) return true;
+    const productCategory = (product.category || "").toLowerCase();
+    const selectedCategory = categories.find(
+      (item) => item.id === category || item.slug === category
+    );
+    if (!selectedCategory) return productCategory === category.toLowerCase();
+    return (
+      productCategory === selectedCategory.id.toLowerCase() ||
+      productCategory === selectedCategory.slug.toLowerCase() ||
+      productCategory === selectedCategory.name.toLowerCase()
+    );
+  });
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    const aPrice = a.discountPrice ?? a.price;
+    const bPrice = b.discountPrice ?? b.price;
+    if (sort === "price-asc") return aPrice - bPrice;
+    if (sort === "price-desc") return bPrice - aPrice;
+    if (sort === "popular") return (b.rating || 0) - (a.rating || 0);
+    return 0;
+  });
+  const queryParams = q ? `&q=${encodeURIComponent(q)}` : "";
 
   return (
     <main className="min-h-screen bg-bg text-text-primary">
@@ -51,31 +88,22 @@ export default async function ShopPage({
                 <div>
                   <h3 className="text-lg font-bold mb-4">Categories</h3>
                   <div className="space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                      <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" defaultChecked />
-                      <span className="text-sm text-text-secondary group-hover:text-primary transition-colors">All Products</span>
-                    </label>
+                    <Link href={`/shop${q ? `?q=${encodeURIComponent(q)}` : ""}`} className={`flex items-center gap-2 rounded-lg px-2 py-2 text-sm transition-colors ${!category ? "bg-primary/10 font-bold text-primary" : "text-text-secondary hover:text-primary"}`}>
+                      <span className="flex h-4 w-4 items-center justify-center rounded border border-border">{!category && <Check className="h-3 w-3" />}</span>
+                      All Products
+                    </Link>
                     {categories.map((cat) => (
-                      <label key={cat.id} className="flex items-center gap-2 cursor-pointer group">
-                        <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" />
-                        <span className="text-sm text-text-secondary group-hover:text-primary transition-colors">{cat.name}</span>
-                      </label>
+                      <Link key={cat.id} href={`/shop?category=${encodeURIComponent(cat.slug)}${queryParams}`} className={`flex items-center gap-2 rounded-lg px-2 py-2 text-sm transition-colors ${category === cat.slug || category === cat.id ? "bg-primary/10 font-bold text-primary" : "text-text-secondary hover:text-primary"}`}>
+                        <span className="flex h-4 w-4 items-center justify-center rounded border border-border">{(category === cat.slug || category === cat.id) && <Check className="h-3 w-3" />}</span>
+                        {cat.name}
+                      </Link>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="text-lg font-bold mb-4">Price Range</h3>
-                  <div className="space-y-4">
-                    <input type="range" className="w-full accent-primary" min="0" max="1000" />
-                    <div className="flex justify-between text-sm text-text-secondary">
-                      <span>₦0</span>
-                      <span>₦1,000,000+</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Button variant="outline" className="w-full">Clear Filters</Button>
+                <Link href="/shop" className="block">
+                  <Button variant="outline" className="w-full">Clear Filters</Button>
+                </Link>
               </aside>
 
               {/* Main Content */}
@@ -85,27 +113,16 @@ export default async function ShopPage({
                     <h1 className="text-2xl font-extrabold mb-1 uppercase tracking-tight">Our Collection</h1>
                     <p className="text-sm text-text-secondary">
                       {query
-                        ? `${filteredProducts.length} result${filteredProducts.length === 1 ? "" : "s"} for “${q.trim()}”`
-                        : `Showing ${filteredProducts.length} products`}
+                        ? `${sortedProducts.length} result${sortedProducts.length === 1 ? "" : "s"} for “${q.trim()}”`
+                        : `Showing ${sortedProducts.length} products`}
                     </p>
                   </div>
                   
-                  <div className="flex items-center gap-3">
-                    <label className="text-sm font-medium text-text-secondary">Sort by:</label>
-                    <div className="relative">
-                      <select className="appearance-none bg-card border border-border rounded-lg py-2 pl-4 pr-10 text-sm text-text-primary focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer">
-                        <option>Newest Arrivals</option>
-                        <option>Price: Low to High</option>
-                        <option>Price: High to Low</option>
-                        <option>Most Popular</option>
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary pointer-events-none" />
-                    </div>
-                  </div>
+                  <ShopSort value={sort} />
                 </div>
 
-                {filteredProducts.length > 0 ? (
-                  <ProductGrid products={filteredProducts} columns={3} />
+                {sortedProducts.length > 0 ? (
+                  <ProductGrid products={sortedProducts} columns={3} />
                 ) : (
                   <div className="flex min-h-80 flex-col items-center justify-center rounded-[2rem] border border-dashed border-border bg-card px-6 text-center">
                     <Search className="h-8 w-8 text-primary" />

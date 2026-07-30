@@ -35,7 +35,14 @@ const app = express();
 
 // ─── Security & Parsing ───────────────────────────────────────────────────────
 app.use(helmet());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+  limit: '10mb',
+  verify: (req: any, _res, buffer) => {
+    // Payment providers sign the exact bytes they send. Retain them so webhook
+    // verification is not affected by JSON parsing/serialization differences.
+    req.rawBody = buffer;
+  },
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────

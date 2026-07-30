@@ -303,17 +303,12 @@ export function MarketplaceHome({
               <h2 className="mt-3 text-3xl font-black tracking-tight text-text-primary md:text-4xl">Good finds, delivered to your inbox.</h2>
               <p className="mt-3 text-sm leading-6 text-text-secondary">Be first to know about new products, useful ideas, and genuinely good offers.</p>
             </div>
-            <form className="mt-6 flex w-full max-w-md gap-2 md:mt-0">
-              <input
-                type="email"
-                required
-                placeholder="Email address"
-                className="h-12 min-w-0 flex-1 rounded-xl border border-border bg-bg px-4 text-sm text-text-primary outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
-              />
-              <button className="h-12 rounded-xl bg-primary px-5 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-hover">
-                Join
-              </button>
-            </form>
+            <Link
+              href="/contact?subject=Newsletter%20subscription"
+              className="mt-6 inline-flex h-12 items-center rounded-xl bg-primary px-6 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-hover md:mt-0"
+            >
+              Join the list
+            </Link>
           </div>
         </Container>
       </section>

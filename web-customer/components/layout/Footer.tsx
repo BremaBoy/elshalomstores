@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 
 export const Footer = () => {
@@ -40,17 +40,6 @@ export const Footer = () => {
             <p className="text-white/55 text-base leading-relaxed max-w-xs">
               Thoughtful products for better everyday living—selected with care and delivered across Nigeria.
             </p>
-            <div className="flex gap-4">
-              {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  className="h-11 w-11 rounded-xl border border-border flex items-center justify-center text-text-secondary hover:bg-primary hover:text-white hover:border-primary hover:-translate-y-1 transition-all shadow-sm"
-                >
-                  <Icon className="h-5 w-5" />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Quick Links */}

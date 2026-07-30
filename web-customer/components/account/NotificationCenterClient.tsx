@@ -66,7 +66,7 @@ export const NotificationCenterClient = ({ initialNotifications }: { initialNoti
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-xl min-h-[600px]">
+    <div className="bg-card text-text-primary p-8 md:p-12 rounded-[48px] border border-border shadow-xl min-h-[600px]">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 pb-6 border-b border-slate-50 gap-4">
         <div>
           <h3 className="text-2xl font-black uppercase tracking-tight text-text-primary">
@@ -96,13 +96,13 @@ export const NotificationCenterClient = ({ initialNotifications }: { initialNoti
               className={cn(
                 "p-6 rounded-3xl transition-all border flex gap-6 group",
                 notif.is_read 
-                  ? "bg-white border-slate-100 text-slate-500" 
+                  ? "bg-card border-border text-text-secondary"
                   : "bg-primary/5 border-primary/10 text-text-primary shadow-sm"
               )}
             >
               <div className={cn(
                 "h-12 w-12 rounded-2xl flex items-center justify-center flex-shrink-0",
-                notif.is_read ? "bg-slate-50" : "bg-primary/10"
+                notif.is_read ? "bg-bg" : "bg-primary/10"
               )}>
                 {notif.is_read ? <Bell className="h-6 w-6 text-slate-300" /> : <Circle className="h-6 w-6 text-primary fill-primary animate-pulse" />}
               </div>
@@ -139,7 +139,7 @@ export const NotificationCenterClient = ({ initialNotifications }: { initialNoti
           ))
         ) : (
           <div className="py-24 text-center">
-             <div className="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+             <div className="h-24 w-24 bg-bg rounded-full flex items-center justify-center mx-auto mb-6">
                 <Bell className="h-12 w-12 text-slate-200" />
              </div>
              <h4 className="text-lg font-black text-text-secondary uppercase tracking-widest">Quiet for now</h4>

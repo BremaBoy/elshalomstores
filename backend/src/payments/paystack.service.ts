@@ -98,13 +98,15 @@ export class PaystackService {
   /**
    * Verifies the webhook signature from Paystack
    */
-  verifyWebhookSignature(signature: string, payload: any): boolean {
+  verifyWebhookSignature(signature: string, payload: Buffer | string): boolean {
     const hash = crypto
       .createHmac('sha512', this.secretKey)
-      .update(JSON.stringify(payload))
+      .update(payload)
       .digest('hex');
 
-    return hash === signature;
+    const expected = Buffer.from(hash, 'utf8');
+    const received = Buffer.from(signature, 'utf8');
+    return expected.length === received.length && crypto.timingSafeEqual(expected, received);
   }
 }
 

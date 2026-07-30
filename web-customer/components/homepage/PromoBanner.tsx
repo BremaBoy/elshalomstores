@@ -26,7 +26,7 @@ export const PromoBanner = () => {
                 More joy. <br /> Less spend.
               </h2>
               <p className="text-lg md:text-xl text-white/80 max-w-md font-medium leading-relaxed mb-8">
-                Meet your next favorite find. Use code <span className="font-black text-black bg-violet-300 px-2 py-1 rounded-lg">ELSHALOM30</span> for 30% off.
+                Meet your next favorite find from our thoughtfully selected everyday collection.
               </p>
               <div>
                 <Link href="/shop">

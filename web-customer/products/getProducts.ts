@@ -22,7 +22,16 @@ function sanitizeProduct(product: any): Product {
   const image = typeof product.image === "string" && product.image.startsWith("http")
     ? product.image
     : PLACEHOLDER_IMAGE;
-  return { ...product, image };
+  return {
+    ...product,
+    image,
+    discountPrice: product.discountPrice ?? product.discount_price,
+    isNew: product.isNew ?? product.is_new,
+    isSale: product.isSale ?? product.is_sale,
+    rating: Number(product.rating || 0),
+    price: Number(product.price || 0),
+    stock: Number(product.stock || 0),
+  };
 }
 
 export async function getProducts(params?: { category?: string }): Promise<Product[]> {

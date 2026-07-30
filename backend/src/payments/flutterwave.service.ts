@@ -9,7 +9,10 @@ export class FlutterwaveService {
 
   constructor() {
     this.secretKey = process.env.FLUTTERWAVE_SECRET_KEY || '';
-    this.hashKey = process.env.FLUTTERWAVE_HASH_KEY || '';
+    this.hashKey =
+      process.env.FLUTTERWAVE_WEBHOOK_SECRET ||
+      process.env.FLUTTERWAVE_HASH_KEY ||
+      '';
     
     if (!this.secretKey) {
       logger.warn('FLUTTERWAVE_SECRET_KEY is not defined in environment variables');
@@ -106,8 +109,22 @@ export class FlutterwaveService {
   /**
    * Verifies the webhook signature from Flutterwave
    */
-  verifyWebhookSignature(signature: string): boolean {
-    return signature === this.hashKey;
+  verifyWebhookSignature(
+    signature: string,
+    rawBody?: Buffer,
+    legacyHash = false
+  ): boolean {
+    if (!this.hashKey) return false;
+    const expectedValue =
+      legacyHash || !rawBody
+        ? this.hashKey
+        : crypto
+            .createHmac('sha256', this.hashKey)
+            .update(rawBody)
+            .digest('base64');
+    const expected = Buffer.from(expectedValue, 'utf8');
+    const received = Buffer.from(signature, 'utf8');
+    return expected.length === received.length && crypto.timingSafeEqual(expected, received);
   }
 }
 

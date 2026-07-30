@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cartStore";
-import { CreditCard, Truck, ShieldCheck, User, ChevronRight, CheckCircle2, Loader2, Lock } from "lucide-react";
+import { CreditCard, Truck, ShieldCheck, User, ChevronRight, CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -32,10 +32,7 @@ export default function CheckoutPage() {
     address: "",
     city: "",
     state: "",
-    paymentMethod: "paystack",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: ""
+    paymentMethod: "paystack"
   });
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
@@ -88,12 +85,6 @@ export default function CheckoutPage() {
       if (!formData.address) newErrors.address = true;
       if (!formData.city) newErrors.city = true;
       if (!formData.state) newErrors.state = true;
-    } else if (stepNumber === 3) {
-      if (formData.paymentMethod === 'paystack' || formData.paymentMethod === 'flutterwave') {
-        if (!formData.cardNumber) newErrors.cardNumber = true;
-        if (!formData.expiryDate) newErrors.expiryDate = true;
-        if (!formData.cvv) newErrors.cvv = true;
-      }
     }
 
     setErrors(newErrors);
@@ -109,15 +100,8 @@ export default function CheckoutPage() {
   };
 
   const handleCompleteOrder = async () => {
-    if (!validateStep(3)) {
-      alert("Please fill in all mandatory fields before completing your order.");
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
       const orderData = {
         items,
         payment_method: formData.paymentMethod,
@@ -150,8 +134,6 @@ export default function CheckoutPage() {
       // 2. If paystack or flutterwave, initialize payment and redirect
       if (formData.paymentMethod !== 'cod') {
         const payload = {
-          email: formData.email || user?.email,
-          amount: getTotalPrice(),
           order_id: insertedOrder.id
         };
 
@@ -165,10 +147,11 @@ export default function CheckoutPage() {
           }
         );
         
-        if (response.data && response.data.authorization_url) {
-          // Clear cart before redirecting to be safe
-          clearCart();
-          window.location.href = response.data.authorization_url;
+        const authorizationUrl = response.data?.data?.authorization_url;
+        if (authorizationUrl) {
+          // Keep the cart until the gateway confirms payment. This lets the
+          // customer retry without rebuilding it after a cancellation/failure.
+          window.location.href = authorizationUrl;
           return;
         } else {
            throw new Error("Failed to get payment authorization URL");
@@ -327,100 +310,58 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-1 gap-4">
                       <div className="space-y-4">
                         <label 
-                          className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'paystack' ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-slate-800'}`}
+                          className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'paystack' ? 'border-primary bg-primary/5' : 'border-border'}`}
                           onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'paystack' }))}
                         >
                           <div className="flex items-center gap-4">
                             <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center p-1 ${formData.paymentMethod === 'paystack' ? 'border-primary' : 'border-slate-300'}`}>
                               {formData.paymentMethod === 'paystack' && <div className="h-full w-full bg-primary rounded-full" />}
                             </div>
-                            <span className={`font-bold ${formData.paymentMethod === 'paystack' ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>Paystack / Online Payment</span>
+                            <span className={`font-bold ${formData.paymentMethod === 'paystack' ? 'text-text-primary' : 'text-text-secondary'}`}>Paystack / Online Payment</span>
                           </div>
                           <div className="flex gap-2 text-primary font-bold text-xs">
-                            {["VISA", "MC", "VERVE"].map(v => <span key={v} className="bg-white px-2 py-0.5 rounded border border-primary/20">{v}</span>)}
+                            {["VISA", "MC", "VERVE"].map(v => <span key={v} className="bg-bg px-2 py-0.5 rounded border border-primary/20">{v}</span>)}
                           </div>
                         </label>
                         
-                        {/* Card Form Dropdown (Paystack) */}
                         {formData.paymentMethod === 'paystack' && (
-                          <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-[32px] border border-slate-100 dark:border-slate-800 animate-in slide-in-from-top-2 duration-300 space-y-6">
-                            <div className="space-y-2">
-                              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">Card Number (Paystack)</label>
-                              <div className="relative">
-                                <input name="cardNumber" value={formData.cardNumber} onChange={handleInputChange} type="text" placeholder="4084 0840 8408 4081" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.cardNumber ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                                <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">Expiry Date</label>
-                                <input name="expiryDate" value={formData.expiryDate} onChange={handleInputChange} type="text" placeholder="01 / 28" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.expiryDate ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">CVV</label>
-                                <input name="cvv" value={formData.cvv} onChange={handleInputChange} type="text" placeholder="123" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.cvv ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                              </div>
-                            </div>
-                            <p className="text-[10px] text-slate-400 font-medium flex items-center gap-2">
-                              <Lock className="h-3 w-3" />
-                              Secure Paystack encryption enabled.
-                            </p>
-                          </div>
+                          <p className="px-2 text-xs text-text-secondary">
+                            You&apos;ll enter payment details securely on Paystack.
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-4">
                         <label 
-                          className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'flutterwave' ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-slate-800'}`}
+                          className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'flutterwave' ? 'border-primary bg-primary/5' : 'border-border'}`}
                           onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'flutterwave' }))}
                         >
                           <div className="flex items-center gap-4">
                             <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center p-1 ${formData.paymentMethod === 'flutterwave' ? 'border-primary' : 'border-slate-300'}`}>
                               {formData.paymentMethod === 'flutterwave' && <div className="h-full w-full bg-primary rounded-full" />}
                             </div>
-                            <span className={`font-bold ${formData.paymentMethod === 'flutterwave' ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>Flutterwave / Online Payment</span>
+                            <span className={`font-bold ${formData.paymentMethod === 'flutterwave' ? 'text-text-primary' : 'text-text-secondary'}`}>Flutterwave / Online Payment</span>
                           </div>
                           <div className="flex gap-2 text-primary font-bold text-xs uppercase">
-                            <span className="bg-white px-2 py-0.5 rounded border border-primary/20">FLW</span>
+                            <span className="bg-bg px-2 py-0.5 rounded border border-primary/20">FLW</span>
                           </div>
                         </label>
                         
-                        {/* Card Form Dropdown (Flutterwave) */}
                         {formData.paymentMethod === 'flutterwave' && (
-                          <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-[32px] border border-slate-100 dark:border-slate-800 animate-in slide-in-from-top-2 duration-300 space-y-6">
-                            <div className="space-y-2">
-                              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">Card Number (Flutterwave)</label>
-                              <div className="relative">
-                                <input name="cardNumber" value={formData.cardNumber} onChange={handleInputChange} type="text" placeholder="4242 4242 4242 4242" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.cardNumber ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                                <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-orange-500" />
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">Expiry Date</label>
-                                <input name="expiryDate" value={formData.expiryDate} onChange={handleInputChange} type="text" placeholder="09 / 25" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.expiryDate ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">CVV</label>
-                                <input name="cvv" value={formData.cvv} onChange={handleInputChange} type="text" placeholder="123" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.cvv ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                              </div>
-                            </div>
-                            <p className="text-[10px] text-slate-400 font-medium flex items-center gap-2">
-                              <Lock className="h-3 w-3" />
-                              Secure Flutterwave protection active.
-                            </p>
-                          </div>
+                          <p className="px-2 text-xs text-text-secondary">
+                            You&apos;ll enter payment details securely on Flutterwave.
+                          </p>
                         )}
                       </div>
                       <label 
-                        className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'cod' ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-slate-800'}`}
+                        className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'cod' ? 'border-primary bg-primary/5' : 'border-border'}`}
                         onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cod' }))}
                       >
                         <div className="flex items-center gap-4">
                           <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center p-1 ${formData.paymentMethod === 'cod' ? 'border-primary' : 'border-slate-300'}`}>
                             {formData.paymentMethod === 'cod' && <div className="h-full w-full bg-primary rounded-full" />}
                           </div>
-                          <span className={`font-bold ${formData.paymentMethod === 'cod' ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>Cash on Delivery</span>
+                          <span className={`font-bold ${formData.paymentMethod === 'cod' ? 'text-text-primary' : 'text-text-secondary'}`}>Cash on Delivery</span>
                         </div>
                       </label>
                     </div>

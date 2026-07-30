@@ -10,9 +10,12 @@ import { CheckCircle2, XCircle, Loader2, ShoppingBag, ArrowRight } from "lucide-
 import Link from "next/link";
 import axios from "axios";
 import { Suspense } from "react";
+import { supabase } from "@/lib/supabase";
+import { useCartStore } from "@/store/cartStore";
 
 function VerifyContent() {
   const searchParams = useSearchParams();
+  const clearCart = useCartStore((state) => state.clearCart);
 
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("Verifying your payment...");
@@ -32,12 +35,19 @@ function VerifyContent() {
       try {
         // Call our backend to verify
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) {
+          setStatus("error");
+          setMessage("Your session expired. Please sign in and try again.");
+          return;
+        }
         const response = await axios.get(`${apiUrl}/api/payments/${gateway}/verify/${reference}`, {
             params: { transaction_id: transactionId },
-            withCredentials: true
+            headers: { Authorization: `Bearer ${session.access_token}` }
         });
 
         if (response.data.status === "success" || response.data.status === "successful") {
+          clearCart();
           setStatus("success");
           setMessage("Your payment was successful! We are now processing your order.");
         } else {
@@ -53,12 +63,12 @@ function VerifyContent() {
     };
 
     verify();
-  }, [reference, gateway, transactionId]);
+  }, [reference, gateway, transactionId, clearCart]);
 
   return (
-    <main className="pt-32 pb-20 min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
+    <main className="pt-32 pb-20 min-h-screen bg-bg text-text-primary flex flex-col">
       <Container className="flex-grow flex items-center justify-center">
-        <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl p-10 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 text-center space-y-8">
+        <div className="max-w-md w-full bg-card rounded-3xl p-10 shadow-xl shadow-black/10 border border-border text-center space-y-8">
           {status === "loading" && (
             <div className="space-y-6">
               <div className="flex justify-center">
@@ -67,8 +77,8 @@ function VerifyContent() {
                   <Loader2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-primary animate-pulse" />
                 </div>
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Verifying Payment</h1>
-              <p className="text-slate-500 font-medium">{message}</p>
+              <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">Verifying Payment</h1>
+              <p className="text-text-secondary font-medium">{message}</p>
             </div>
           )}
 
@@ -79,8 +89,8 @@ function VerifyContent() {
                   <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
                 </div>
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Payment Successful!</h1>
-              <p className="text-slate-500 font-medium">{message}</p>
+              <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">Payment Successful!</h1>
+              <p className="text-text-secondary font-medium">{message}</p>
               <div className="pt-4 space-y-3">
                 <Link href="/profile">
                   <Button className="w-full h-12 rounded-xl font-bold uppercase tracking-widest flex items-center justify-center gap-2">
@@ -105,8 +115,8 @@ function VerifyContent() {
                   <XCircle className="h-10 w-10 text-red-600 dark:text-red-400" />
                 </div>
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Payment Failed</h1>
-              <p className="text-slate-500 font-medium">{message}</p>
+              <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">Payment Failed</h1>
+              <p className="text-text-secondary font-medium">{message}</p>
               <div className="pt-4 space-y-3">
                 <Link href="/checkout">
                   <Button className="w-full h-12 rounded-xl font-bold uppercase tracking-widest flex items-center justify-center gap-2">
@@ -131,7 +141,7 @@ export default function VerifyPage() {
   return (
     <>
       <Header />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950"><p>Loading verification system...</p></div>}>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-bg text-text-primary"><p>Loading verification system...</p></div>}>
         <VerifyContent />
       </Suspense>
       <Footer />

@@ -16,7 +16,7 @@ export default async function OrdersPage() {
     .order('created_at', { ascending: false });
 
   return (
-    <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-xl min-h-[600px]">
+    <div className="bg-card text-text-primary p-8 md:p-12 rounded-[48px] border border-border shadow-xl min-h-[600px]">
       <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-50">
         <h3 className="text-2xl font-black uppercase tracking-tight text-text-primary">My <span className="text-primary">Orders</span></h3>
         <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">{orders?.length || 0} Orders found</p>
@@ -25,9 +25,9 @@ export default async function OrdersPage() {
       <div className="space-y-6">
         {orders && orders.length > 0 ? (
           orders.map((order) => (
-            <div key={order.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 rounded-3xl group hover:shadow-md transition-all gap-6 border border-transparent hover:border-primary/10">
+            <div key={order.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-bg rounded-3xl group hover:shadow-md transition-all gap-6 border border-border hover:border-primary/20">
               <div className="flex items-center gap-6">
-                <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-slate-100">
+                <div className="h-16 w-16 bg-bg rounded-2xl flex items-center justify-center shadow-sm border border-border">
                   <Package className="h-8 w-8 text-primary/40" />
                 </div>
                 <div>
@@ -64,7 +64,7 @@ export default async function OrdersPage() {
                     </Button>
                   </Link>
                   <Link href={`/orders/${order.id}`}>
-                    <Button variant="ghost" size="icon" className="h-10 w-10 group-hover:translate-x-1 transition-transform bg-white shadow-sm rounded-full">
+                    <Button variant="ghost" size="icon" className="h-10 w-10 group-hover:translate-x-1 transition-transform bg-bg shadow-sm rounded-full">
                       <ChevronRight className="h-5 w-5" />
                     </Button>
                   </Link>
@@ -74,7 +74,7 @@ export default async function OrdersPage() {
           ))
         ) : (
           <div className="py-20 text-center">
-            <div className="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="h-24 w-24 bg-bg rounded-full flex items-center justify-center mx-auto mb-6">
               <Package className="h-12 w-12 text-slate-200" />
             </div>
             <h4 className="text-lg font-black text-text-secondary uppercase tracking-widest">No orders yet</h4>

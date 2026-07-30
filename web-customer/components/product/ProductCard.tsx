@@ -52,20 +52,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isOutOfStock) {
-      // Handle pre-order logic if needed, otherwise just add as normal but maybe flag as pre-order
-      addItem({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        discountPrice: product.discountPrice,
-        image: product.image,
-        quantity: 1,
-        category: product.category,
-        stock: product.stock,
-      });
-      return;
-    }
+    if (isOutOfStock) return;
     addItem({
       id: product.id,
       name: product.name,
@@ -90,6 +77,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       {/* Action Buttons - Quick View & Wishlist */}
       <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 translate-x-12 opacity-0 transition-all duration-500 group-hover:translate-x-0 group-hover:opacity-100">
         <button 
+          aria-label={inWishlist ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
           onClick={(e) => {
             e.preventDefault();
             if (inWishlist) {
@@ -114,9 +102,13 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         >
           <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
         </button>
-        <button className="h-10 w-10 rounded-xl bg-white shadow-xl flex items-center justify-center text-text-secondary hover:bg-primary hover:text-white transition-all scale-90 hover:scale-100 border border-border hover:border-primary">
+        <Link
+          href={`/product/${product.id}`}
+          aria-label={`View ${product.name}`}
+          className="h-10 w-10 rounded-xl bg-card shadow-xl flex items-center justify-center text-text-secondary hover:bg-primary hover:text-white transition-all scale-90 hover:scale-100 border border-border hover:border-primary"
+        >
           <Eye className="h-5 w-5" />
-        </button>
+        </Link>
       </div>
 
       {/* Image Container */}
@@ -141,7 +133,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           <div className="flex items-center gap-1 text-amber-500">
             <Star className="h-3 w-3 fill-current" />
             <span className="text-[10px] font-black">
-              {product.rating || "5.0"}
+              {product.rating ? product.rating.toFixed(1) : "—"}
             </span>
           </div>
         </div>
@@ -167,14 +159,15 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         {/* Add to Cart / Pre-Order Button */}
         <Button
           onClick={handleAddToCart}
+          disabled={isOutOfStock}
           variant={isOutOfStock ? "outline" : "primary"}
           className={`w-full mt-2 h-10 rounded-xl font-black uppercase tracking-widest text-[9px] transition-all shadow-md ${
-            isOutOfStock ? "border-amber-200 text-amber-600 hover:bg-amber-50" : "shadow-primary/20"
+            isOutOfStock ? "cursor-not-allowed border-border text-text-secondary opacity-60" : "shadow-primary/20"
           }`}
         >
           <span className="flex items-center gap-2 group-hover:translate-x-1 transition-transform">
             <ShoppingCart className="h-4 w-4" />
-            {isOutOfStock ? "Pre-Order" : "Add to Cart"}
+            {isOutOfStock ? "Out of Stock" : "Add to Cart"}
           </span>
         </Button>
       </div>

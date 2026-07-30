@@ -4,10 +4,10 @@ import { logger } from '../config/logger';
 import { paystackService } from './paystack.service';
 import { flutterwaveService } from './flutterwave.service';
 
-export const paystackWebhook = async (req: Request, res: Response) => {
+export const paystackWebhook = async (req: Request & { rawBody?: Buffer }, res: Response) => {
   try {
     const signature = req.headers['x-paystack-signature'] as string;
-    if (!signature || !paystackService.verifyWebhookSignature(signature, req.body)) {
+    if (!signature || !req.rawBody || !paystackService.verifyWebhookSignature(signature, req.rawBody)) {
       return res.status(401).send('Invalid signature');
     }
 
@@ -27,8 +27,24 @@ export const paystackWebhook = async (req: Request, res: Response) => {
       
       // Verify with API to be doubly sure
       const verifyData = await paystackService.verifyPayment(reference);
-      
-      if (verifyData.status === 'success') {
+
+      const { data: pendingPayment } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('reference', reference)
+        .single();
+      const amountMatches =
+        pendingPayment &&
+        Math.abs(Number(verifyData.amount) / 100 - Number(pendingPayment.amount)) < 0.01;
+      const currencyMatches = pendingPayment && verifyData.currency === pendingPayment.currency;
+
+      if (
+        pendingPayment &&
+        verifyData.status === 'success' &&
+        verifyData.reference === reference &&
+        amountMatches &&
+        currencyMatches
+      ) {
         const { data: payment } = await supabase
           .from('payments')
           .update({ 
@@ -56,31 +72,59 @@ export const paystackWebhook = async (req: Request, res: Response) => {
   }
 };
 
-export const flutterwaveWebhook = async (req: Request, res: Response) => {
+export const flutterwaveWebhook = async (req: Request & { rawBody?: Buffer }, res: Response) => {
   try {
-    const signature = req.headers['verif-hash'] as string;
-    if (!signature || !flutterwaveService.verifyWebhookSignature(signature)) {
+    const signedSignature = req.headers['flutterwave-signature'] as string;
+    const legacySignature = req.headers['verif-hash'] as string;
+    const isValidSignature =
+      (signedSignature &&
+        req.rawBody &&
+        flutterwaveService.verifyWebhookSignature(signedSignature, req.rawBody)) ||
+      (legacySignature &&
+        flutterwaveService.verifyWebhookSignature(legacySignature, undefined, true));
+    if (!isValidSignature) {
       return res.status(401).send('Invalid signature');
     }
 
     const event = req.body;
-    logger.info(`Flutterwave Webhook received: ${event.event}`);
+    const eventType = event.type || event.event;
+    logger.info(`Flutterwave Webhook received: ${eventType}`);
 
     // Log the event
     await supabase.from('payment_logs').insert([{
       payment_reference: event.data?.tx_ref || null,
-      event_type: `webhook_${event.event}`,
+      event_type: `webhook_${eventType}`,
       gateway: 'flutterwave',
       payload: event
     }]);
 
-    if (event.event === 'charge.completed' && event.data?.status === 'successful') {
-       const { tx_ref, id } = event.data;
+    if (
+      eventType === 'charge.completed' &&
+      ['successful', 'succeeded'].includes(event.data?.status)
+    ) {
+       const tx_ref = event.data.tx_ref || event.data.reference;
+       const { id } = event.data;
        
        // Verify with API to be doubly sure
        const verifyData = await flutterwaveService.verifyPayment(id.toString());
-       
-       if (verifyData.status === 'successful') {
+
+       const { data: pendingPayment } = await supabase
+         .from('payments')
+         .select('*')
+         .eq('reference', tx_ref)
+         .single();
+       const amountMatches =
+         pendingPayment &&
+         Math.abs(Number(verifyData.amount) - Number(pendingPayment.amount)) < 0.01;
+       const currencyMatches = pendingPayment && verifyData.currency === pendingPayment.currency;
+
+       if (
+         pendingPayment &&
+         verifyData.status === 'successful' &&
+         verifyData.tx_ref === tx_ref &&
+         amountMatches &&
+         currencyMatches
+       ) {
           const { data: payment } = await supabase
             .from('payments')
             .update({ 

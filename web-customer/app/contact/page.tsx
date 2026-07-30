@@ -2,8 +2,9 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { ContactForm } from "@/components/contact/ContactForm";
+import { Suspense } from "react";
 
 export default function ContactPage() {
   return (
@@ -63,30 +64,9 @@ export default function ContactPage() {
               </div>
 
               <div className="lg:col-span-2 bg-card p-8 md:p-12 rounded-[48px] border border-border shadow-xl">
-                <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Your Name</label>
-                    <input type="text" placeholder="Full Name" className="w-full h-14 bg-bg border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Email Address</label>
-                    <input type="email" placeholder="email@example.com" className="w-full h-14 bg-bg border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
-                  </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Subject</label>
-                    <input type="text" placeholder="How can we help?" className="w-full h-14 bg-bg border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
-                  </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Message</label>
-                    <textarea rows={5} placeholder="Tell us more about your inquiry..." className="w-full p-6 bg-bg border border-border rounded-[28px] text-text-primary placeholder:text-text-secondary/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium resize-none"></textarea>
-                  </div>
-                  <div className="md:col-span-2">
-                    <Button className="w-full h-16 text-lg rounded-2xl font-extrabold uppercase tracking-widest gap-3">
-                      Send Message
-                      <Send className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </form>
+                <Suspense fallback={<p className="text-sm text-text-secondary">Loading contact form…</p>}>
+                  <ContactForm />
+                </Suspense>
               </div>
             </div>
           </div>

@@ -78,10 +78,10 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
             {/* Main Content: Timeline */}
             <div className="lg:col-span-2 space-y-8">
               <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-black/5 overflow-hidden">
-                <CardHeader className="bg-white border-b border-border/50 p-8">
+                <CardHeader className="bg-card text-text-primary border-b border-border/50 p-8">
                   <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-text-primary">Expedition Progress</CardTitle>
                 </CardHeader>
-                <CardContent className="p-10 bg-white">
+                <CardContent className="p-10 bg-card text-text-primary">
                   <TrackingTimeline 
                     currentStatus={order.status} 
                     history={order.order_status_history || []} 
@@ -91,7 +91,7 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
 
               {/* Product List */}
               <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-black/5 overflow-hidden">
-                <CardHeader className="bg-white border-b border-border/50 p-8">
+                <CardHeader className="bg-card text-text-primary border-b border-border/50 p-8">
                   <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-text-primary">Items Ordered</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -148,7 +148,7 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
             <div className="space-y-8">
               {/* Delivery Info */}
               <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-black/5 overflow-hidden">
-                <CardHeader className="bg-white border-b border-border/50 p-8">
+                <CardHeader className="bg-card text-text-primary border-b border-border/50 p-8">
                   <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-text-primary">Delivery Address</CardTitle>
                 </CardHeader>
                 <CardContent className="p-8 space-y-4">

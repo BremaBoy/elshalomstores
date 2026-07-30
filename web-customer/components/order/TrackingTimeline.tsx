@@ -99,8 +99,8 @@ export const TrackingTimeline = ({ currentStatus, history }: TrackingTimelinePro
                 className={cn(
                   "h-12 w-12 rounded-full flex items-center justify-center transition-all duration-500 border-4 border-white shadow-lg",
                   isCompleted ? "bg-primary text-white" : 
-                  isCurrent ? "bg-white text-primary ring-4 ring-primary/20" : 
-                  "bg-white text-slate-300"
+                  isCurrent ? "bg-card text-primary ring-4 ring-primary/20" :
+                  "bg-card text-text-secondary"
                 )}
               >
                 {isCompleted ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
@@ -114,7 +114,7 @@ export const TrackingTimeline = ({ currentStatus, history }: TrackingTimelinePro
                 </p>
                 {/* Desktop only description */}
                 {isCurrent && (
-                   <div className="absolute left-1/2 -translate-x-1/2 mt-4 bg-white p-4 rounded-xl shadow-xl border border-border w-48 text-left z-20 animate-in fade-in zoom-in duration-300 hidden md:block">
+                   <div className="absolute left-1/2 -translate-x-1/2 mt-4 bg-card text-text-primary p-4 rounded-xl shadow-xl border border-border w-48 text-left z-20 animate-in fade-in zoom-in duration-300 hidden md:block">
                       <p className="text-[10px] font-bold text-text-primary mb-1 uppercase tracking-tight">{step.label}</p>
                       <p className="text-[9px] text-text-secondary font-medium leading-relaxed">{step.description}</p>
                    </div>
