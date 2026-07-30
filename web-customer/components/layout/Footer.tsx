@@ -27,7 +27,7 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="bg-[#10261d] text-white pt-20 pb-10">
+    <footer className="bg-black text-white pt-20 pb-10">
       <Container>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand Info */}
@@ -55,7 +55,7 @@ export const Footer = () => {
 
           {/* Quick Links */}
           <div className="space-y-8">
-            <h4 className="font-black text-[#F4C95D] uppercase tracking-widest text-[10px]">Shop Collection</h4>
+            <h4 className="font-black text-violet-300 uppercase tracking-widest text-[10px]">Shop Collection</h4>
             <ul className="space-y-4">
               {footerLinks.shop.map((link) => (
                 <li key={link.name}>

@@ -3,15 +3,16 @@
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
-export const ThemeToggle = () => {
+export const ThemeToggle = ({ className }: { className?: string }) => {
   const { theme, setTheme } = useTheme();
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      className="relative text-text-secondary dark:text-slate-300 hover:text-primary transition-colors h-10 w-10 rounded-full"
+      className={cn("relative text-text-secondary dark:text-zinc-300 hover:text-primary transition-colors h-10 w-10 rounded-full", className)}
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       aria-label="Toggle theme"
     >
