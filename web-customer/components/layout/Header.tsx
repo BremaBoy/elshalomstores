@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ShoppingBag, User, Search, Menu, ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -18,10 +18,12 @@ export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const hasSolidBackground = isScrolled || pathname !== "/";
   const cartItemCount = useCartStore((state) => state.getTotalItems());
 
@@ -54,6 +56,12 @@ export const Header = () => {
     { name: "Contact", href: "/contact" },
   ];
 
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    router.push(query ? `/shop?q=${encodeURIComponent(query)}` : "/shop");
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -79,14 +87,23 @@ export const Header = () => {
           </Link>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden lg:flex flex-grow max-w-xl relative group">
+          <form onSubmit={handleSearch} className="hidden lg:flex flex-grow max-w-xl relative group" role="search">
             <input
               type="text"
-              placeholder="Search for premium products..."
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search products and categories..."
+              aria-label="Search products and categories"
               className={`w-full border rounded-full py-2.5 pl-11 pr-4 text-sm outline-none transition-all focus:ring-4 focus:ring-primary/10 ${hasSolidBackground ? "bg-card border-border text-text-primary placeholder:text-text-secondary/60" : "bg-white/10 border-white/20 text-white placeholder:text-white/60 backdrop-blur-md"}`}
             />
-            <Search className={`absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 group-focus-within:text-primary transition-colors ${hasSolidBackground ? "text-text-secondary" : "text-white/70"}`} />
-          </div>
+            <button
+              type="submit"
+              aria-label="Submit search"
+              className={`absolute left-3 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors group-focus-within:text-primary hover:text-primary ${hasSolidBackground ? "text-text-secondary" : "text-white/70"}`}
+            >
+              <Search className="h-4 w-4" />
+            </button>
+          </form>
 
           {/* Actions */}
           <div className="flex items-center gap-2 md:gap-4">

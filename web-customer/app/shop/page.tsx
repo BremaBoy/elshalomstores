@@ -6,12 +6,36 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { getProducts } from "@/products/getProducts";
 import { getCategories } from "@/products/getCategories";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import Link from "next/link";
 
-export default async function ShopPage() {
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q = "" } = await searchParams;
+  const query = q.trim().toLowerCase();
   const products = await getProducts();
   const categories = await getCategories();
+  const matchingCategoryNames = categories
+    .filter((category) => category.name.toLowerCase().includes(query))
+    .map((category) => category.name.toLowerCase());
+  const filteredProducts = query
+    ? products.filter((product) => {
+        const name = product.name.toLowerCase();
+        const category = (product.category || "").toLowerCase();
+        return (
+          name.includes(query) ||
+          category.includes(query) ||
+          matchingCategoryNames.some(
+            (categoryName) =>
+              category.includes(categoryName) || categoryName.includes(category)
+          )
+        );
+      })
+    : products;
 
   return (
     <main className="min-h-screen bg-bg text-text-primary">
@@ -59,7 +83,11 @@ export default async function ShopPage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-border">
                   <div>
                     <h1 className="text-2xl font-extrabold mb-1 uppercase tracking-tight">Our Collection</h1>
-                    <p className="text-sm text-text-secondary">Showing {products.length} products</p>
+                    <p className="text-sm text-text-secondary">
+                      {query
+                        ? `${filteredProducts.length} result${filteredProducts.length === 1 ? "" : "s"} for “${q.trim()}”`
+                        : `Showing ${filteredProducts.length} products`}
+                    </p>
                   </div>
                   
                   <div className="flex items-center gap-3">
@@ -76,7 +104,22 @@ export default async function ShopPage() {
                   </div>
                 </div>
 
-                <ProductGrid products={products} columns={3} />
+                {filteredProducts.length > 0 ? (
+                  <ProductGrid products={filteredProducts} columns={3} />
+                ) : (
+                  <div className="flex min-h-80 flex-col items-center justify-center rounded-[2rem] border border-dashed border-border bg-card px-6 text-center">
+                    <Search className="h-8 w-8 text-primary" />
+                    <h2 className="mt-4 text-xl font-black text-text-primary">
+                      No matching products
+                    </h2>
+                    <p className="mt-2 max-w-md text-sm text-text-secondary">
+                      Try another product name or category, or clear the search to browse everything.
+                    </p>
+                    <Link href="/shop" className="mt-6">
+                      <Button>Clear Search</Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </Container>
