@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Papa from 'papaparse'
-import { Upload, X, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { Upload, X, FileText, CheckCircle2, AlertCircle, Loader2, Download } from 'lucide-react'
 
 interface CSVImporterProps {
-  onData: (data: any[]) => void;
+  onData: (data: Record<string, string>[]) => Promise<void> | void;
   expectedHeaders: string[];
   title: string;
   progress?: number | null; // 0-100 or null when idle
@@ -15,37 +15,78 @@ export function CSVImporter({ onData, expectedHeaders, title, progress }: CSVImp
   const [file, setFile] = useState<File | null>(null)
   const [isParsing, setIsParsing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (selectedFile && selectedFile.type === 'text/csv') {
+  const selectFile = (selectedFile?: File) => {
+    if (!selectedFile) return
+
+    // Browsers frequently report CSV files as an empty MIME type or as the
+    // Excel MIME type, especially on macOS and Windows. The extension is the
+    // reliable signal here; Papa Parse still validates the actual contents.
+    const hasCsvExtension = selectedFile.name.toLowerCase().endsWith('.csv')
+    if (hasCsvExtension) {
       setFile(selectedFile)
       setError(null)
     } else {
+      setFile(null)
       setError('Please upload a valid .csv file')
     }
+  }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    selectFile(event.target.files?.[0])
+  }
+
+  const clearFile = () => {
+    setFile(null)
+    setError(null)
+    if (inputRef.current) inputRef.current.value = ''
   }
 
   const handleParse = () => {
     if (!file) return
     setIsParsing(true)
+    setError(null)
 
-    Papa.parse(file, {
+    Papa.parse<Record<string, string>>(file, {
       header: true,
       skipEmptyLines: true,
-      complete: (results) => {
+      transformHeader: (header) => header.replace(/^\uFEFF/, '').trim(),
+      complete: async (results) => {
         const headers = results.meta.fields || []
         const lowHeaders = headers.map(h => h.toLowerCase().trim())
-
         const hasName = lowHeaders.some(h => h.includes('name') || h === 'title')
 
         if (!hasName) {
-          setError(`Required header "name" not found. Please ensure your CSV has a column for the product name.`)
+          setError('Required header "name" was not found. Rename the product-name column to "name" or "title".')
           setIsParsing(false)
-        } else {
-          onData(results.data)
+          return
+        }
+
+        const fatalParseErrors = results.errors.filter(item => item.type !== 'FieldMismatch')
+        if (fatalParseErrors.length > 0) {
+          const details = fatalParseErrors
+            .slice(0, 3)
+            .map(item => `row ${typeof item.row === 'number' ? item.row + 2 : '?'}: ${item.message}`)
+            .join('; ')
+          setError(`The CSV could not be parsed cleanly (${details}).`)
           setIsParsing(false)
-          setFile(null)
+          return
+        }
+
+        if (results.data.length === 0) {
+          setError('This CSV contains headers but no product rows.')
+          setIsParsing(false)
+          return
+        }
+
+        try {
+          await onData(results.data)
+          clearFile()
+        } catch (importError) {
+          setError(importError instanceof Error ? importError.message : 'The products could not be imported.')
+        } finally {
+          setIsParsing(false)
         }
       },
       error: (err) => {
@@ -87,13 +128,20 @@ export function CSVImporter({ onData, expectedHeaders, title, progress }: CSVImp
       {!isImporting && (
         <>
           {!file ? (
-            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-neutral-800 rounded-xl hover:bg-neutral-800/50 cursor-pointer transition-colors group">
+            <label
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => {
+                event.preventDefault()
+                selectFile(event.dataTransfer.files?.[0])
+              }}
+              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-neutral-800 rounded-xl hover:bg-neutral-800/50 cursor-pointer transition-colors group"
+            >
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <Upload className="w-8 h-8 text-neutral-500 mb-2 group-hover:text-primary" />
                 <p className="text-sm text-neutral-400">Click to upload or drag and drop</p>
                 <p className="text-xs text-neutral-600 mt-1">CSV files only</p>
               </div>
-              <input type="file" className="hidden" accept=".csv" onChange={handleFileChange} />
+              <input ref={inputRef} type="file" className="hidden" accept=".csv,text/csv" onChange={handleFileChange} />
             </label>
           ) : (
             <div className="space-y-4">
@@ -105,19 +153,13 @@ export function CSVImporter({ onData, expectedHeaders, title, progress }: CSVImp
                     <p className="text-xs text-neutral-500">{(file.size / 1024).toFixed(1)} KB</p>
                   </div>
                 </div>
-                <button onClick={() => setFile(null)} className="text-neutral-500 hover:text-white">
+                <button type="button" onClick={clearFile} aria-label="Remove selected CSV" className="text-neutral-500 hover:text-white">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {error && (
-                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  {error}
-                </div>
-              )}
-
               <button
+                type="button"
                 onClick={handleParse}
                 disabled={isParsing}
                 className="w-full py-2 bg-primary text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
@@ -125,6 +167,13 @@ export function CSVImporter({ onData, expectedHeaders, title, progress }: CSVImp
                 {isParsing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                 {isParsing ? 'Reading file...' : 'Import Data'}
               </button>
+            </div>
+          )}
+
+          {error && (
+            <div role="alert" className="mt-4 flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <span>{error}</span>
             </div>
           )}
 
@@ -142,6 +191,14 @@ export function CSVImporter({ onData, expectedHeaders, title, progress }: CSVImp
                 </span>
               ))}
             </div>
+            <a
+              href={`data:text/csv;charset=utf-8,${encodeURIComponent(`${expectedHeaders.join(',')}\nSample product,Product description,1000,Kitchen Utensils,10,https://example.com/image.jpg,false,false`)}`}
+              download="elshalom-products-template.csv"
+              className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Download CSV template
+            </a>
           </div>
         </>
       )}

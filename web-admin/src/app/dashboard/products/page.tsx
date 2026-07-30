@@ -56,7 +56,7 @@ export default function ProductsPage() {
     }
   }
 
-  const validateProduct = (data: any) => {
+  const validateProduct = (data: any): Product['status'] => {
     const requiredFields = ['name', 'description', 'price', 'category', 'image', 'stock']
     const isComplete = requiredFields.every(field => 
       data[field] !== undefined && 
@@ -116,7 +116,7 @@ export default function ProductsPage() {
     discount_price: ['discount', 'sale_price', 'discount_price', 'promo_price']
   }
 
-  const findBestMatch = (row: any, targetKey: string): any => {
+  const findBestMatch = (row: Record<string, string>, targetKey: string): string | number | null => {
     const rowKeys = Object.keys(row)
     const targets = fuzzyMapping[targetKey]
     
@@ -137,40 +137,66 @@ export default function ProductsPage() {
 
     // Clean numeric values if target is price or stock
     if (targetKey === 'price' || targetKey === 'stock' || targetKey === 'discount_price') {
-      const cleaned = String(value).replace(/[^0-9.-]+/g, "")
-      return targetKey === 'stock' ? parseInt(cleaned) || 0 : parseFloat(cleaned) || 0
+      const cleaned = String(value).replace(/,/g, '').replace(/[^0-9.-]+/g, '')
+      if (!cleaned) return null
+      const parsed = Number(cleaned)
+      if (!Number.isFinite(parsed)) return null
+      return targetKey === 'stock' ? Math.trunc(parsed) : parsed
     }
 
-    return value
+    return String(value).trim()
   }
 
-  const handleCSVImport = async (data: any[]) => {
+  const parseBoolean = (value: string | number | null) => {
+    return ['true', '1', 'yes', 'y', 'on'].includes(String(value ?? '').trim().toLowerCase())
+  }
+
+  const handleCSVImport = async (data: Record<string, string>[]) => {
     setIsSubmitting(true)
     setImportProgress(0)
     const total = data.length
 
     try {
+      const rowErrors: string[] = []
       const formatted = data.map((item, index) => {
+        const rowNumber = index + 2
+        const name = String(findBestMatch(item, 'name') || '').trim()
+        const price = findBestMatch(item, 'price')
         const rawCategory = findBestMatch(item, 'category')
-        // Efficiently find matching category ID by name
+        const categoryInput = String(rawCategory || '').trim()
         const matchedCategory = categories.find(c => 
-          c.name.toLowerCase().trim() === String(rawCategory || '').toLowerCase().trim() ||
-          c.id === rawCategory // support direct ID if provided
+          c.name.toLowerCase().trim() === categoryInput.toLowerCase() ||
+          c.id === categoryInput
         )
+        const stock = findBestMatch(item, 'stock')
+        const discountPrice = findBestMatch(item, 'discount_price')
+
+        if (!name) rowErrors.push(`row ${rowNumber}: product name is required`)
+        if (typeof price !== 'number' || price < 0) rowErrors.push(`row ${rowNumber}: price must be a valid non-negative number`)
+        if (!categoryInput) rowErrors.push(`row ${rowNumber}: category is required`)
+        if (typeof stock === 'number' && stock < 0) rowErrors.push(`row ${rowNumber}: stock cannot be negative`)
+        if (typeof discountPrice === 'number' && discountPrice < 0) rowErrors.push(`row ${rowNumber}: discount price cannot be negative`)
 
         const productData = {
-          name: findBestMatch(item, 'name') || `Imported Product ${index + 1}`,
+          name,
           description: findBestMatch(item, 'description') || 'No description provided.',
           price: findBestMatch(item, 'price'),
-          category: matchedCategory ? matchedCategory.id : (categories[0]?.id || ''),
-          stock: findBestMatch(item, 'stock'),
+          // Preserve unknown category names so the server action can create them.
+          category: matchedCategory ? matchedCategory.id : categoryInput,
+          stock: typeof stock === 'number' ? stock : 0,
           image: findBestMatch(item, 'image') || '',
-          is_new: String(findBestMatch(item, 'is_new')).toLowerCase() === 'true',
-          is_sale: String(findBestMatch(item, 'is_sale')).toLowerCase() === 'true',
-          discount_price: findBestMatch(item, 'discount_price') || null,
+          is_new: parseBoolean(findBestMatch(item, 'is_new')),
+          is_sale: parseBoolean(findBestMatch(item, 'is_sale')),
+          discount_price: typeof discountPrice === 'number' && discountPrice > 0 ? discountPrice : null,
         }
         return { ...productData, status: validateProduct(productData) }
       })
+
+      if (rowErrors.length > 0) {
+        const displayedErrors = rowErrors.slice(0, 8).join('; ')
+        const remaining = rowErrors.length > 8 ? `; plus ${rowErrors.length - 8} more issue(s)` : ''
+        throw new Error(`Please fix the CSV before importing: ${displayedErrors}${remaining}`)
+      }
 
       setImportProgress(50) // Basic progress since server action handles the rest
       const result = await bulkImportProducts(formatted)
@@ -180,10 +206,10 @@ export default function ProductsPage() {
       setImportProgress(100)
       await fetchData()
       setShowImport(false)
-      alert(`Successfully imported ${total} products!`)
-    } catch (err: any) {
+      alert(`Successfully imported ${result.count ?? total} products!`)
+    } catch (err: unknown) {
       console.error('CSV Import Error:', err)
-      alert(`CSV Import failed: ${err.message}`)
+      throw err instanceof Error ? err : new Error('CSV import failed.')
     } finally {
       setIsSubmitting(false)
       setImportProgress(null)
