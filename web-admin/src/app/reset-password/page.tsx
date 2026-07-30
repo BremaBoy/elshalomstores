@@ -11,18 +11,58 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isLinkReady, setIsLinkReady] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    // Check if we have an active session (from the reset link)
-    const checkSession = async () => {
+    let isMounted = true
+
+    const establishRecoverySession = async () => {
+      const params = new URLSearchParams(window.location.search)
+      const authError = params.get('error_description') || params.get('error')
+
+      if (authError) {
+        if (isMounted) {
+          setError(
+            authError.replace(/\+/g, ' ') ||
+            'Your reset link has expired or is invalid. Please request a new one.'
+          )
+          setIsLinkReady(true)
+        }
+        return
+      }
+
+      const code = params.get('code')
+      if (code) {
+        const { error: exchangeError } =
+          await supabaseAuth.auth.exchangeCodeForSession(code)
+
+        if (exchangeError) {
+          if (isMounted) {
+            setError('Your reset link has expired or is invalid. Please request a new one.')
+            setIsLinkReady(true)
+          }
+          return
+        }
+
+        // Remove the one-time code so a refresh does not try to redeem it again.
+        window.history.replaceState({}, '', window.location.pathname)
+      }
+
       const { data: { session } } = await supabaseAuth.auth.getSession()
-      if (!session) {
-        setError('Your reset link has expired or is invalid. Please request a new one.')
+      if (isMounted) {
+        if (!session) {
+          setError('Your reset link has expired or is invalid. Please request a new one.')
+        }
+        setIsLinkReady(true)
       }
     }
-    checkSession()
+
+    establishRecoverySession()
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -117,12 +157,20 @@ export default function ResetPasswordPage() {
 
             <button
               type="submit"
-              disabled={isLoading || (error ? error.includes('expired') : false)}
+              disabled={isLoading || !isLinkReady || Boolean(error)}
               className="w-full py-2.5 rounded-lg bg-primary text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {isLoading ? 'Updating...' : 'Reset Password'}
+              {!isLinkReady ? 'Verifying Link...' : isLoading ? 'Updating...' : 'Reset Password'}
             </button>
+            {error && (
+              <a
+                href="/forgot-password"
+                className="block text-center text-sm text-primary hover:underline"
+              >
+                Request a new reset link
+              </a>
+            )}
           </form>
         )}
       </div>
