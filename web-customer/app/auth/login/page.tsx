@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import Link from "next/link";
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -34,7 +35,7 @@ function LoginContent() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-900">
+    <main className="min-h-screen flex flex-col md:flex-row bg-slate-50">
       {/* Visual Side */}
       <div className="hidden md:flex md:w-1/2 relative bg-primary overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-indigo-900 opacity-90" />
@@ -58,11 +59,14 @@ function LoginContent() {
       </div>
 
       {/* Form Side */}
-      <div className="flex-grow flex items-center justify-center p-8 md:p-16 lg:p-24 bg-white dark:bg-slate-950">
+      <div className="relative flex-grow flex items-center justify-center p-8 pt-24 md:p-16 lg:p-24 bg-bg text-text-primary">
+        <div className="absolute right-6 top-6 md:right-8 md:top-8">
+          <ThemeToggle className="border border-border bg-card shadow-sm hover:bg-primary/10" />
+        </div>
         <div className="w-full max-w-md space-y-10">
           <div className="space-y-2">
-            <h2 className="text-4xl font-extrabold uppercase tracking-tight text-slate-900 dark:text-white">Sign In</h2>
-            <p className="text-slate-500 font-medium tracking-wide">Enter your credentials to access your account</p>
+            <h2 className="text-4xl font-extrabold uppercase tracking-tight text-text-primary">Sign In</h2>
+            <p className="text-text-secondary font-medium tracking-wide">Enter your credentials to access your account</p>
           </div>
 
           {error && (
@@ -73,7 +77,7 @@ function LoginContent() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Email Address</label>
+              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Email Address</label>
               <div className="relative">
                 <input 
                   type="email" 
@@ -81,15 +85,15 @@ function LoginContent() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com" 
                   required
-                  className="w-full h-14 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl pl-12 pr-6 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                  className="w-full h-14 bg-card border border-border rounded-2xl pl-12 pr-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                 />
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-secondary" />
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Password</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Password</label>
                 <Link href="#" className="text-xs font-bold text-primary hover:underline">Forgot password?</Link>
               </div>
               <div className="relative">
@@ -99,9 +103,9 @@ function LoginContent() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••" 
                   required
-                  className="w-full h-14 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl pl-12 pr-6 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                  className="w-full h-14 bg-card border border-border rounded-2xl pl-12 pr-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                 />
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-secondary" />
               </div>
             </div>
 
@@ -115,14 +119,14 @@ function LoginContent() {
             </Button>
           </form>
 
-          <p className="text-center text-sm font-medium text-slate-500">
+          <p className="text-center text-sm font-medium text-text-secondary">
             Don&apos;t have an account? <Link href="/auth/register" className="font-bold text-primary hover:underline">Sign up for free</Link>
           </p>
           
           <div className="pt-10 flex items-center justify-center gap-4 opacity-30 grayscale pointer-events-none">
-            <div className="h-px w-full bg-slate-200 dark:bg-slate-800" />
+            <div className="h-px w-full bg-border" />
             <span className="text-[10px] font-bold uppercase tracking-widest shrink-0">Supported By</span>
-            <div className="h-px w-full bg-slate-200 dark:bg-slate-800" />
+            <div className="h-px w-full bg-border" />
           </div>
         </div>
       </div>
@@ -142,7 +146,7 @@ function ShieldCheck({ className }: { className?: string }) {
 import { Suspense } from 'react';
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 border"><p>Loading...</p></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-bg text-text-primary border"><p>Loading...</p></div>}>
       <LoginContent />
     </Suspense>
   )
