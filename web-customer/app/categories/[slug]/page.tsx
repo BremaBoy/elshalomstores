@@ -4,7 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { getProducts } from "@/products/getProducts";
-import { notFound } from "next/navigation";
+
 
 interface CategoryPageProps {
   params: { slug: string };
@@ -49,7 +49,7 @@ export default async function CategoryDetailPage({ params }: CategoryPageProps) 
               <div className="text-center py-20 space-y-6">
                 <div className="text-6xl">🔍</div>
                 <h2 className="text-2xl font-bold">No products found</h2>
-                <p className="text-slate-500">We couldn't find any products in this category at the moment.</p>
+                <p className="text-slate-500">We couldn&apos;t find any products in this category at the moment.</p>
               </div>
             )}
           </Container>

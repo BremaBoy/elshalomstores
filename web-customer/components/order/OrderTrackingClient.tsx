@@ -96,6 +96,7 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="divide-y divide-border/50">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {(order.order_items && order.order_items.length > 0 ? order.order_items : (order.items || [])).map((item: any, idx: number) => {
                       const name = item.products?.name || item.name || "Product";
                       const price = item.unit_price || item.price || 0;
@@ -105,6 +106,7 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
                         <div key={item.id || idx} className="flex px-8 py-6 gap-6 hover:bg-slate-50/50 transition-colors">
                           <div className="h-20 w-20 bg-slate-100 rounded-2xl flex-shrink-0 overflow-hidden relative">
                              {image ? (
+                               // eslint-disable-next-line @next/next/no-img-element
                                <img src={image} alt={name} className="w-full h-full object-cover" />
                              ) : (
                                <div className="w-full h-full flex items-center justify-center text-slate-300">
@@ -166,7 +168,7 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
                   {order.delivery_instructions && (
                     <div className="bg-primary/5 p-4 rounded-xl border border-primary/10">
                       <p className="text-[9px] font-black uppercase tracking-widest text-primary mb-1">Note to Courier</p>
-                      <p className="text-[11px] font-medium text-text-secondary italic">"{order.delivery_instructions}"</p>
+                      <p className="text-[11px] font-medium text-text-secondary italic">&quot;{order.delivery_instructions}&quot;</p>
                     </div>
                   )}
                 </CardContent>

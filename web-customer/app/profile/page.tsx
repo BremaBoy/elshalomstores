@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
-import { SectionTitle } from "@/components/ui/SectionTitle";
+
 import { Button } from "@/components/ui/Button";
 import { User, Package, Heart, MapPin, Settings, LogOut, ChevronRight, Clock } from "lucide-react";
 import Link from "next/link";
@@ -18,7 +18,7 @@ export default async function ProfilePage() {
     redirect("/auth/login?redirect=/profile");
   }
 
-  const { data: orders, error: ordersError } = await supabase
+  const { data: orders } = await supabase
     .from('orders')
     .select('*')
     .eq('user_id', user.id)

@@ -33,7 +33,7 @@ export async function getCategories(): Promise<Category[]> {
       
     if (error || !data || data.length === 0) return MOCK_CATEGORIES;
     return data;
-  } catch (error) {
+  } catch {
     console.warn("Supabase categories fetch failed, using mock data");
     return MOCK_CATEGORIES;
   }

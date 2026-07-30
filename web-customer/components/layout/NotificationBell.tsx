@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+
 
 export const NotificationBell = ({ userId }: { userId: string }) => {
   const [unreadCount, setUnreadCount] = useState(0);

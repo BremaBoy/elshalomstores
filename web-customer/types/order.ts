@@ -50,8 +50,11 @@ export interface DetailedOrder {
   shipping_cost: number;
   delivery_instructions?: string;
   created_at: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   items?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   shipping_details?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   order_items?: any[];
   shipments?: Shipment[];
   order_status_history?: OrderStatusHistory[];

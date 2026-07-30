@@ -14,6 +14,9 @@ export default async function NotificationsPage() {
     .order('created_at', { ascending: false });
 
   return (
-    <NotificationCenterClient initialNotifications={notifications as any || []} />
+    <>
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <NotificationCenterClient initialNotifications={notifications as any || []} />
+    </>
   );
 }

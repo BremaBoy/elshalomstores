@@ -26,6 +26,7 @@ function RegisterContent() {
       await authService.register({ name, email, password });
       router.push(redirectParams || "/profile");
       router.refresh();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Signup error:", err);
       setError(err.message || "Something went wrong. Please try again.");

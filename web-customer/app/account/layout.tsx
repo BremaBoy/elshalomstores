@@ -1,8 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
-import { User, Package, Bell, MapPin, Settings, LogOut, ChevronRight } from "lucide-react";
-import Link from "next/link";
+
 import { createServer } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import { AccountSidebar } from "@/components/account/AccountSidebar";

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ShoppingCart, Heart, Star, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { useCartStore, CartItem } from "@/store/cartStore";
+import { useCartStore } from "@/store/cartStore";
 
 interface ProductCardProps {
   product: {

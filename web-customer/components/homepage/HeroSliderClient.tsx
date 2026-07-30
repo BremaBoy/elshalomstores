@@ -35,6 +35,7 @@ const demoSlides: HeroSlide[] = [
   }
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const HeroSliderClient = ({ slides: _initialSlides }: { slides: HeroSlide[] }) => {
   const slides = demoSlides; // Prioritize demo slides as requested
 

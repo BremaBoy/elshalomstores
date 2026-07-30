@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
-import { SectionTitle } from "@/components/ui/SectionTitle";
+
 import { ShieldCheck, Zap, Users, Globe, Target, Award } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -43,6 +43,7 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center mb-32">
             <div className="relative aspect-square rounded-[64px] overflow-hidden group shadow-2xl">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800" 
                 className="object-cover w-full h-full scale-110 group-hover:scale-100 transition-transform duration-1000" 
@@ -70,7 +71,7 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <h4 className="text-lg font-bold mb-1">Seamless Experience</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed">From browsing to delivery, we've optimized every step to make your shopping journey effortless.</p>
+                    <p className="text-slate-500 text-sm leading-relaxed">From browsing to delivery, we&apos;ve optimized every step to make your shopping journey effortless.</p>
                   </div>
                 </div>
 

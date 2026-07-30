@@ -38,6 +38,7 @@ export default async function OrderTrackingPage({ params }: OrderPageProps) {
     <>
       <Header />
       <main className="pt-20">
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <OrderTrackingClient initialOrder={order as any} />
       </main>
       <Footer />

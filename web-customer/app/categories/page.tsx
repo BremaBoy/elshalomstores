@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
-import { SectionTitle } from "@/components/ui/SectionTitle";
+
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { CategoryGrid } from "@/components/homepage/CategoryGrid";
 
@@ -26,6 +26,7 @@ export default function CategoriesPage() {
             {/* Additional Categories / Sub-sections */}
             <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="relative h-64 rounded-3xl overflow-hidden group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="https://images.unsplash.com/photo-1491933382434-500287f9b54b?auto=format&fit=crop&q=80&w=800" className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700" alt="Tech" />
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all" />
                 <div className="absolute inset-0 flex flex-col justify-center p-8 text-white">
@@ -34,6 +35,7 @@ export default function CategoriesPage() {
                 </div>
               </div>
               <div className="relative h-64 rounded-3xl overflow-hidden group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&q=80&w=800" className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700" alt="Fashion" />
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all" />
                 <div className="absolute inset-0 flex flex-col justify-center p-8 text-white">

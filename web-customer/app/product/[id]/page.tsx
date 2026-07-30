@@ -8,7 +8,7 @@ import { ProductPrice } from "@/components/product/ProductPrice";
 import { getProductById, getFeaturedProducts } from "@/products/getProducts";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import { Star, ShoppingCart, Heart, Share2, ShieldCheck, Truck, RotateCcw } from "lucide-react";
+import { Star, ShoppingCart, Heart, Share2, ShieldCheck, Truck } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 

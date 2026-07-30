@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { Mail, Lock, ShoppingBag, ArrowRight, User, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { authService } from "@/lib/auth-service";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -25,6 +25,7 @@ function LoginContent() {
       await authService.login({ email, password });
       router.push(redirectParams || "/profile");
       router.refresh();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid email or password");
     } finally {
@@ -115,7 +116,7 @@ function LoginContent() {
           </form>
 
           <p className="text-center text-sm font-medium text-slate-500">
-            Don't have an account? <Link href="/auth/register" className="font-bold text-primary hover:underline">Sign up for free</Link>
+            Don&apos;t have an account? <Link href="/auth/register" className="font-bold text-primary hover:underline">Sign up for free</Link>
           </p>
           
           <div className="pt-10 flex items-center justify-center gap-4 opacity-30 grayscale pointer-events-none">

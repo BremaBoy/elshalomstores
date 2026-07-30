@@ -1,10 +1,11 @@
 import { Check, Truck, Box, Package, MapPin, Receipt } from "lucide-react";
 import { cn } from "../../lib/utils";
-import type { OrderStatus } from "../../types/order";
+import type { OrderStatus, OrderStatusHistory } from "../../types/order";
 
 interface TrackingStep {
   label: string;
   status: OrderStatus;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any;
   description: string;
 }
@@ -50,7 +51,7 @@ const steps: TrackingStep[] = [
 
 interface TrackingTimelineProps {
   currentStatus: OrderStatus;
-  history: any[];
+  history: OrderStatusHistory[];
 }
 
 export const TrackingTimeline = ({ currentStatus, history }: TrackingTimelineProps) => {

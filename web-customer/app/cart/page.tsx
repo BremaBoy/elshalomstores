@@ -18,6 +18,7 @@ export default function CartPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -137,7 +138,7 @@ export default function CartPage() {
                 </div>
                 <h2 className="text-3xl font-extrabold mb-4 uppercase tracking-tighter">Your bag is empty</h2>
                 <p className="text-slate-500 mb-10 max-w-sm text-center">
-                  Looks like you haven't made your choice yet. Browse our shop to find something you'll love!
+                  Looks like you haven&apos;t made your choice yet. Browse our shop to find something you&apos;ll love!
                 </p>
                 <Link href="/shop">
                   <Button className="h-14 px-10 text-lg rounded-full font-bold uppercase tracking-widest">

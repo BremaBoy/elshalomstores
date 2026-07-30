@@ -14,7 +14,7 @@ export interface Product {
   stock?: number;
 }
 
-export async function getProducts(params?: any): Promise<Product[]> {
+export async function getProducts(params?: { category?: string }): Promise<Product[]> {
   try {
     let query = supabase.from('products').select('*').eq('status', 'active');
     
@@ -42,7 +42,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
       
     if (error || !data) return [];
     return data;
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -57,7 +57,7 @@ export async function getProductById(id: string): Promise<Product | null> {
       
     if (error || !data) return null;
     return data;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

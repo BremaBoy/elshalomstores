@@ -1,6 +1,7 @@
 import { ProductCard } from "./ProductCard";
 
 interface ProductGridProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   products: any[];
   columns?: 2 | 3 | 4;
 }

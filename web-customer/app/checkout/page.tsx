@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cartStore";
-import { CreditCard, Truck, ShieldCheck, Mail, MapPin, User, ChevronRight, CheckCircle2, Loader2, Lock } from "lucide-react";
+import { CreditCard, Truck, ShieldCheck, User, ChevronRight, CheckCircle2, Loader2, Lock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -38,7 +38,7 @@ export default function CheckoutPage() {
   });
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
-  const [user, setUser] = useState<any>(null);
+
 
   useEffect(() => {
     setMounted(true);
@@ -47,7 +47,7 @@ export default function CheckoutPage() {
       if (!session) {
         router.push("/auth/login?redirect=/checkout");
       } else {
-        setUser(session.user);
+
         // Pre-fill email and name if available
         setFormData(prev => ({
           ...prev,
@@ -174,6 +174,7 @@ export default function CheckoutPage() {
       
       setIsSuccess(true);
       clearCart();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("DEBUG: Order submission full error:", error);
       
@@ -203,7 +204,7 @@ export default function CheckoutPage() {
           <div className="space-y-4">
             <h1 className="text-4xl md:text-6xl font-extrabold uppercase tracking-tighter text-slate-900 dark:text-white">Order Confirmed!</h1>
             <p className="text-xl text-slate-500 max-w-lg mx-auto leading-relaxed">
-              Thank you for your purchase. Your order has been placed successfully and we'll notify you when it ships.
+              Thank you for your purchase. Your order has been placed successfully and we&apos;ll notify you when it ships.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 pt-8">

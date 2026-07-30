@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
@@ -13,7 +13,7 @@ import { Suspense } from "react";
 
 function VerifyContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
+
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("Verifying your payment...");
   
@@ -31,7 +31,8 @@ function VerifyContent() {
 
       try {
         // Call our backend to verify
-        const response = await axios.get(`http://localhost:5000/api/payments/${gateway}/verify/${reference}`, {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const response = await axios.get(`${apiUrl}/api/payments/${gateway}/verify/${reference}`, {
             params: { transaction_id: transactionId },
             withCredentials: true
         });
@@ -43,6 +44,7 @@ function VerifyContent() {
           setStatus("error");
           setMessage(`Payment verification failed. Status: ${response.data.status}`);
         }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error("Verification error:", error);
         setStatus("error");

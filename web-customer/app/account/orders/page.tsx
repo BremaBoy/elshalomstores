@@ -9,7 +9,7 @@ export default async function OrdersPage() {
   const supabase = createServer();
   const { data: { user } } = await supabase.auth.getUser();
   
-  const { data: orders, error } = await supabase
+  const { data: orders } = await supabase
     .from('orders')
     .select('*')
     .eq('user_id', user?.id)
