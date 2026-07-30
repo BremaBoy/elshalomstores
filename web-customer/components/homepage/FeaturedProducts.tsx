@@ -9,16 +9,16 @@ export const FeaturedProducts = async () => {
   const featuredProducts = await getFeaturedProducts();
 
   return (
-    <section className="py-24 bg-card">
+    <section className="py-24 md:py-32 bg-secondary text-white">
       <Container>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
           <SectionTitle
-            title="Premium Selection"
-            subtitle="Handpicked pieces from our most exclusive collections"
-            className="mb-0"
+            title="Fresh from the shelves"
+            subtitle="The pieces customers are loving right now."
+            className="mb-0 [&_h2]:text-white [&_p]:text-white/60"
           />
           <Link href="/shop" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-primary hover:gap-5 transition-all group">
-            Explore Full Catalog <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            Shop everything <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
