@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { X, ChevronRight, User, ShoppingCart, Search } from "lucide-react";
+import { X, ChevronRight, User, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { useRouter } from "next/navigation";
+import { InstantSearch } from "@/components/search/InstantSearch";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -15,8 +15,6 @@ interface MobileMenuProps {
 
 export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
   const [mounted, setMounted] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const router = useRouter();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -32,13 +30,6 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
   }, [isOpen]);
 
   if (!mounted) return null;
-
-  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const query = searchQuery.trim();
-    router.push(query ? `/shop?q=${encodeURIComponent(query)}` : "/shop");
-    onClose();
-  };
 
   return (
     <>
@@ -68,25 +59,9 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
             </div>
           </div>
 
-          <form onSubmit={handleSearch} className="px-6 pt-6" role="search">
-            <div className="relative">
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search products & categories"
-                aria-label="Search products and categories"
-                className="h-12 w-full rounded-xl border border-border bg-card pl-11 pr-4 text-sm text-text-primary outline-none placeholder:text-text-secondary/60 focus:border-primary focus:ring-4 focus:ring-primary/10"
-              />
-              <button
-                type="submit"
-                aria-label="Submit search"
-                className="absolute left-3 top-1/2 -translate-y-1/2 p-1 text-text-secondary transition hover:text-primary"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-            </div>
-          </form>
+          <div className="px-6 pt-6">
+            <InstantSearch mode="mobile" onNavigate={onClose} />
+          </div>
 
           {/* User Section */}
           <div className="p-6">
