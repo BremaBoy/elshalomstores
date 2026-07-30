@@ -25,7 +25,7 @@ export default function CartPage() {
   if (!mounted) return null;
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-bg text-text-primary">
       <Header />
       <div className="pt-20">
         <Breadcrumbs items={[{ label: "Shopping Cart" }]} />
@@ -42,8 +42,8 @@ export default function CartPage() {
                 {/* Cart Items List */}
                 <div className="lg:col-span-2 space-y-6">
                   {items.map((item) => (
-                    <div key={item.id} className="flex flex-col sm:flex-row gap-6 p-6 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 hover:shadow-xl transition-shadow group">
-                      <div className="relative h-32 w-full sm:w-32 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                    <div key={item.id} className="flex flex-col sm:flex-row gap-6 p-6 bg-card rounded-[32px] border border-border hover:shadow-xl hover:shadow-black/10 transition-shadow group">
+                      <div className="relative h-32 w-full sm:w-32 rounded-2xl overflow-hidden bg-bg border border-border flex-shrink-0">
                         <Image src={item.image} alt={item.name} fill className="object-cover" />
                       </div>
                       
@@ -53,28 +53,33 @@ export default function CartPage() {
                             <Link href={`/product/${item.id}`} className="text-xl font-extrabold hover:text-primary transition-colors uppercase tracking-tight">
                               {item.name}
                             </Link>
-                            <p className="text-sm text-slate-500 font-medium">{item.category}</p>
+                            <p className="text-sm text-text-secondary font-medium">{item.category}</p>
                           </div>
                           <button 
                             onClick={() => removeItem(item.id)}
-                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-full transition-all"
+                            aria-label={`Remove ${item.name} from cart`}
+                            className="p-2 text-text-secondary hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all"
                           >
                             <Trash2 className="h-5 w-5" />
                           </button>
                         </div>
 
                         <div className="flex flex-wrap items-center justify-between gap-4 mt-6">
-                          <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+                          <div className="flex items-center bg-bg border border-border rounded-xl p-1">
                             <button 
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all"
+                              disabled={item.quantity <= 1}
+                              aria-label={`Decrease ${item.name} quantity`}
+                              className="w-10 h-10 flex items-center justify-center text-text-secondary hover:bg-card disabled:cursor-not-allowed disabled:opacity-40 rounded-lg transition-all"
                             >
                               <Minus className="h-4 w-4" />
                             </button>
                             <span className="w-12 text-center font-bold">{item.quantity}</span>
                             <button 
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all"
+                              disabled={typeof item.stock === "number" && item.quantity >= item.stock}
+                              aria-label={`Increase ${item.name} quantity`}
+                              className="w-10 h-10 flex items-center justify-center text-text-secondary hover:bg-card disabled:cursor-not-allowed disabled:opacity-40 rounded-lg transition-all"
                             >
                               <Plus className="h-4 w-4" />
                             </button>
@@ -89,31 +94,31 @@ export default function CartPage() {
 
                 {/* Order Summary */}
                 <div className="lg:col-span-1">
-                  <div className="p-8 bg-slate-900 text-white rounded-[40px] shadow-2xl sticky top-32">
+                  <div className="p-8 bg-card text-text-primary border border-border rounded-[40px] shadow-2xl shadow-black/10 sticky top-32">
                     <h3 className="text-2xl font-bold mb-8 uppercase tracking-widest text-primary">Order Summary</h3>
                     
                     <div className="space-y-6">
-                      <div className="flex justify-between items-center text-slate-400 font-medium">
+                      <div className="flex justify-between items-center text-text-secondary font-medium">
                         <span>Subtotal</span>
-                        <span className="text-white">₦{getTotalPrice().toLocaleString()}</span>
+                        <span className="text-text-primary">₦{getTotalPrice().toLocaleString()}</span>
                       </div>
-                      <div className="flex justify-between items-center text-slate-400 font-medium">
+                      <div className="flex justify-between items-center text-text-secondary font-medium">
                         <span>Shipping</span>
                         <span className="text-emerald-400 font-bold uppercase text-xs tracking-widest">Free</span>
                       </div>
-                      <div className="flex justify-between items-center text-slate-400 font-medium">
+                      <div className="flex justify-between items-center text-text-secondary font-medium">
                         <span>Tax</span>
-                        <span className="text-white">₦0.00</span>
+                        <span className="text-text-primary">₦0.00</span>
                       </div>
                       
-                      <div className="pt-6 border-t border-slate-800">
+                      <div className="pt-6 border-t border-border">
                         <div className="flex justify-between items-center mb-1">
                           <span className="text-lg font-bold">Total</span>
                           <span className="text-3xl font-extrabold text-primary">
                             ₦{getTotalPrice().toLocaleString()}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500">VAT included where applicable</p>
+                        <p className="text-xs text-text-secondary">VAT included where applicable</p>
                       </div>
 
                       <div className="pt-4 space-y-4">
@@ -123,7 +128,7 @@ export default function CartPage() {
                             <ArrowRight className="ml-2 h-6 w-6 transition-transform group-hover:translate-x-1" />
                           </Button>
                         </Link>
-                        <Link href="/shop" className="block text-center text-sm font-bold text-slate-400 hover:text-white transition-colors">
+                        <Link href="/shop" className="block text-center text-sm font-bold text-text-secondary hover:text-primary transition-colors">
                           Continue Shopping
                         </Link>
                       </div>
@@ -132,12 +137,12 @@ export default function CartPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-[64px] border-2 border-dashed border-slate-200 dark:border-slate-800">
-                <div className="h-32 w-32 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-xl mb-8">
-                  <ShoppingBag className="h-16 w-16 text-slate-200" />
+              <div className="flex flex-col items-center justify-center py-20 bg-card rounded-[64px] border-2 border-dashed border-border">
+                <div className="h-32 w-32 bg-bg border border-border rounded-full flex items-center justify-center shadow-xl mb-8">
+                  <ShoppingBag className="h-16 w-16 text-text-secondary/30" />
                 </div>
                 <h2 className="text-3xl font-extrabold mb-4 uppercase tracking-tighter">Your bag is empty</h2>
-                <p className="text-slate-500 mb-10 max-w-sm text-center">
+                <p className="text-text-secondary mb-10 max-w-sm text-center">
                   Looks like you haven&apos;t made your choice yet. Browse our shop to find something you&apos;ll love!
                 </p>
                 <Link href="/shop">

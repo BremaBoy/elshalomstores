@@ -80,13 +80,13 @@ export const Footer = () => {
                 <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
                   <MapPin className="h-5 w-5 text-primary" />
                 </div>
-                    <span className="text-white/55 text-sm font-medium leading-relaxed">Lagos, Nigeria</span>
+                    <span className="text-white/55 text-sm font-medium leading-relaxed">199, Igbe Road, Ikorodu, Lagos</span>
               </li>
               <li className="flex items-center gap-4">
                 <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
                   <Phone className="h-5 w-5 text-primary" />
                 </div>
-                <span className="text-text-secondary text-sm font-bold tracking-tight">+234 800 123 4567</span>
+                <a href="tel:08023980907" className="text-text-secondary text-sm font-bold tracking-tight hover:text-primary">08023980907</a>
               </li>
               <li className="flex items-center gap-4">
                 <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
