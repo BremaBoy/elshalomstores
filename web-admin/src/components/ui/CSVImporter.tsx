@@ -6,7 +6,7 @@ import { Upload, X, FileText, CheckCircle2, AlertCircle, Loader2, Download } fro
 
 const MAX_FILE_SIZE = 500 * 1024 * 1024
 const MAX_PRODUCTS = 200_000
-const PRODUCTS_PER_BATCH = 1_000
+const PRODUCTS_PER_BATCH = 100
 const PARSE_CHUNK_SIZE = 5 * 1024 * 1024
 
 export interface CSVBatchContext {
