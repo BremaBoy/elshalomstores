@@ -76,7 +76,7 @@ export default function Header() {
             onClick={() => setIsProfileOpen(!isProfileOpen)}
             className="flex items-center gap-2 pl-2 border-l border-border hover:bg-accent/50 p-1 rounded-lg transition-colors group"
           >
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-semibold shadow-lg shadow-purple-900/20 group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold shadow-lg shadow-purple-900/20 group-hover:scale-105 transition-transform">
               {user?.name?.[0]?.toUpperCase() ?? 'A'}
             </div>
             <div className="hidden sm:block text-left">
@@ -87,28 +87,28 @@ export default function Header() {
           </button>
 
           {isProfileOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 z-50">
-               <div className="p-3 border-b border-neutral-800 bg-black/20">
-                  <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Signed in as</p>
-                  <p className="text-sm font-medium text-white truncate mt-1">{user?.email}</p>
+            <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 z-50">
+               <div className="p-3 border-b border-border bg-muted/50">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Signed in as</p>
+                  <p className="text-sm font-medium text-foreground truncate mt-1">{user?.email}</p>
                </div>
                <div className="p-1.5">
                   <button 
                     onClick={() => { setIsProfileOpen(false); router.push('/dashboard/profile') }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-neutral-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors group"
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors group"
                   >
-                    <User className="w-4 h-4 text-neutral-500 group-hover:text-primary transition-colors" />
+                    <User className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     <span>View Profile</span>
                   </button>
                   <button 
                     onClick={() => { setIsProfileOpen(false); router.push('/dashboard/settings') }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-neutral-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors group"
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors group"
                   >
-                    <Settings className="w-4 h-4 text-neutral-500 group-hover:text-primary transition-colors" />
+                    <Settings className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     <span>Settings</span>
                   </button>
                </div>
-               <div className="p-1.5 border-t border-neutral-800 bg-red-500/5">
+               <div className="p-1.5 border-t border-border bg-red-500/5">
                   <button 
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors group"

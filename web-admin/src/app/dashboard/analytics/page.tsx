@@ -75,10 +75,10 @@ export default function AnalyticsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Analytics</h1>
-          <p className="text-neutral-400 text-sm">Comprehensive store performance overview</p>
+          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+          <p className="text-muted-foreground text-sm">Comprehensive store performance overview</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-neutral-300">
+        <div className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg text-sm text-foreground">
           <Calendar className="w-4 h-4" />
           <span>Last 30 Days</span>
         </div>
@@ -86,62 +86,62 @@ export default function AnalyticsPage() {
 
       {/* Analytics Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-xl p-5">
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-5">
            <div className="flex items-center justify-between mb-4">
              <div className="p-2 bg-green-500/10 rounded-lg text-green-500">
                 <DollarSign className="w-5 h-5" />
              </div>
              <span className="text-xs font-medium text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">+12.5%</span>
            </div>
-           <p className="text-sm text-neutral-400">Total Revenue</p>
-           <p className="text-2xl font-bold text-white mt-1">₦{stats.totalRevenue.toLocaleString()}</p>
+           <p className="text-sm text-muted-foreground">Total Revenue</p>
+           <p className="text-2xl font-bold text-foreground mt-1">₦{stats.totalRevenue.toLocaleString()}</p>
         </div>
 
-        <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-xl p-5">
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-5">
            <div className="flex items-center justify-between mb-4">
              <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
                 <TrendingUp className="w-5 h-5" />
              </div>
-             <span className="text-xs font-medium text-neutral-400">Static</span>
+             <span className="text-xs font-medium text-muted-foreground">Static</span>
            </div>
-           <p className="text-sm text-neutral-400">Avg. Order Value</p>
-           <p className="text-2xl font-bold text-white mt-1">₦{stats.averageOrder.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+           <p className="text-sm text-muted-foreground">Avg. Order Value</p>
+           <p className="text-2xl font-bold text-foreground mt-1">₦{stats.averageOrder.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
         </div>
 
-        <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-xl p-5">
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-5">
            <div className="flex items-center justify-between mb-4">
              <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
                 <ShoppingCart className="w-5 h-5" />
              </div>
              <span className="text-xs font-medium text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">-2.1%</span>
            </div>
-           <p className="text-sm text-neutral-400">Total Orders</p>
-           <p className="text-2xl font-bold text-white mt-1">{revenueData.length * 4} sales</p>
+           <p className="text-sm text-muted-foreground">Total Orders</p>
+           <p className="text-2xl font-bold text-foreground mt-1">{revenueData.length * 4} sales</p>
         </div>
 
-        <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-xl p-5">
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-5">
            <div className="flex items-center justify-between mb-4">
              <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500">
                 <Users className="w-5 h-5" />
              </div>
              <span className="text-xs font-medium text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">+4.2%</span>
            </div>
-           <p className="text-sm text-neutral-400">Conversion Rate</p>
-           <p className="text-2xl font-bold text-white mt-1">{stats.conversionRate}%</p>
+           <p className="text-sm text-muted-foreground">Conversion Rate</p>
+           <p className="text-2xl font-bold text-foreground mt-1">{stats.conversionRate}%</p>
         </div>
       </div>
 
       {/* Main Chart Placeholder (Visualized with CSS for simplicity/perf) */}
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
+      <div className="bg-card border border-border rounded-2xl p-6">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h3 className="text-lg font-semibold text-white">Revenue Overview</h3>
-            <p className="text-neutral-500 text-sm">Daily revenue for the selected period</p>
+            <h3 className="text-lg font-semibold text-foreground">Revenue Overview</h3>
+            <p className="text-muted-foreground text-sm">Daily revenue for the selected period</p>
           </div>
           <div className="flex items-center gap-2">
              <div className="flex items-center gap-1.5 mr-4">
                 <div className="w-3 h-3 rounded-full bg-primary" />
-                <span className="text-xs text-neutral-400">Current Period</span>
+                <span className="text-xs text-muted-foreground">Current Period</span>
              </div>
           </div>
         </div>
@@ -153,11 +153,11 @@ export default function AnalyticsPage() {
                   className="w-full bg-primary/20 hover:bg-primary transition-all rounded-t-sm relative"
                   style={{ height: `${Math.max(10, (d.total / (stats.totalRevenue/10)) * 100)}%` }}
                 >
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-neutral-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-accent text-foreground text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">
                     ₦{d.total.toLocaleString()}
                   </div>
                 </div>
-                <span className="text-[10px] text-neutral-600 rotate-45 mt-2 origin-left">{d.name}</span>
+                <span className="text-[10px] text-muted-foreground rotate-45 mt-2 origin-left">{d.name}</span>
              </div>
            ))}
         </div>

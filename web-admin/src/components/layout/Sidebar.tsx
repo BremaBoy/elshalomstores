@@ -45,7 +45,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className={cn('flex items-center gap-3 px-4 py-5 border-b border-border', !isSidebarOpen && 'justify-center px-2')}>
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-          <Store className="w-4 h-4 text-white" />
+          <Store className="w-4 h-4 text-primary-foreground" />
         </div>
         {isSidebarOpen && (
           <span className="font-bold text-foreground text-sm leading-tight">
@@ -66,7 +66,7 @@ export default function Sidebar() {
           className={cn(
             'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
             (pathname === '/dashboard/admin' || pathname === '/dashboard/superadmin')
-              ? 'bg-primary text-white shadow-lg shadow-purple-900/30'
+              ? 'bg-primary text-primary-foreground shadow-lg shadow-purple-900/30'
               : 'text-muted-foreground hover:text-foreground hover:bg-accent',
             !isSidebarOpen && 'justify-center px-2'
           )}
@@ -83,7 +83,7 @@ export default function Sidebar() {
             className={cn(
               'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
               pathname === href || pathname.startsWith(href + '/')
-                ? 'bg-primary text-white shadow-lg shadow-purple-900/30'
+                ? 'bg-primary text-primary-foreground shadow-lg shadow-purple-900/30'
                 : 'text-muted-foreground hover:text-foreground hover:bg-accent',
               !isSidebarOpen && 'justify-center px-2'
             )}
@@ -107,7 +107,7 @@ export default function Sidebar() {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
                   pathname === href || pathname.startsWith(href + '/')
-                    ? 'bg-primary text-white shadow-lg shadow-purple-900/30'
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-purple-900/30'
                     : 'text-muted-foreground hover:text-foreground hover:bg-accent',
                   !isSidebarOpen && 'justify-center px-2'
                 )}

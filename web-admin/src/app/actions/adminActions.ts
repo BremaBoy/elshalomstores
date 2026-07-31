@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { requireSuperAdmin } from '@/lib/admin-auth'
 
 function getAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -21,6 +22,7 @@ function getAdminClient() {
 
 export async function fetchAdmins() {
   try {
+    await requireSuperAdmin()
     const supabaseAdmin = getAdminClient()
     const { data, error } = await supabaseAdmin
       .from('admins')
@@ -37,28 +39,28 @@ export async function fetchAdmins() {
 
 export async function saveAdmin(data: any) {
   try {
+    const actor = await requireSuperAdmin()
     const supabaseAdmin = getAdminClient()
     
     let adminId = data.id
-    console.log('--- SAVE ADMIN START ---', { adminId, email: data.email })
-
-    // If it's a new admin (no ID provided), we must create them in Auth first
     if (!adminId) {
-      console.log('Creating new Auth user...')
-      const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
-        email: data.email,
-        password: Math.random().toString(36).slice(-12) + '!', // Stronger temp password
-        email_confirm: true,
-        user_metadata: { role: data.role, full_name: data.name }
-      })
+      const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'https://elshalomstores1.vercel.app'
+      const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+        data.email,
+        {
+          redirectTo: `${adminUrl.replace(/\/+$/, '')}/auth/confirm`,
+          data: { role: data.role, full_name: data.name, name: data.name },
+        }
+      )
 
       if (authError) {
-        console.error('Auth User Creation Failed:', authError)
         throw authError
       }
-      
       adminId = authUser.user.id
-      console.log('Auth User Created Successfully:', adminId)
+    }
+
+    if (adminId === actor.id && (data.role !== 'SUPER_ADMIN' || data.status === 'suspended')) {
+      throw new Error('You cannot demote or suspend your own Super Admin account.')
     }
 
     // Sanitize data for the 'admins' table
@@ -71,15 +73,15 @@ export async function saveAdmin(data: any) {
       created_at: data.created_at || new Date().toISOString()
     }
 
-    console.log('Upserting admin metadata:', adminData)
     const { error: upsertError } = await supabaseAdmin.from('admins').upsert([adminData])
-    
-    if (upsertError) {
-      console.error('Admins Upsert Failed:', upsertError)
-      throw upsertError
-    }
-    
-    console.log('Admin Saved Successfully')
+    if (upsertError) throw upsertError
+
+    const { error: metadataError } = await supabaseAdmin.auth.admin.updateUserById(adminId, {
+      app_metadata: { role: data.role },
+      user_metadata: { role: data.role, status: adminData.status, name: data.name, full_name: data.name },
+      ban_duration: adminData.status === 'suspended' ? '876000h' : 'none',
+    })
+    if (metadataError) throw metadataError
     revalidatePath('/dashboard/admins')
     return { success: true }
   } catch (error: any) {
@@ -90,6 +92,10 @@ export async function saveAdmin(data: any) {
 
 export async function updateAdminStatus(id: string, status: 'active' | 'suspended') {
   try {
+    const actor = await requireSuperAdmin()
+    if (id === actor.id && status === 'suspended') {
+      throw new Error('You cannot suspend your own Super Admin account.')
+    }
     const supabaseAdmin = getAdminClient()
     const { error } = await supabaseAdmin
       .from('admins')
@@ -97,6 +103,11 @@ export async function updateAdminStatus(id: string, status: 'active' | 'suspende
       .eq('id', id)
     
     if (error) throw error
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(id, {
+      ban_duration: status === 'suspended' ? '876000h' : 'none',
+      user_metadata: { status },
+    })
+    if (authError) throw authError
     revalidatePath('/dashboard/admins')
     return { success: true }
   } catch (error: any) {
@@ -107,12 +118,10 @@ export async function updateAdminStatus(id: string, status: 'active' | 'suspende
 
 export async function deleteAdmin(id: string) {
   try {
+    const actor = await requireSuperAdmin()
+    if (id === actor.id) throw new Error('You cannot permanently delete your own account.')
     const supabaseAdmin = getAdminClient()
-    const { error } = await supabaseAdmin
-      .from('admins')
-      .delete()
-      .eq('id', id)
-    
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(id)
     if (error) throw error
     revalidatePath('/dashboard/admins')
     return { success: true }

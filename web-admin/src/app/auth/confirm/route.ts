@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const type = request.nextUrl.searchParams.get('type') as EmailOtpType | null
   const redirectUrl = new URL('/reset-password', request.url)
 
-  if (tokenHash && type === 'recovery') {
+  if (tokenHash && (type === 'recovery' || type === 'invite')) {
     const supabase = await createClient()
     const { error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,

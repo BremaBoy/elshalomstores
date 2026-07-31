@@ -8,18 +8,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { setUser } = useAuthStore()
 
     useEffect(() => {
+        const syncAdmin = async (authUser: { id: string; email?: string }) => {
+            const { data: admin } = await supabaseAuth
+                .from('admins')
+                .select('name, role, status')
+                .eq('id', authUser.id)
+                .maybeSingle()
+
+            if (!admin || admin.status !== 'active') {
+                await supabaseAuth.auth.signOut()
+                setUser(null)
+                return
+            }
+
+            setUser({
+                id: authUser.id,
+                name: admin.name || 'Admin',
+                email: authUser.email || '',
+                role: admin.role as 'ADMIN' | 'SUPER_ADMIN',
+                status: admin.status as 'active' | 'suspended',
+            })
+        }
+
         // Initial session check
         const initializeAuth = async () => {
             const { data: { session } } = await supabaseAuth.auth.getSession()
             if (session?.user) {
-                const user = session.user
-                setUser({
-                    id: user.id,
-                    name: (user.user_metadata as any)?.name || 'Admin',
-                    email: user.email!,
-                    role: (user.user_metadata as any)?.role || 'ADMIN',
-                    status: (user.user_metadata as any)?.status || 'active',
-                })
+                await syncAdmin(session.user)
             }
         }
 
@@ -28,14 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Listen for auth changes
         const { data: { subscription } } = supabaseAuth.auth.onAuthStateChange(async (event, session) => {
             if (session?.user) {
-                const user = session.user
-                setUser({
-                    id: user.id,
-                    name: (user.user_metadata as any)?.name || 'Admin',
-                    email: user.email!,
-                    role: (user.user_metadata as any)?.role || 'ADMIN',
-                    status: (user.user_metadata as any)?.status || 'active',
-                })
+                await syncAdmin(session.user)
             } else {
                 setUser(null)
             }

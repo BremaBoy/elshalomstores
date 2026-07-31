@@ -46,24 +46,24 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-neutral-800">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border">
         <div className="flex items-center gap-6">
           <div className="relative group">
-            <div className="w-24 h-24 rounded-3xl bg-primary flex items-center justify-center text-white text-3xl font-bold shadow-2xl shadow-purple-900/40 relative z-10">
+            <div className="w-24 h-24 rounded-3xl bg-primary flex items-center justify-center text-foreground text-3xl font-bold shadow-2xl shadow-purple-900/40 relative z-10">
               {user?.name?.[0]?.toUpperCase()}
             </div>
-            <button className="absolute -bottom-2 -right-2 p-2 bg-neutral-900 border border-neutral-800 rounded-xl text-neutral-400 hover:text-white transition-colors z-20 shadow-lg group-hover:scale-110">
+            <button className="absolute -bottom-2 -right-2 p-2 bg-card border border-border rounded-xl text-muted-foreground hover:text-foreground transition-colors z-20 shadow-lg group-hover:scale-110">
               <Camera className="w-4 h-4" />
             </button>
             <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full -z-10 group-hover:bg-primary/30 transition-colors" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white mb-1">{user?.name}</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-1">{user?.name}</h1>
             <div className="flex items-center gap-2">
                <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest border border-primary/20">
                  {user?.role?.replace('_', ' ')}
                </span>
-               <span className="text-neutral-500 text-xs">• Joined 2024</span>
+               <span className="text-muted-foreground text-xs">• Joined 2024</span>
             </div>
           </div>
         </div>
@@ -72,8 +72,8 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Account Info */}
         <div className="lg:col-span-2 space-y-6">
-          <section className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-3xl p-8 shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+          <section className="bg-card/50 backdrop-blur-sm border border-border rounded-3xl p-8 shadow-2xl">
+            <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
               <User className="w-5 h-5 text-primary" />
               Account Information
             </h3>
@@ -90,23 +90,23 @@ export default function ProfilePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Full Name</label>
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Full Name</label>
                   <input 
                     type="text" 
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-white focus:ring-1 focus:ring-primary focus:outline-none transition-all shadow-inner"
+                    className="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none transition-all shadow-inner"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Email Address</label>
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Email Address</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input 
                       type="email" 
                       value={formData.email}
                       disabled
-                      className="w-full pl-11 pr-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-neutral-500 cursor-not-allowed"
+                      className="w-full pl-11 pr-4 py-3 bg-background border border-border rounded-xl text-sm text-muted-foreground cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -116,7 +116,7 @@ export default function ProfilePage() {
                 <button 
                   type="submit"
                   disabled={isUpdating}
-                  className="px-8 py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-xl shadow-purple-900/30 hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2"
+                  className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm shadow-xl shadow-purple-900/30 hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2"
                 >
                   {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Save Profile Changes
@@ -125,13 +125,13 @@ export default function ProfilePage() {
             </form>
           </section>
 
-          <section className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-3xl p-8 shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+          <section className="bg-card/50 backdrop-blur-sm border border-border rounded-3xl p-8 shadow-2xl">
+            <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
               <Lock className="w-5 h-5 text-primary" />
               Security & Password
             </h3>
-            <p className="text-sm text-neutral-400 mb-6">Keep your account secure by changing your password periodically or if you suspect any unauthorized access.</p>
-            <button className="px-6 py-2.5 bg-neutral-800 border border-neutral-700 text-white rounded-xl font-bold text-sm hover:bg-neutral-700 transition-all">
+            <p className="text-sm text-muted-foreground mb-6">Keep your account secure by changing your password periodically or if you suspect any unauthorized access.</p>
+            <button className="px-6 py-2.5 bg-accent border border-border text-foreground rounded-xl font-bold text-sm hover:bg-muted transition-all">
               Change Account Password
             </button>
           </section>
@@ -139,8 +139,8 @@ export default function ProfilePage() {
 
         {/* Sidebar Info */}
         <div className="space-y-6">
-           <section className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6">
-              <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Account Status</h4>
+           <section className="bg-card border border-border rounded-3xl p-6">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Account Status</h4>
               <div className="flex items-center gap-3 p-4 bg-green-500/5 border border-green-500/10 rounded-2xl">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
                 <span className="text-sm font-semibold text-green-500">Fully Verified</span>
@@ -148,22 +148,22 @@ export default function ProfilePage() {
               
               <div className="mt-6 space-y-4">
                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-neutral-500">MFA Status</span>
+                    <span className="text-muted-foreground">MFA Status</span>
                     <span className="text-red-500 font-bold uppercase">Disabled</span>
                  </div>
                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-neutral-500">Last Login</span>
-                    <span className="text-white font-medium">Just now</span>
+                    <span className="text-muted-foreground">Last Login</span>
+                    <span className="text-foreground font-medium">Just now</span>
                  </div>
               </div>
            </section>
 
-           <section className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 border-l-4 border-l-purple-500">
+           <section className="bg-card border border-border rounded-3xl p-6 border-l-4 border-l-purple-500">
               <div className="flex items-center gap-2 mb-2">
                  <Shield className="w-4 h-4 text-purple-500" />
-                 <h4 className="text-xs font-bold text-neutral-300 uppercase tracking-widest">Permissions</h4>
+                 <h4 className="text-xs font-bold text-foreground uppercase tracking-widest">Permissions</h4>
               </div>
-              <p className="text-[11px] text-neutral-500 leading-relaxed italic">
+              <p className="text-[11px] text-muted-foreground leading-relaxed italic">
                  As a {user?.role === 'SUPER_ADMIN' ? 'Super Administrator' : 'Administrator'}, you have {user?.role === 'SUPER_ADMIN' ? 'unrestricted' : 'standard admin'} access to all store modules, financial reports, and system settings.
               </p>
            </section>

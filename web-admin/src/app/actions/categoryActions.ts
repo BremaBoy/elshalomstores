@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/admin-auth'
 
 function getAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -20,6 +21,7 @@ function getAdminClient() {
 }
 
 export async function fetchCategories() {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const { data, error } = await supabaseAdmin.from('categories').select('*').order('name')
@@ -31,6 +33,7 @@ export async function fetchCategories() {
 }
 
 export async function saveCategory(data: any) {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const { error } = await supabaseAdmin.from('categories').upsert([data])
@@ -44,6 +47,7 @@ export async function saveCategory(data: any) {
 }
 
 export async function deleteCategory(id: string) {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const { error } = await supabaseAdmin.from('categories').delete().eq('id', id)

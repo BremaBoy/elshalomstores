@@ -200,13 +200,13 @@ export default function ProductsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Products</h1>
-          <p className="text-sm text-neutral-400">Manage your inventory and product listings</p>
+          <h1 className="text-2xl font-bold text-foreground">Products</h1>
+          <p className="text-sm text-muted-foreground">Manage your inventory and product listings</p>
         </div>
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setShowImport(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-800 text-neutral-300 rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-foreground rounded-lg text-sm font-medium hover:bg-accent transition-colors"
           >
             <Upload className="w-4 h-4" />
             Import CSV
@@ -216,7 +216,7 @@ export default function ProductsPage() {
               setEditingProduct(undefined)
               setShowForm(true)
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
           >
             <Plus className="w-4 h-4" />
             Add Product
@@ -224,37 +224,37 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="flex border-b border-neutral-800">
+      <div className="flex border-b border-border">
         <button 
           onClick={() => setActiveTab('all')}
-          className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-neutral-500 hover:text-neutral-300'}`}
+          className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
         >
           All Products ({products.length})
         </button>
         <button 
           onClick={() => setActiveTab('active')}
-          className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'active' ? 'border-primary text-primary' : 'border-transparent text-neutral-500 hover:text-neutral-300'}`}
+          className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'active' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
         >
           Active ({products.filter(p => p.status === 'active').length})
         </button>
         <button 
           onClick={() => setActiveTab('pending')}
-          className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'pending' ? 'border-primary text-primary' : 'border-transparent text-neutral-500 hover:text-neutral-300'}`}
+          className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'pending' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
         >
           Pending ({products.filter(p => p.status === 'pending').length})
         </button>
       </div>
 
       {isLoading ? (
-        <div className="h-64 bg-neutral-900 border border-neutral-800 rounded-xl flex items-center justify-center">
+        <div className="h-64 bg-card border border-border rounded-xl flex items-center justify-center">
           <Loader2 className="w-8 h-8 text-primary animate-spin" />
         </div>
       ) : error ? (
-        <div className="p-12 bg-neutral-900 border border-neutral-800 rounded-xl flex flex-col items-center justify-center text-center">
+        <div className="p-12 bg-card border border-border rounded-xl flex flex-col items-center justify-center text-center">
           <AlertCircle className="w-12 h-12 text-destructive mb-4" />
-          <h3 className="text-lg font-bold text-white mb-2">Failed to load products</h3>
-          <p className="text-neutral-500 max-w-sm mb-6">{error}</p>
-          <button onClick={fetchData} className="px-4 py-2 bg-neutral-800 text-white rounded-lg text-sm font-medium hover:bg-neutral-700 transition-colors">
+          <h3 className="text-lg font-bold text-foreground mb-2">Failed to load products</h3>
+          <p className="text-muted-foreground max-w-sm mb-6">{error}</p>
+          <button onClick={fetchData} className="px-4 py-2 bg-accent text-foreground rounded-lg text-sm font-medium hover:bg-muted transition-colors">
             Try Again
           </button>
         </div>
@@ -262,37 +262,37 @@ export default function ProductsPage() {
         <>
           {/* Stats & Table logic (Similar to previous, but using products from state) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-xl">
-              <p className="text-xs text-neutral-500 uppercase tracking-wider font-semibold">Total Products</p>
-              <p className="text-2xl font-bold text-white mt-1">{products.length}</p>
+            <div className="bg-card border border-border p-4 rounded-xl">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Total Products</p>
+              <p className="text-2xl font-bold text-foreground mt-1">{products.length}</p>
             </div>
-            <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-xl">
-              <p className="text-xs text-neutral-500 uppercase tracking-wider font-semibold">Low Stock</p>
+            <div className="bg-card border border-border p-4 rounded-xl">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Low Stock</p>
               <p className="text-2xl font-bold text-amber-500 mt-1">{products.filter(p => p.stock > 0 && p.stock < 10).length}</p>
             </div>
-            <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-xl">
-              <p className="text-xs text-neutral-500 uppercase tracking-wider font-semibold">Current Value</p>
+            <div className="bg-card border border-border p-4 rounded-xl">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Current Value</p>
               <p className="text-2xl font-bold text-green-500 mt-1">₦{products.reduce((acc, p) => acc + (p.price * p.stock), 0).toLocaleString()}</p>
             </div>
           </div>
 
-          <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-neutral-800 bg-neutral-900/50">
-                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase">Product</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase">Category</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase">Price</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase text-right">Actions</th>
+                  <tr className="border-b border-border bg-card/50">
+                    <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase">Product</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase">Category</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase">Price</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-800">
+                <tbody className="divide-y divide-border">
                   {filteredProducts.map((product) => (
-                    <tr key={product.id} className="hover:bg-neutral-800/30 transition-colors group">
+                    <tr key={product.id} className="hover:bg-accent/30 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-neutral-900 overflow-hidden border border-neutral-800 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-lg bg-card overflow-hidden border border-border flex items-center justify-center">
                             {product.image ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
@@ -302,22 +302,22 @@ export default function ProductsPage() {
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium text-white line-clamp-1">{product.name || 'Untitled Product'}</p>
+                              <p className="text-sm font-medium text-foreground line-clamp-1">{product.name || 'Untitled Product'}</p>
                               {product.status === 'pending' && (
                                 <span className="text-[10px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">Pending</span>
                               )}
                             </div>
-                            <span className="text-[10px] text-neutral-500 uppercase font-mono">{product.stock || 0} units left</span>
+                            <span className="text-[10px] text-muted-foreground uppercase font-mono">{product.stock || 0} units left</span>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-xs text-neutral-400 capitalize bg-neutral-800/50 px-2 py-1 rounded">
+                        <span className="text-xs text-muted-foreground capitalize bg-accent/50 px-2 py-1 rounded">
                           {product.category}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm font-semibold text-white">₦{product.price.toLocaleString()}</p>
+                        <p className="text-sm font-semibold text-foreground">₦{product.price.toLocaleString()}</p>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -326,13 +326,13 @@ export default function ProductsPage() {
                               setEditingProduct(product)
                               setShowForm(true)
                             }}
-                            className="p-2 text-neutral-500 hover:text-primary transition-colors hover:bg-neutral-800 rounded-lg"
+                            className="p-2 text-muted-foreground hover:text-primary transition-colors hover:bg-accent rounded-lg"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button 
                             onClick={() => handleDelete(product.id)}
-                            className="p-2 text-neutral-500 hover:text-red-500 transition-colors hover:bg-neutral-800 rounded-lg"
+                            className="p-2 text-muted-foreground hover:text-red-500 transition-colors hover:bg-accent rounded-lg"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -342,7 +342,7 @@ export default function ProductsPage() {
                   ))}
                   {products.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-6 py-12 text-center text-neutral-500 italic">
+                      <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground italic">
                         No products found. Click "Add Product" to get started.
                       </td>
                     </tr>
@@ -357,13 +357,13 @@ export default function ProductsPage() {
       {/* Modals */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-            <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
+          <div className="bg-background border border-border rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-6 border-b border-border flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-white">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
-                <p className="text-sm text-neutral-500">Super Admin Mode enabled</p>
+                <h2 className="text-xl font-bold text-foreground">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
+                <p className="text-sm text-muted-foreground">Super Admin Mode enabled</p>
               </div>
-              <button onClick={() => setShowForm(false)} className="p-2 text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowForm(false)} className="p-2 text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6 overflow-y-auto">
               <ProductForm 
@@ -379,10 +379,10 @@ export default function ProductsPage() {
 
       {showImport && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-lg shadow-2xl">
-            <div className="p-6 border-b border-neutral-800 flex items-center justify-between text-white">
+          <div className="bg-background border border-border rounded-2xl w-full max-w-lg shadow-2xl">
+            <div className="p-6 border-b border-border flex items-center justify-between text-foreground">
               <h2 className="text-xl font-bold">Import Products</h2>
-              <button onClick={() => setShowImport(false)} disabled={importProgress !== null} className="text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowImport(false)} disabled={importProgress !== null} className="text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6">
               <CSVImporter 

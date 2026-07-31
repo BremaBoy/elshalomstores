@@ -74,10 +74,10 @@ export default function CustomersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Customers</h1>
-          <p className="text-sm text-neutral-400">View and manage your store's user base</p>
+          <h1 className="text-2xl font-bold text-foreground">Customers</h1>
+          <p className="text-sm text-muted-foreground">View and manage your store's user base</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-800 text-neutral-300 rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors">
+        <button className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-foreground rounded-lg text-sm font-medium hover:bg-accent transition-colors">
           <Download className="w-4 h-4" />
           Export CSV
         </button>
@@ -85,50 +85,50 @@ export default function CustomersPage() {
 
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search by name, email, or order ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+            className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
           />
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 px-3 py-2 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded-lg text-sm hover:text-white">
+          <button className="flex items-center gap-2 px-3 py-2 bg-card border border-border text-muted-foreground rounded-lg text-sm hover:text-foreground">
             <Filter className="w-4 h-4" />
             Status
           </button>
-          <button className="flex items-center gap-2 px-3 py-2 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded-lg text-sm hover:text-white">
+          <button className="flex items-center gap-2 px-3 py-2 bg-card border border-border text-muted-foreground rounded-lg text-sm hover:text-foreground">
             <ArrowUpDown className="w-4 h-4" />
             Sort by Spend
           </button>
         </div>
       </div>
 
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-neutral-800 bg-neutral-900/50">
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase">Customer</th>
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase">Status</th>
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase">Orders</th>
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase">Total Spent</th>
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase text-right">Actions</th>
+              <tr className="border-b border-border bg-card/50">
+                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase">Customer</th>
+                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase">Status</th>
+                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase">Orders</th>
+                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase">Total Spent</th>
+                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-800">
+            <tbody className="divide-y divide-border">
               {customers.map((customer) => (
-                <tr key={customer.id} className="hover:bg-neutral-800/30 transition-colors group">
+                <tr key={customer.id} className="hover:bg-accent/30 transition-colors group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center text-primary font-bold">
+                      <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-primary font-bold">
                         {customer.name?.charAt(0) || 'U'}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">{customer.name || 'User'}</p>
-                        <p className="text-xs text-neutral-500">{customer.email}</p>
+                        <p className="text-sm font-medium text-foreground">{customer.name || 'User'}</p>
+                        <p className="text-xs text-muted-foreground">{customer.email}</p>
                       </div>
                     </div>
                   </td>
@@ -140,26 +140,26 @@ export default function CustomersPage() {
                       {customer.is_suspended ? 'suspended' : 'active'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-neutral-300">
+                  <td className="px-6 py-4 text-sm text-foreground">
                     <div className="flex items-center gap-2 font-mono text-xs">
                        Joined {customer.created_at ? new Date(customer.created_at).toLocaleDateString() : 'N/A'}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-white">
+                  <td className="px-6 py-4 text-sm font-semibold text-foreground">
                     {/* Spent info would need order totals join, leaving as N/A for now */}
                     N/A
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 text-neutral-400 hover:text-white bg-neutral-800 rounded-lg">
+                      <button className="p-2 text-muted-foreground hover:text-foreground bg-accent rounded-lg">
                         <Eye className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => toggleStatus(customer.id, customer.is_suspended)}
                         className={`p-2 rounded-lg transition-colors ${
                           !customer.is_suspended 
-                            ? 'text-neutral-400 hover:text-red-500 bg-neutral-800' 
-                            : 'text-green-500 hover:bg-green-500/10 bg-neutral-800'
+                            ? 'text-muted-foreground hover:text-red-500 bg-accent'
+                            : 'text-green-500 hover:bg-green-500/10 bg-accent'
                         }`}
                         title={!customer.is_suspended ? 'Suspend Account' : 'Activate Account'}
                       >

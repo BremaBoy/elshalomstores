@@ -37,12 +37,12 @@ export function AdminForm({ initialData, onSubmit, isLoading }: AdminFormProps) 
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-300">Full Name</label>
+          <label className="text-sm font-medium text-foreground">Full Name</label>
           <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               {...register('name')}
-              className="w-full pl-10 pr-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-white focus:ring-1 focus:ring-primary focus:outline-none"
+              className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
               placeholder="e.g. John Doe"
             />
           </div>
@@ -50,14 +50,14 @@ export function AdminForm({ initialData, onSubmit, isLoading }: AdminFormProps) 
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-300">Email Address</label>
+          <label className="text-sm font-medium text-foreground">Email Address</label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               {...register('email')}
               type="email"
               disabled={!!initialData}
-              className="w-full pl-10 pr-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-white focus:ring-1 focus:ring-primary focus:outline-none disabled:opacity-50"
+              className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:outline-none disabled:opacity-50"
               placeholder="admin@elshalomstores.com"
             />
           </div>
@@ -66,12 +66,12 @@ export function AdminForm({ initialData, onSubmit, isLoading }: AdminFormProps) 
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-300">System Role</label>
+            <label className="text-sm font-medium text-foreground">System Role</label>
             <div className="relative">
-              <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+              <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <select
                 {...register('role')}
-                className="w-full pl-10 pr-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-white focus:ring-1 focus:ring-primary focus:outline-none appearance-none"
+                className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:outline-none appearance-none"
               >
                 <option value="ADMIN">Admin</option>
                 <option value="SUPER_ADMIN">Super Admin</option>
@@ -79,10 +79,10 @@ export function AdminForm({ initialData, onSubmit, isLoading }: AdminFormProps) 
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-300">Account Status</label>
+            <label className="text-sm font-medium text-foreground">Account Status</label>
             <select
               {...register('status')}
-              className="w-full px-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-white focus:ring-1 focus:ring-primary focus:outline-none appearance-none"
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:outline-none appearance-none"
             >
               <option value="active">Active</option>
               <option value="suspended">Suspended</option>
@@ -91,11 +91,11 @@ export function AdminForm({ initialData, onSubmit, isLoading }: AdminFormProps) 
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 pt-4 border-t border-neutral-800">
+      <div className="flex justify-end gap-3 pt-4 border-t border-border">
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-primary/20"
+          className="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-primary/20"
         >
           {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
           {initialData ? 'Update Admin' : 'Create Admin'}

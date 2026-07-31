@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/admin-auth'
 
 function getAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -20,6 +21,7 @@ function getAdminClient() {
 }
 
 export async function fetchProductsForOrder() {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const { data, error } = await supabaseAdmin
@@ -36,6 +38,7 @@ export async function fetchProductsForOrder() {
 }
 
 export async function fetchInventory() {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const { data, error } = await supabaseAdmin
@@ -52,6 +55,7 @@ export async function fetchInventory() {
 }
 
 export async function createProduct(data: any) {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const { error } = await supabaseAdmin.from('products').insert([data])
@@ -64,6 +68,7 @@ export async function createProduct(data: any) {
 }
 
 export async function updateProduct(id: string, data: any) {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const { error } = await supabaseAdmin.from('products').update(data).eq('id', id)
@@ -76,6 +81,7 @@ export async function updateProduct(id: string, data: any) {
 }
 
 export async function deleteProduct(id: string) {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const { error } = await supabaseAdmin.from('products').delete().eq('id', id)
@@ -88,6 +94,7 @@ export async function deleteProduct(id: string) {
 }
 
 export async function uploadImage(formData: FormData, bucket: string = 'products') {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const file = formData.get('file') as File
@@ -117,6 +124,7 @@ export async function uploadImage(formData: FormData, bucket: string = 'products
 }
 
 export async function bulkImportProducts(products: any[]) {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     

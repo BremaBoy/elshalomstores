@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '@/lib/admin-auth'
 
 function getAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -19,6 +20,7 @@ function getAdminClient() {
 }
 
 export async function fetchOrders() {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     
@@ -62,6 +64,7 @@ export async function fetchOrders() {
 }
 
 export async function updateOrderStatus(id: string, status: string) {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const { error } = await supabaseAdmin
@@ -85,6 +88,7 @@ export async function createOrder(orderData: {
   payment_method: string;
   status: string;
 }) {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
     const { data, error } = await supabaseAdmin

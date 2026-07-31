@@ -79,31 +79,31 @@ export default function AdminManagementPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Admin Management</h1>
-          <p className="text-neutral-400 text-sm">Create and oversee platform administrator accounts</p>
+          <h1 className="text-2xl font-bold text-foreground">Admin Management</h1>
+          <p className="text-muted-foreground text-sm">Create and oversee platform administrator accounts</p>
         </div>
         <button 
           onClick={() => {
             setEditingAdmin(undefined)
             setShowForm(true)
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity font-semibold text-sm shadow-lg shadow-purple-900/20"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity font-semibold text-sm shadow-lg shadow-purple-900/20"
         >
           <Plus className="w-4 h-4" />
           <span>New Admin</span>
         </button>
       </div>
 
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl">
-        <div className="p-5 border-b border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-2xl">
+        <div className="p-5 border-b border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input 
               type="text" 
               placeholder="Search by name or email..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary shadow-inner"
+              className="w-full pl-9 pr-4 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-inner"
             />
           </div>
         </div>
@@ -111,14 +111,14 @@ export default function AdminManagementPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead>
-              <tr className="bg-neutral-950 text-neutral-500 font-medium border-b border-neutral-800 uppercase tracking-widest text-[10px]">
+              <tr className="bg-background text-muted-foreground font-medium border-b border-border uppercase tracking-widest text-[10px]">
                 <th className="px-6 py-4">Administrator</th>
                 <th className="px-6 py-4">Role</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-800">
+            <tbody className="divide-y divide-border">
               {isLoading ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-10 text-center">
@@ -127,20 +127,20 @@ export default function AdminManagementPage() {
                 </tr>
               ) : filteredAdmins.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-neutral-500 italic">
+                  <td colSpan={4} className="px-6 py-10 text-center text-muted-foreground italic">
                     No administrators found.
                   </td>
                 </tr>
               ) : filteredAdmins.map(admin => (
-                <tr key={admin.id} className="hover:bg-white/5 transition-colors group">
+                <tr key={admin.id} className="hover:bg-accent transition-colors group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-xs font-bold text-neutral-300">
+                      <div className="w-9 h-9 rounded-full bg-accent border border-border flex items-center justify-center text-xs font-bold text-foreground">
                          {admin.name?.[0]?.toUpperCase()}
                       </div>
                       <div>
-                         <p className="font-bold text-white text-xs">{admin.name}</p>
-                         <div className="flex items-center gap-1 text-[10px] text-neutral-500 mt-0.5">
+                         <p className="font-bold text-foreground text-xs">{admin.name}</p>
+                         <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
                             <Mail className="w-2.5 h-2.5" />
                             {admin.email}
                          </div>
@@ -173,13 +173,13 @@ export default function AdminManagementPage() {
                             setEditingAdmin(admin)
                             setShowForm(true)
                           }}
-                          className="p-1.5 text-neutral-500 hover:text-white transition-colors bg-neutral-800 rounded-lg"
+                          className="p-1.5 text-muted-foreground hover:text-foreground transition-colors bg-accent rounded-lg"
                         >
                            <MoreHorizontal className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => handleDelete(admin.id)}
-                          className="p-1.5 text-neutral-600 hover:text-red-500 transition-colors bg-neutral-800 rounded-lg"
+                          className="p-1.5 text-muted-foreground hover:text-red-500 transition-colors bg-accent rounded-lg"
                         >
                            <Trash2 className="w-4 h-4" />
                         </button>
@@ -194,20 +194,20 @@ export default function AdminManagementPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-6 border-b border-neutral-800 flex items-center justify-between bg-neutral-900/50">
+          <div className="bg-background border border-border rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 border-b border-border flex items-center justify-between bg-card/50">
               <div>
-                <h2 className="text-xl font-bold text-white">{editingAdmin ? 'Edit Admin' : 'New Admin'}</h2>
-                <p className="text-sm text-neutral-500">Manage administrative access levels</p>
+                <h2 className="text-xl font-bold text-foreground">{editingAdmin ? 'Edit Admin' : 'New Admin'}</h2>
+                <p className="text-sm text-muted-foreground">Manage administrative access levels</p>
               </div>
               <button 
                 onClick={() => setShowForm(false)} 
-                className="p-2 text-neutral-500 hover:text-white bg-neutral-900 rounded-lg"
+                className="p-2 text-muted-foreground hover:text-foreground bg-card rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 bg-neutral-950">
+            <div className="p-6 bg-background">
               <AdminForm initialData={editingAdmin} onSubmit={handleCreate} isLoading={isSubmitting} />
             </div>
           </div>

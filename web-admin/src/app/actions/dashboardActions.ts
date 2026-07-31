@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '@/lib/admin-auth'
 
 function getAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -19,6 +20,7 @@ function getAdminClient() {
 }
 
 export async function fetchDashboardStats() {
+    await requireAdmin()
   try {
     const supabaseAdmin = getAdminClient()
 

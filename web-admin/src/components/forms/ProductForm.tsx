@@ -97,21 +97,21 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
         {/* Left Column: Basic Info */}
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-300">Product Name</label>
+            <label className="text-sm font-medium text-foreground">Product Name</label>
             <input
               {...register('name')}
-              className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none"
+              className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               placeholder="e.g. Luxury Handbag"
             />
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-300">Description</label>
+            <label className="text-sm font-medium text-foreground">Description</label>
             <textarea
               {...register('description')}
               rows={4}
-              className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none resize-none"
+              className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none resize-none"
               placeholder="Detailed product information..."
             />
             {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
@@ -119,20 +119,20 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-300">Price (₦)</label>
+              <label className="text-sm font-medium text-foreground">Price (₦)</label>
               <input
                 type="number"
                 {...register('price', { valueAsNumber: true })}
-                className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
               {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-300">Discount Price</label>
+              <label className="text-sm font-medium text-foreground">Discount Price</label>
               <input
                 type="number"
                 {...register('discount_price', { valueAsNumber: true })}
-                className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
@@ -141,10 +141,10 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
         {/* Right Column: Categories & Media */}
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-300">Category</label>
+            <label className="text-sm font-medium text-foreground">Category</label>
             <select
               {...register('category')}
-              className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none appearance-none"
+              className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none appearance-none"
             >
               <option value="">Select Category</option>
               {categories.map(cat => (
@@ -155,42 +155,42 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-300">Available Stock</label>
+            <label className="text-sm font-medium text-foreground">Available Stock</label>
             <input
               type="number"
               {...register('stock', { valueAsNumber: true })}
-              className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none"
+              className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
             />
             {errors.stock && <p className="text-xs text-destructive">{errors.stock.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-300">Product Image</label>
+            <label className="text-sm font-medium text-foreground">Product Image</label>
             <div className="flex flex-col gap-3">
               {/* File Upload Button */}
               <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full aspect-video rounded-xl border-2 border-dashed border-neutral-800 bg-neutral-900/50 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-neutral-900 transition-all group relative overflow-hidden"
+                className="w-full aspect-video rounded-xl border-2 border-dashed border-border bg-card/50 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-card transition-all group relative overflow-hidden"
               >
                 {imageUrl ? (
                   <>
                     <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity">
-                      <ImageIcon className="w-8 h-8 text-white mb-2" />
-                      <p className="text-xs text-white font-medium">Change Image</p>
+                      <ImageIcon className="w-8 h-8 text-foreground mb-2" />
+                      <p className="text-xs text-foreground font-medium">Change Image</p>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      {isUploading ? <Loader2 className="w-6 h-6 text-primary animate-spin" /> : <ImageIcon className="w-6 h-6 text-neutral-500" />}
+                    <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      {isUploading ? <Loader2 className="w-6 h-6 text-primary animate-spin" /> : <ImageIcon className="w-6 h-6 text-muted-foreground" />}
                     </div>
-                    <p className="text-sm text-neutral-400 font-medium">Click to upload image</p>
-                    <p className="text-xs text-neutral-600 mt-1">PNG, JPG or WebP (max 5MB)</p>
+                    <p className="text-sm text-muted-foreground font-medium">Click to upload image</p>
+                    <p className="text-xs text-muted-foreground mt-1">PNG, JPG or WebP (max 5MB)</p>
                   </>
                 )}
                 {isUploading && (
-                  <div className="absolute inset-0 bg-neutral-950/80 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                     <div className="flex flex-col items-center">
                       <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
                       <p className="text-xs text-primary font-bold animate-pulse">UPLOADING...</p>
@@ -208,10 +208,10 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
 
               {/* URL Fallback */}
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider font-bold text-neutral-500">Or use Image URL</label>
+                <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Or use Image URL</label>
                 <input
                   {...register('image')}
-                  className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                  className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
@@ -221,22 +221,22 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
 
           <div className="flex gap-6 pt-2">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" {...register('is_new')} className="w-4 h-4 rounded border-neutral-800 bg-neutral-900 text-primary focus:ring-primary" />
-              <span className="text-sm text-neutral-400">Mark as New</span>
+              <input type="checkbox" {...register('is_new')} className="w-4 h-4 rounded border-border bg-card text-primary focus:ring-primary" />
+              <span className="text-sm text-muted-foreground">Mark as New</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" {...register('is_sale')} className="w-4 h-4 rounded border-neutral-800 bg-neutral-900 text-primary focus:ring-primary" />
-              <span className="text-sm text-neutral-400">On Sale</span>
+              <input type="checkbox" {...register('is_sale')} className="w-4 h-4 rounded border-border bg-card text-primary focus:ring-primary" />
+              <span className="text-sm text-muted-foreground">On Sale</span>
             </label>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 pt-4 border-t border-neutral-800">
+      <div className="flex justify-end gap-3 pt-4 border-t border-border">
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
+          className="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
         >
           {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
           {initialData ? 'Update Product' : 'Create Product'}

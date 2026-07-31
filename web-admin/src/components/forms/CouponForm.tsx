@@ -44,12 +44,12 @@ export function CouponForm({ initialData, onSubmit, isLoading }: CouponFormProps
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-300">Coupon Code</label>
+            <label className="text-sm font-medium text-foreground">Coupon Code</label>
             <div className="relative">
-              <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+              <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 {...register('code')}
-                className="w-full pl-10 pr-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none uppercase"
+                className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none uppercase"
                 placeholder="SAVE20"
               />
             </div>
@@ -58,21 +58,21 @@ export function CouponForm({ initialData, onSubmit, isLoading }: CouponFormProps
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-300">Discount Type</label>
+              <label className="text-sm font-medium text-foreground">Discount Type</label>
               <select
                 {...register('discount_type')}
-                className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none appearance-none"
+                className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none appearance-none"
               >
                 <option value="percentage">Percentage (%)</option>
                 <option value="fixed">Fixed Amount (₦)</option>
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-300">Value</label>
+              <label className="text-sm font-medium text-foreground">Value</label>
               <input
                 type="number"
                 {...register('discount_value', { valueAsNumber: true })}
-                className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
               {errors.discount_value && <p className="text-xs text-destructive">{errors.discount_value.message}</p>}
             </div>
@@ -82,48 +82,48 @@ export function CouponForm({ initialData, onSubmit, isLoading }: CouponFormProps
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-300">Min. Order (₦)</label>
+              <label className="text-sm font-medium text-foreground">Min. Order (₦)</label>
               <input
                 type="number"
                 {...register('min_order_amount', { valueAsNumber: true })}
-                className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-300">Usage Limit</label>
+              <label className="text-sm font-medium text-foreground">Usage Limit</label>
               <input
                 type="number"
                 {...register('usage_limit', { valueAsNumber: true })}
-                className="w-full px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
                 placeholder="Unlimited"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-300">Expiry Date</label>
+            <label className="text-sm font-medium text-foreground">Expiry Date</label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="date"
                 {...register('expiry_date')}
-                className="w-full pl-10 pr-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input type="checkbox" {...register('is_active')} className="w-4 h-4 rounded border-neutral-800 bg-neutral-900 text-primary focus:ring-primary" />
-            <span className="text-sm text-neutral-300 font-medium">Active</span>
+            <input type="checkbox" {...register('is_active')} className="w-4 h-4 rounded border-border bg-card text-primary focus:ring-primary" />
+            <span className="text-sm text-foreground font-medium">Active</span>
           </label>
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 pt-4 border-t border-neutral-800">
+      <div className="flex justify-end gap-3 pt-4 border-t border-border">
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
+          className="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
         >
           {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ticket className="w-4 h-4" />}
           {initialData ? 'Update Coupon' : 'Create Coupon'}
