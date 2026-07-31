@@ -6,9 +6,9 @@
 @import "swiper/css/effect-fade";
 
 @theme {
-  --color-primary: #E4572E;
-  --color-primary-hover: #C94320;
-  --color-secondary: #18392B;
+  --color-primary: #7C3AED;
+  --color-primary-hover: #6D28D9;
+  --color-secondary: #000000;
   
   --color-bg: var(--background);
   --color-card: var(--card);
@@ -19,14 +19,14 @@
 }
 
 :root {
-  --background: #FCF8F1;
-  --foreground: #17211B;
-  --card: #F3EDDF;
-  --card-foreground: #17211B;
-  --primary: #E4572E;
+  --background: #FFFFFF;
+  --foreground: #111827;
+  --card: #F9FAFB;
+  --card-foreground: #111827;
+  --primary: #7C3AED;
   --primary-foreground: #FFFFFF;
-  --border: #DED6C6;
-  --muted: #69736D;
+  --border: #E5E7EB;
+  --muted: #6B7280;
 }
 
 .dark {
@@ -45,35 +45,6 @@ body {
   color: var(--foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-::selection {
-  background: #E4572E;
-  color: white;
-}
-
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: .75rem;
-  font-size: .68rem;
-  font-weight: 800;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-}
-
-.eyebrow::before {
-  content: "";
-  width: 2rem;
-  height: 1px;
-  background: currentColor;
-}
-
-.display-title {
-  font-size: clamp(3.25rem, 8vw, 7.5rem);
-  line-height: .87;
-  letter-spacing: -.065em;
-  font-weight: 800;
 }
 
 @layer base {
@@ -106,15 +77,6 @@ body {
 @keyframes slide-in-bottom {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-10px) rotate(1deg); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
 }
 
 @keyframes zoom-in {

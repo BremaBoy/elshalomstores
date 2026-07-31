@@ -15,7 +15,7 @@ export default async function Home() {
   const products = await getProducts();
 
   return (
-    <main className="min-h-screen bg-bg overflow-hidden">
+    <main className="min-h-screen bg-white">
       <Header />
       
       {/* Hero Section */}
@@ -31,11 +31,11 @@ export default async function Home() {
       <PromoBanner />
 
       {/* Product Sections (Category based rows) */}
-      <section className="py-24 md:py-32 bg-bg">
+      <section className="py-20">
         <Container>
           <SectionTitle
-            title="Tech worth talking about"
-            subtitle="Smart upgrades, useful gadgets, and everyday essentials."
+            title="Featured Electronics"
+            subtitle="Top-tier gadgets and the latest tech essentials"
           />
           <ProductGrid 
             products={products.filter(p => p.category === "Electronics").slice(0, 4)} 
@@ -44,8 +44,8 @@ export default async function Home() {
           
           <div className="mt-20">
             <SectionTitle
-              title="A better everyday"
-              subtitle="Thoughtful pieces that make home feel more like yours."
+              title="Home & Living"
+              subtitle="Timeless decor and essentials for every modern space"
             />
             <ProductGrid 
               products={products.filter(p => p.category === "Home Decor").slice(0, 4)} 
