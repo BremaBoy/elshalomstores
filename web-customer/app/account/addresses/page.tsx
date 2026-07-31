@@ -3,18 +3,17 @@
 import { useEffect, useState } from "react";
 import { MapPin, Plus, Trash2, Home, Briefcase, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { supabase } from "@/lib/supabase";
+import {
+  createSavedAddress,
+  readSavedAddresses,
+  type SavedAddress,
+  writeSavedAddresses,
+} from "@/lib/addressBook";
 
 export default function AddressesPage() {
-  const [addresses, setAddresses] = useState<Array<{
-    id: string;
-    label: string;
-    icon: typeof Home;
-    name: string;
-    street: string;
-    city: string;
-    state: string;
-    isDefault: boolean;
-  }>>([]);
+  const [addresses, setAddresses] = useState<SavedAddress[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -26,55 +25,42 @@ export default function AddressesPage() {
   });
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("elshalom-addresses");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        // Hydrate browser-persisted addresses after the client mounts.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setAddresses(parsed.map((address: { label: string }) => ({
-          ...address,
-          icon: address.label === "Work" ? Briefcase : Home,
-        })));
-      } catch {
-        window.localStorage.removeItem("elshalom-addresses");
-      }
-    }
-    setLoaded(true);
+    let active = true;
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!active) return;
+      const id = session?.user.id || null;
+      setUserId(id);
+      setAddresses(id ? readSavedAddresses(id) : []);
+      setLoaded(true);
+    });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
-    if (!loaded) return;
-    const serializable = addresses.map((address) => ({
-      id: address.id,
-      label: address.label,
-      name: address.name,
-      street: address.street,
-      city: address.city,
-      state: address.state,
-      isDefault: address.isDefault,
-    }));
-    window.localStorage.setItem("elshalom-addresses", JSON.stringify(serializable));
-  }, [addresses, loaded]);
+    if (!loaded || !userId) return;
+    writeSavedAddresses(userId, addresses);
+  }, [addresses, loaded, userId]);
 
   const handleDelete = (id: string) => {
-    setAddresses((prev) => prev.filter((a) => a.id !== id));
+    setAddresses((prev) => {
+      const removed = prev.find((address) => address.id === id);
+      const remaining = prev.filter((address) => address.id !== id);
+      if (removed?.isDefault && remaining.length > 0) {
+        remaining[0] = { ...remaining[0], isDefault: true };
+      }
+      return remaining;
+    });
   };
 
   const handleAdd = () => {
     if (!form.name || !form.street || !form.city || !form.state) return;
     setAddresses((prev) => [
       ...prev,
-      {
-        id: Date.now().toString(),
-        label: form.label,
-        icon: form.label === "Work" ? Briefcase : Home,
-        name: form.name,
-        street: form.street,
-        city: form.city,
-        state: form.state,
-        isDefault: prev.length === 0,
-      },
+      createSavedAddress(form, prev.length === 0),
     ]);
     setForm({ label: "Home", name: "", street: "", city: "", state: "" });
     setShowForm(false);
@@ -175,48 +161,52 @@ export default function AddressesPage() {
             </div>
           </div>
         ) : (
-          addresses.map((addr) => (
-            <div
-              key={addr.id}
-              className={`flex items-start justify-between p-6 rounded-3xl border-2 transition-all ${
-                addr.isDefault
-                  ? "border-primary/20 bg-primary/5"
-                  : "border-border bg-bg hover:border-primary/30"
-              }`}
-            >
-              <div className="flex items-start gap-5">
-                <div className="h-12 w-12 bg-bg rounded-2xl flex items-center justify-center shadow-sm border border-border flex-shrink-0">
-                  <addr.icon className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <p className="text-sm font-black uppercase tracking-wider text-text-primary">
-                      {addr.label}
-                    </p>
-                    {addr.isDefault && (
-                      <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                        <CheckCircle2 className="h-2.5 w-2.5" />
-                        Default
-                      </span>
-                    )}
+          addresses.map((addr) => {
+            const AddressIcon = addr.label === "Work" ? Briefcase : Home;
+            return (
+              <div
+                key={addr.id}
+                className={`flex items-start justify-between p-6 rounded-3xl border-2 transition-all ${
+                  addr.isDefault
+                    ? "border-primary/20 bg-primary/5"
+                    : "border-border bg-bg hover:border-primary/30"
+                }`}
+              >
+                <div className="flex items-start gap-5">
+                  <div className="h-12 w-12 bg-bg rounded-2xl flex items-center justify-center shadow-sm border border-border flex-shrink-0">
+                    <AddressIcon className="h-6 w-6 text-primary" />
                   </div>
-                  <p className="text-sm font-bold text-text-primary">{addr.name}</p>
-                  <p className="text-sm text-slate-500 font-medium">
-                    {addr.street}, {addr.city}, {addr.state}
-                  </p>
+                  <div>
+                    <div className="flex items-center gap-3 mb-1">
+                      <p className="text-sm font-black uppercase tracking-wider text-text-primary">
+                        {addr.label}
+                      </p>
+                      {addr.isDefault && (
+                        <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                          <CheckCircle2 className="h-2.5 w-2.5" />
+                          Default
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm font-bold text-text-primary">{addr.name}</p>
+                    <p className="text-sm text-slate-500 font-medium">
+                      {addr.street}, {addr.city}, {addr.state}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => handleDelete(addr.id)}
+                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                    aria-label={`Delete ${addr.label} address`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
-
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={() => handleDelete(addr.id)}
-                  className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

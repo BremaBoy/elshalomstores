@@ -6,13 +6,19 @@ import { Container } from "@/components/ui/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cartStore";
-import { CreditCard, Truck, ShieldCheck, User, ChevronRight, CheckCircle2, Loader2 } from "lucide-react";
+import { CreditCard, Truck, ShieldCheck, User, ChevronRight, CheckCircle2, Loader2, Plus, Home, Briefcase } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import {
+  createSavedAddress,
+  readSavedAddresses,
+  type SavedAddress,
+  writeSavedAddresses,
+} from "@/lib/addressBook";
 
 export default function CheckoutPage() {
   const { items, getTotalPrice, clearCart } = useCartStore();
@@ -21,6 +27,12 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [showNewAddressForm, setShowNewAddressForm] = useState(false);
+  const [newAddressLabel, setNewAddressLabel] = useState("Home");
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
   const router = useRouter();
 
   // Form State
@@ -46,15 +58,27 @@ export default function CheckoutPage() {
         router.push("/auth/login?redirect=/checkout");
       } else {
         const fullName = session.user.user_metadata?.full_name || "";
+        const addresses = readSavedAddresses(session.user.id);
+        const preferredAddress = addresses.find((address) => address.isDefault) || addresses[0];
+        const [addressFirstName, ...addressRemainingNames] = preferredAddress?.name.split(" ").filter(Boolean) || [];
+
+        setUserId(session.user.id);
+        setSavedAddresses(addresses);
+        setSelectedAddressId(preferredAddress?.id || null);
+        setShowNewAddressForm(addresses.length === 0);
         setFormData(prev => ({
           ...prev,
           email: session.user.email || prev.email,
-          firstName: fullName.split(' ')[0] || prev.firstName,
-          lastName: fullName.split(' ').slice(1).join(' ') || prev.lastName,
+          firstName: addressFirstName || fullName.split(' ')[0] || prev.firstName,
+          lastName: addressRemainingNames.join(" ") || fullName.split(' ').slice(1).join(' ') || prev.lastName,
           phone: session.user.phone || session.user.user_metadata?.phone || prev.phone,
+          address: preferredAddress?.street || prev.address,
+          city: preferredAddress?.city || prev.city,
+          state: preferredAddress?.state || prev.state,
         }));
         setIsAuthenticated(true);
         setStep(2);
+        setIsLoadingAddresses(false);
       }
     };
     checkAuth();
@@ -99,13 +123,88 @@ export default function CheckoutPage() {
     }
   };
 
+  const selectSavedAddress = (address: SavedAddress) => {
+    const [firstName, ...remainingNames] = address.name.split(" ").filter(Boolean);
+    setSelectedAddressId(address.id);
+    setShowNewAddressForm(false);
+    setFormData((prev) => ({
+      ...prev,
+      firstName: firstName || prev.firstName,
+      lastName: remainingNames.join(" ") || prev.lastName,
+      address: address.street,
+      city: address.city,
+      state: address.state,
+    }));
+    setErrors((prev) => {
+      const nextErrors = { ...prev };
+      delete nextErrors.address;
+      delete nextErrors.city;
+      delete nextErrors.state;
+      return nextErrors;
+    });
+  };
+
+  const startAddingAddress = () => {
+    setSelectedAddressId(null);
+    setShowNewAddressForm(true);
+    setFormData((prev) => ({
+      ...prev,
+      address: "",
+      city: "",
+      state: "",
+    }));
+  };
+
+  const cancelAddingAddress = () => {
+    const preferredAddress = savedAddresses.find((address) => address.isDefault) || savedAddresses[0];
+    if (preferredAddress) selectSavedAddress(preferredAddress);
+  };
+
+  const continueToPayment = () => {
+    if (!validateStep(2)) {
+      alert("Please complete the delivery address before continuing.");
+      return;
+    }
+
+    if (showNewAddressForm) {
+      if (!userId) {
+        alert("Please sign in again before saving this address.");
+        return;
+      }
+
+      const newAddress = createSavedAddress(
+        {
+          label: newAddressLabel,
+          name: `${formData.firstName} ${formData.lastName}`.trim() || formData.email,
+          street: formData.address.trim(),
+          city: formData.city.trim(),
+          state: formData.state.trim(),
+        },
+        savedAddresses.length === 0,
+      );
+      const nextAddresses = [...savedAddresses, newAddress];
+      setSavedAddresses(nextAddresses);
+      setSelectedAddressId(newAddress.id);
+      setShowNewAddressForm(false);
+      writeSavedAddresses(userId, nextAddresses);
+    } else if (!selectedAddressId) {
+      alert("Please select a delivery address.");
+      return;
+    }
+
+    setStep(3);
+  };
+
   const handleCompleteOrder = async () => {
     setIsSubmitting(true);
     try {
       const orderData = {
         items,
         payment_method: formData.paymentMethod,
-        shipping_details: formData,
+        shipping_details: {
+          ...formData,
+          savedAddressId: selectedAddressId,
+        },
         delivery_instructions: "", // Optional
         shipping_cost: 0, // Free as per UI
       };
@@ -279,26 +378,132 @@ export default function CheckoutPage() {
                 {/* Step 2: Shipping */}
                 {step === 2 && (
                   <div className="bg-card p-8 md:p-12 rounded-[40px] border border-border shadow-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <h3 className="text-2xl font-extrabold uppercase tracking-tight">Shipping Details</h3>
-                    <div className="grid grid-cols-1 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Street Address</label>
-                        <input name="address" value={formData.address} onChange={handleInputChange} type="text" placeholder="House No, Street Name" className={`w-full h-14 bg-bg border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.address ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <h3 className="text-2xl font-extrabold uppercase tracking-tight">
+                          {showNewAddressForm ? "Add a delivery address" : "Choose a delivery address"}
+                        </h3>
+                        <p className="mt-2 text-sm text-text-secondary">
+                          {showNewAddressForm
+                            ? "This address will also be saved in your account."
+                            : "Select one of the addresses already saved in your account."}
+                        </p>
                       </div>
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">City</label>
-                          <input name="city" value={formData.city} onChange={handleInputChange} type="text" placeholder="Lagos" className={`w-full h-14 bg-bg border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.city ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">State</label>
-                          <input name="state" value={formData.state} onChange={handleInputChange} type="text" placeholder="Lagos State" className={`w-full h-14 bg-bg border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.state ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
-                        </div>
-                      </div>
+                      {!showNewAddressForm && savedAddresses.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={startAddingAddress}
+                          className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary transition hover:text-primary-hover"
+                        >
+                          <Plus className="h-4 w-4" /> Add new address
+                        </button>
+                      )}
                     </div>
-                    <div className="flex gap-4">
+
+                    {isLoadingAddresses ? (
+                      <div className="flex min-h-48 items-center justify-center rounded-3xl border border-dashed border-border">
+                        <Loader2 className="h-7 w-7 animate-spin text-primary" />
+                      </div>
+                    ) : (
+                      <>
+                        {!showNewAddressForm && savedAddresses.length > 0 && (
+                          <div className="grid grid-cols-1 gap-4">
+                            {savedAddresses.map((address) => {
+                              const AddressIcon = address.label === "Work" ? Briefcase : Home;
+                              const selected = selectedAddressId === address.id;
+
+                              return (
+                                <button
+                                  key={address.id}
+                                  type="button"
+                                  onClick={() => selectSavedAddress(address)}
+                                  className={`flex w-full items-start gap-4 rounded-3xl border-2 p-5 text-left transition-all ${
+                                    selected
+                                      ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                                      : "border-border bg-bg hover:border-primary/30"
+                                  }`}
+                                >
+                                  <span className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${selected ? "bg-primary text-white" : "bg-card text-primary"}`}>
+                                    <AddressIcon className="h-5 w-5" />
+                                  </span>
+                                  <span className="min-w-0 flex-1">
+                                    <span className="flex flex-wrap items-center gap-2">
+                                      <span className="text-xs font-black uppercase tracking-widest text-text-primary">{address.label}</span>
+                                      {address.isDefault && (
+                                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-primary">
+                                          Default
+                                        </span>
+                                      )}
+                                    </span>
+                                    <span className="mt-1 block text-sm font-bold text-text-primary">{address.name}</span>
+                                    <span className="mt-1 block text-sm leading-6 text-text-secondary">
+                                      {address.street}, {address.city}, {address.state}
+                                    </span>
+                                  </span>
+                                  <span className={`mt-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${selected ? "border-primary bg-primary" : "border-border"}`}>
+                                    {selected && <CheckCircle2 className="h-4 w-4 text-white" />}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {showNewAddressForm && (
+                          <div className="space-y-6 rounded-3xl border border-border bg-bg p-6">
+                            <div className="space-y-3">
+                              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Address label</label>
+                              <div className="flex flex-wrap gap-3">
+                                {["Home", "Work", "Other"].map((label) => (
+                                  <button
+                                    key={label}
+                                    type="button"
+                                    onClick={() => setNewAddressLabel(label)}
+                                    className={`rounded-xl border px-5 py-2 text-xs font-bold uppercase tracking-widest transition-all ${
+                                      newAddressLabel === label
+                                        ? "border-primary bg-primary text-white"
+                                        : "border-border bg-card text-text-secondary hover:border-primary/30"
+                                    }`}
+                                  >
+                                    {label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Street Address</label>
+                              <input name="address" value={formData.address} onChange={handleInputChange} type="text" placeholder="House No, Street Name" className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.address ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
+                            </div>
+                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                              <div className="space-y-2">
+                                <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">City</label>
+                                <input name="city" value={formData.city} onChange={handleInputChange} type="text" placeholder="Lagos" className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.city ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
+                              </div>
+                              <div className="space-y-2">
+                                <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">State</label>
+                                <input name="state" value={formData.state} onChange={handleInputChange} type="text" placeholder="Lagos State" className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.state ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    <div className="flex flex-col gap-4 sm:flex-row">
                       {!isAuthenticated && <Button variant="outline" onClick={() => setStep(1)} className="h-16 px-8 rounded-2xl font-bold uppercase tracking-widest">Back</Button>}
-                      <Button onClick={nextStep} className="flex-grow h-16 text-xl rounded-2xl font-extrabold uppercase tracking-widest">Continue to Payment</Button>
+                      {showNewAddressForm && savedAddresses.length > 0 && (
+                        <Button variant="outline" onClick={cancelAddingAddress} className="h-16 px-8 rounded-2xl font-bold uppercase tracking-widest">
+                          Cancel
+                        </Button>
+                      )}
+                      <Button
+                        onClick={continueToPayment}
+                        disabled={isLoadingAddresses}
+                        className="flex-grow h-16 text-lg rounded-2xl font-extrabold uppercase tracking-widest"
+                      >
+                        {showNewAddressForm ? "Save Address & Continue" : "Continue to Payment"}
+                      </Button>
                     </div>
                   </div>
                 )}
