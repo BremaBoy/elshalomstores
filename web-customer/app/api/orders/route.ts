@@ -25,14 +25,11 @@ export async function POST(request: Request) {
     const shippingCost = Number(body.shipping_cost || 0);
 
     if (!incomingItems.length) throw new Error("Your cart is empty.");
-    if (!["cod", "paystack", "flutterwave"].includes(paymentMethod)) {
+    if (!["cod", "paystack"].includes(paymentMethod)) {
       throw new Error("Please choose a valid payment method.");
     }
     if (paymentMethod === "paystack" && !process.env.PAYSTACK_SECRET_KEY) {
       throw new Error("Paystack is not configured on the customer deployment.");
-    }
-    if (paymentMethod === "flutterwave" && !process.env.FLUTTERWAVE_SECRET_KEY) {
-      throw new Error("Flutterwave is not configured on the customer deployment.");
     }
     if (paymentMethod !== "cod") {
       const { error: paymentsTableError } = await supabase.from("payments").select("id").limit(1);

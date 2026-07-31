@@ -74,7 +74,7 @@ export async function finalizeSuccessfulPayment({
   payment: PaymentToFinalize;
   order: OrderToFinalize;
   reference: string;
-  gateway: "paystack" | "flutterwave";
+  gateway: "paystack";
   transactionId: string;
   eventType: string;
   eventPayload?: Record<string, unknown>;
@@ -125,6 +125,6 @@ export async function finalizeSuccessfulPayment({
   return { newlyFinalized };
 }
 
-export function makePaymentReference(prefix: "PAY" | "FLW") {
+export function makePaymentReference(prefix: "PAY") {
   return `${prefix}-${crypto.randomUUID().replace(/-/g, "")}`;
 }

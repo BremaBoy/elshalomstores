@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS public.payments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE,
     customer_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
-    gateway VARCHAR(50) NOT NULL CHECK (gateway IN ('paystack', 'flutterwave', 'bank_transfer')),
+    gateway VARCHAR(50) NOT NULL CHECK (gateway = 'paystack'),
     transaction_id VARCHAR(100),
     reference VARCHAR(100) UNIQUE NOT NULL,
     amount DECIMAL(12, 2) NOT NULL,

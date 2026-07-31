@@ -40,15 +40,15 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 Checkout API routes are deployed with this Next.js application; a separate
 `NEXT_PUBLIC_API_URL` is not required. Before deploying, copy the variables in
 `.env.example` into the Vercel project settings. Keep the Supabase service-role
-key and both payment secret keys server-only.
+key and the Paystack secret key server-only.
 
 Run `backend/payments_schema.sql` once in the Supabase SQL Editor before enabling
-Paystack or Flutterwave. Cash on delivery only requires the core orders schema.
+Paystack. Cash on delivery only requires the core orders schema.
 
 After deploying, configure Paystack with:
 
-- Callback URL: `https://elshalomstores1000.vercel.app/checkout/verify?gateway=paystack`
-- Webhook URL: `https://elshalomstores1000.vercel.app/api/webhooks/paystack`
+- Callback URL: `https://elshalomstores.com.ng/checkout/verify?gateway=paystack`
+- Webhook URL: `https://elshalomstores.com.ng/api/webhooks/paystack`
 
 The Paystack webhook validates the `x-paystack-signature` header and verifies the
 transaction with Paystack before marking an order as paid. The callback and

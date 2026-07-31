@@ -230,7 +230,7 @@ export default function CheckoutPage() {
 
       const insertedOrder = orderResponse.data.data;
       
-      // 2. If paystack or flutterwave, initialize payment and redirect
+      // 2. Initialize Paystack for online payments and redirect.
       if (formData.paymentMethod !== 'cod') {
         const payload = {
           order_id: insertedOrder.id
@@ -531,28 +531,6 @@ export default function CheckoutPage() {
                         )}
                       </div>
 
-                      <div className="space-y-4">
-                        <label 
-                          className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'flutterwave' ? 'border-primary bg-primary/5' : 'border-border'}`}
-                          onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'flutterwave' }))}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center p-1 ${formData.paymentMethod === 'flutterwave' ? 'border-primary' : 'border-slate-300'}`}>
-                              {formData.paymentMethod === 'flutterwave' && <div className="h-full w-full bg-primary rounded-full" />}
-                            </div>
-                            <span className={`font-bold ${formData.paymentMethod === 'flutterwave' ? 'text-text-primary' : 'text-text-secondary'}`}>Flutterwave / Online Payment</span>
-                          </div>
-                          <div className="flex gap-2 text-primary font-bold text-xs uppercase">
-                            <span className="bg-bg px-2 py-0.5 rounded border border-primary/20">FLW</span>
-                          </div>
-                        </label>
-                        
-                        {formData.paymentMethod === 'flutterwave' && (
-                          <p className="px-2 text-xs text-text-secondary">
-                            You&apos;ll enter payment details securely on Flutterwave.
-                          </p>
-                        )}
-                      </div>
                       <label 
                         className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'cod' ? 'border-primary bg-primary/5' : 'border-border'}`}
                         onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cod' }))}

@@ -22,11 +22,10 @@ function VerifyContent() {
   
   const reference = searchParams.get("reference") || searchParams.get("tx_ref");
   const gateway = searchParams.get("gateway");
-  const transactionId = searchParams.get("transaction_id"); // Flutterwave often sends this
 
   useEffect(() => {
     const verify = async () => {
-      if (!reference || !gateway) {
+      if (!reference || gateway !== "paystack") {
         setStatus("error");
         setMessage("Invalid verification parameters.");
         return;
@@ -40,7 +39,6 @@ function VerifyContent() {
           return;
         }
         const response = await axios.get(`/api/payments/${gateway}/verify/${reference}`, {
-            params: { transaction_id: transactionId },
             headers: { Authorization: `Bearer ${session.access_token}` }
         });
 
@@ -61,7 +59,7 @@ function VerifyContent() {
     };
 
     verify();
-  }, [reference, gateway, transactionId, clearCart]);
+  }, [reference, gateway, clearCart]);
 
   return (
     <main className="pt-32 pb-20 min-h-screen bg-bg text-text-primary flex flex-col">

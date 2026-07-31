@@ -10,7 +10,7 @@ interface RouteContext {
 export async function GET(request: Request, context: RouteContext) {
   try {
     const { gateway, reference } = await context.params;
-    if (gateway !== "paystack" && gateway !== "flutterwave") {
+    if (gateway !== "paystack") {
       throw new Error("Unsupported payment gateway.");
     }
 
@@ -32,60 +32,27 @@ export async function GET(request: Request, context: RouteContext) {
       .single();
     if (orderError || !order) throw new Error("Order not found.");
 
-    let providerStatus = "failed";
-    let transactionId = "";
-    let amountPaid = 0;
-    let currency = "";
-    let providerReference = "";
+    const secretKey = process.env.PAYSTACK_SECRET_KEY;
+    if (!secretKey) throw new Error("Paystack is not configured on the customer deployment.");
 
-    if (gateway === "paystack") {
-      const secretKey = process.env.PAYSTACK_SECRET_KEY;
-      if (!secretKey) throw new Error("Paystack is not configured on the customer deployment.");
-
-      const response = await fetch(
-        `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
-        { headers: { Authorization: `Bearer ${secretKey}` }, cache: "no-store" },
-      );
-      const payload = await response.json() as {
-        status?: boolean;
-        message?: string;
-        data?: { id?: number; status?: string; amount?: number; currency?: string; reference?: string };
-      };
-      if (!response.ok || !payload.status || !payload.data) {
-        throw new Error(`Paystack verification failed: ${payload.message || response.statusText}`);
-      }
-
-      providerStatus = payload.data.status || "failed";
-      transactionId = String(payload.data.id || "");
-      amountPaid = Number(payload.data.amount || 0) / 100;
-      currency = payload.data.currency || "";
-      providerReference = payload.data.reference || "";
-    } else {
-      const secretKey = process.env.FLUTTERWAVE_SECRET_KEY;
-      if (!secretKey) throw new Error("Flutterwave is not configured on the customer deployment.");
-
-      const transactionIdFromRedirect = new URL(request.url).searchParams.get("transaction_id");
-      if (!transactionIdFromRedirect) throw new Error("Flutterwave transaction ID is missing.");
-
-      const response = await fetch(
-        `https://api.flutterwave.com/v3/transactions/${encodeURIComponent(transactionIdFromRedirect)}/verify`,
-        { headers: { Authorization: `Bearer ${secretKey}` }, cache: "no-store" },
-      );
-      const payload = await response.json() as {
-        status?: string;
-        message?: string;
-        data?: { id?: number; status?: string; amount?: number; currency?: string; tx_ref?: string };
-      };
-      if (!response.ok || payload.status !== "success" || !payload.data) {
-        throw new Error(`Flutterwave verification failed: ${payload.message || response.statusText}`);
-      }
-
-      providerStatus = payload.data.status || "failed";
-      transactionId = String(payload.data.id || transactionIdFromRedirect);
-      amountPaid = Number(payload.data.amount || 0);
-      currency = payload.data.currency || "";
-      providerReference = payload.data.tx_ref || "";
+    const response = await fetch(
+      `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
+      { headers: { Authorization: `Bearer ${secretKey}` }, cache: "no-store" },
+    );
+    const payload = await response.json() as {
+      status?: boolean;
+      message?: string;
+      data?: { id?: number; status?: string; amount?: number; currency?: string; reference?: string };
+    };
+    if (!response.ok || !payload.status || !payload.data) {
+      throw new Error(`Paystack verification failed: ${payload.message || response.statusText}`);
     }
+
+    const providerStatus = payload.data.status || "failed";
+    const transactionId = String(payload.data.id || "");
+    const amountPaid = Number(payload.data.amount || 0) / 100;
+    const currency = payload.data.currency || "";
+    const providerReference = payload.data.reference || "";
 
     const successful = providerStatus === "success" || providerStatus === "successful";
     const detailsMatch = providerReference === reference
