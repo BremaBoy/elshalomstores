@@ -20,6 +20,20 @@ function getAdminClient() {
   })
 }
 
+async function findAuthUserByEmail(email: string) {
+  const supabaseAdmin = getAdminClient()
+  const normalizedEmail = email.trim().toLowerCase()
+
+  for (let page = 1; page <= 50; page += 1) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 })
+    if (error) throw error
+    const match = data.users.find(user => user.email?.toLowerCase() === normalizedEmail)
+    if (match) return match
+    if (data.users.length < 1000) break
+  }
+  return null
+}
+
 export async function fetchAdmins() {
   try {
     await requireSuperAdmin()
@@ -43,20 +57,39 @@ export async function saveAdmin(data: any) {
     const supabaseAdmin = getAdminClient()
     
     let adminId = data.id
+    let isNewUser = false
+    let notificationMessage = 'Administrator updated successfully.'
     if (!adminId) {
       const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'https://elshalomstores1.vercel.app'
-      const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-        data.email,
-        {
-          redirectTo: `${adminUrl.replace(/\/+$/, '')}/auth/confirm`,
-          data: { role: data.role, full_name: data.name, name: data.name },
-        }
-      )
+      const callbackUrl = `${adminUrl.replace(/\/+$/, '')}/auth/confirm`
+      const existingUser = await findAuthUserByEmail(data.email)
 
-      if (authError) {
-        throw authError
+      if (existingUser) {
+        adminId = existingUser.id
+        const { error: notificationError } = await supabaseAdmin.auth.signInWithOtp({
+          email: data.email,
+          options: { shouldCreateUser: false, emailRedirectTo: callbackUrl },
+        })
+        if (notificationError) throw notificationError
+        notificationMessage = 'Existing user promoted and sent an administrator sign-in email.'
+      } else {
+        const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+          data.email,
+          {
+            redirectTo: callbackUrl,
+            data: {
+              role: data.role,
+              full_name: data.name,
+              name: data.name,
+              admin_onboarding_required: true,
+            },
+          }
+        )
+        if (authError) throw authError
+        adminId = authUser.user.id
+        isNewUser = true
+        notificationMessage = 'New user invited. They must complete onboarding after accepting the email.'
       }
-      adminId = authUser.user.id
     }
 
     if (adminId === actor.id && (data.role !== 'SUPER_ADMIN' || data.status === 'suspended')) {
@@ -70,6 +103,7 @@ export async function saveAdmin(data: any) {
       email: data.email,
       role: data.role,
       status: data.status || 'active',
+      onboarding_completed: isNewUser ? false : (data.onboarding_completed ?? true),
       created_at: data.created_at || new Date().toISOString()
     }
 
@@ -78,12 +112,18 @@ export async function saveAdmin(data: any) {
 
     const { error: metadataError } = await supabaseAdmin.auth.admin.updateUserById(adminId, {
       app_metadata: { role: data.role },
-      user_metadata: { role: data.role, status: adminData.status, name: data.name, full_name: data.name },
+      user_metadata: {
+        role: data.role,
+        status: adminData.status,
+        name: data.name,
+        full_name: data.name,
+        admin_onboarding_required: !adminData.onboarding_completed,
+      },
       ban_duration: adminData.status === 'suspended' ? '876000h' : 'none',
     })
     if (metadataError) throw metadataError
     revalidatePath('/dashboard/admins')
-    return { success: true }
+    return { success: true, message: notificationMessage }
   } catch (error: any) {
     console.error('Save Admin Detailed Error:', error)
     return { success: false, error: error.message || 'An unknown error occurred during admin creation.' }

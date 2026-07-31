@@ -40,6 +40,7 @@ export default function AdminManagementPage() {
         await loadAdmins()
         setShowForm(false)
         setEditingAdmin(undefined)
+        alert(res.message)
       } else {
         alert(`Error: ${res.error}`)
       }
@@ -157,13 +158,16 @@ export default function AdminManagementPage() {
                   </td>
                   <td className="px-6 py-4">
                     <button 
-                      onClick={() => toggleStatus(admin)}
+                      onClick={() => admin.onboarding_completed !== false && toggleStatus(admin)}
+                      disabled={admin.onboarding_completed === false}
                       className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all hover:scale-105 active:scale-95 ${
-                        admin.status === 'active' ? 'bg-green-500/10 text-green-500 hover:bg-red-500/10 hover:text-red-500' : 'bg-red-500/10 text-red-500 hover:bg-green-500/10 hover:text-green-500'
+                        admin.onboarding_completed === false
+                          ? 'bg-amber-500/10 text-amber-500 cursor-default'
+                          : admin.status === 'active' ? 'bg-green-500/10 text-green-500 hover:bg-red-500/10 hover:text-red-500' : 'bg-red-500/10 text-red-500 hover:bg-green-500/10 hover:text-green-500'
                       }`}
                       title={`Click to ${admin.status === 'active' ? 'suspend' : 'activate'}`}
                     >
-                      {admin.status}
+                      {admin.onboarding_completed === false ? 'Invited' : admin.status}
                     </button>
                   </td>
                   <td className="px-6 py-4 text-right">

@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
     if (user && isDashboard) {
         const { data: admin } = await supabase
             .from('admins')
-            .select('role, status')
+            .select('role, status, onboarding_completed')
             .eq('id', user.id)
             .maybeSingle()
         const role = admin?.role
@@ -71,6 +71,10 @@ export async function middleware(request: NextRequest) {
         if (!admin || admin.status !== 'active') {
             await supabase.auth.signOut()
             return NextResponse.redirect(new URL('/login?error=account_inactive', request.url))
+        }
+
+        if (admin.onboarding_completed === false) {
+            return NextResponse.redirect(new URL('/admin-onboarding', request.url))
         }
 
         if (superAdminRoutes.some(path => request.nextUrl.pathname.startsWith(path)) && role !== 'SUPER_ADMIN') {

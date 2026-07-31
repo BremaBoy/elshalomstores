@@ -7,7 +7,7 @@ export async function requireAdmin() {
 
   const { data: admin } = await supabase
     .from('admins')
-    .select('id, name, email, role, status')
+    .select('id, name, email, role, status, onboarding_completed')
     .eq('id', user.id)
     .maybeSingle()
 

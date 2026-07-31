@@ -5,9 +5,14 @@ import { createClient } from '@/lib/supabase-server'
 export async function GET(request: NextRequest) {
   const tokenHash = request.nextUrl.searchParams.get('token_hash')
   const type = request.nextUrl.searchParams.get('type') as EmailOtpType | null
-  const redirectUrl = new URL('/reset-password', request.url)
+  const destination = type === 'invite'
+    ? '/admin-onboarding'
+    : type === 'magiclink'
+      ? '/dashboard'
+      : '/reset-password'
+  const redirectUrl = new URL(destination, request.url)
 
-  if (tokenHash && (type === 'recovery' || type === 'invite')) {
+  if (tokenHash && (type === 'recovery' || type === 'invite' || type === 'magiclink')) {
     const supabase = await createClient()
     const { error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,

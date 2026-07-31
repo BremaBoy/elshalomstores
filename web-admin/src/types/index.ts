@@ -43,6 +43,7 @@ export interface Admin {
   email: string;
   role: 'ADMIN' | 'SUPER_ADMIN';
   status: 'active' | 'suspended';
+  onboarding_completed?: boolean;
   created_at?: string;
 }
 

@@ -31,6 +31,12 @@ ALTER TABLE public.products
   ADD CONSTRAINT products_gallery_images_max_four
   CHECK (cardinality(gallery_images) <= 4);
 
+ALTER TABLE public.admins
+  ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN NOT NULL DEFAULT TRUE;
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS phone TEXT;
+
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Super admins manage settings" ON public.settings;
 CREATE POLICY "Super admins manage settings" ON public.settings

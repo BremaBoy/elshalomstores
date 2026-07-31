@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
+  phone TEXT,
   cart JSONB DEFAULT '[]'::jsonb,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -55,6 +56,7 @@ CREATE TABLE IF NOT EXISTS admins (
   email TEXT UNIQUE,
   role TEXT DEFAULT 'ADMIN', -- 'ADMIN' or 'SUPER_ADMIN'
   status TEXT DEFAULT 'active',
+  onboarding_completed BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
