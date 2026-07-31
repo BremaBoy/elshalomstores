@@ -38,6 +38,11 @@ export async function getCategories(): Promise<Category[]> {
       const match = DEFAULT_CATEGORIES.find(c => c.slug === dbCat.slug || c.name.toLowerCase() === dbCat.name.toLowerCase());
       return {
         ...dbCat,
+        slug:
+          dbCat.slug ||
+          match?.slug ||
+          dbCat.id ||
+          dbCat.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-"),
         image_url: dbCat.image_url || match?.image_url,
         icon: dbCat.icon || match?.icon || "📦",
         color: dbCat.color || match?.color || "bg-slate-500",

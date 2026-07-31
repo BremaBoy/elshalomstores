@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cartStore";
-import { CreditCard, Truck, ShieldCheck, User, ChevronRight, CheckCircle2, Loader2, Lock } from "lucide-react";
+import { CreditCard, Truck, ShieldCheck, User, ChevronRight, CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -20,6 +20,7 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
   // Form State
@@ -31,10 +32,7 @@ export default function CheckoutPage() {
     address: "",
     city: "",
     state: "",
-    paymentMethod: "paystack",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: ""
+    paymentMethod: "paystack"
   });
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
@@ -47,14 +45,16 @@ export default function CheckoutPage() {
       if (!session) {
         router.push("/auth/login?redirect=/checkout");
       } else {
-
-        // Pre-fill email and name if available
+        const fullName = session.user.user_metadata?.full_name || "";
         setFormData(prev => ({
           ...prev,
           email: session.user.email || prev.email,
-          firstName: session.user.user_metadata?.full_name?.split(' ')[0] || prev.firstName,
-          lastName: session.user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || prev.lastName,
+          firstName: fullName.split(' ')[0] || prev.firstName,
+          lastName: fullName.split(' ').slice(1).join(' ') || prev.lastName,
+          phone: session.user.phone || session.user.user_metadata?.phone || prev.phone,
         }));
+        setIsAuthenticated(true);
+        setStep(2);
       }
     };
     checkAuth();
@@ -85,12 +85,6 @@ export default function CheckoutPage() {
       if (!formData.address) newErrors.address = true;
       if (!formData.city) newErrors.city = true;
       if (!formData.state) newErrors.state = true;
-    } else if (stepNumber === 3) {
-      if (formData.paymentMethod === 'paystack' || formData.paymentMethod === 'flutterwave') {
-        if (!formData.cardNumber) newErrors.cardNumber = true;
-        if (!formData.expiryDate) newErrors.expiryDate = true;
-        if (!formData.cvv) newErrors.cvv = true;
-      }
     }
 
     setErrors(newErrors);
@@ -106,15 +100,8 @@ export default function CheckoutPage() {
   };
 
   const handleCompleteOrder = async () => {
-    if (!validateStep(3)) {
-      alert("Please fill in all mandatory fields before completing your order.");
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
       const orderData = {
         items,
         payment_method: formData.paymentMethod,
@@ -147,8 +134,6 @@ export default function CheckoutPage() {
       // 2. If paystack or flutterwave, initialize payment and redirect
       if (formData.paymentMethod !== 'cod') {
         const payload = {
-          email: formData.email || user?.email,
-          amount: getTotalPrice(),
           order_id: insertedOrder.id
         };
 
@@ -162,10 +147,11 @@ export default function CheckoutPage() {
           }
         );
         
-        if (response.data && response.data.authorization_url) {
-          // Clear cart before redirecting to be safe
-          clearCart();
-          window.location.href = response.data.authorization_url;
+        const authorizationUrl = response.data?.data?.authorization_url;
+        if (authorizationUrl) {
+          // Keep the cart until the gateway confirms payment. This lets the
+          // customer retry without rebuilding it after a cancellation/failure.
+          window.location.href = authorizationUrl;
           return;
         } else {
            throw new Error("Failed to get payment authorization URL");
@@ -195,15 +181,15 @@ export default function CheckoutPage() {
 
   if (isSuccess) {
     return (
-      <main className="min-h-screen bg-white dark:bg-slate-950">
+      <main className="min-h-screen bg-bg text-text-primary">
         <Header />
         <Container className="pt-40 pb-20 flex flex-col items-center justify-center text-center space-y-8 animate-in zoom-in-95 duration-700">
           <div className="h-24 w-24 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4">
             <CheckCircle2 className="h-16 w-16 text-emerald-500" />
           </div>
           <div className="space-y-4">
-            <h1 className="text-4xl md:text-6xl font-extrabold uppercase tracking-tighter text-slate-900 dark:text-white">Order Confirmed!</h1>
-            <p className="text-xl text-slate-500 max-w-lg mx-auto leading-relaxed">
+            <h1 className="text-4xl md:text-6xl font-extrabold uppercase tracking-tighter text-text-primary">Order Confirmed!</h1>
+            <p className="text-xl text-text-secondary max-w-lg mx-auto leading-relaxed">
               Thank you for your purchase. Your order has been placed successfully and we&apos;ll notify you when it ships.
             </p>
           </div>
@@ -237,25 +223,25 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-900/30">
+    <main className="min-h-screen bg-bg text-text-primary">
       <Header />
       <div className="pt-32 pb-20">
         <Container>
           <div className="max-w-6xl mx-auto">
-            <div className="flex items-center justify-between mb-12 bg-white dark:bg-slate-900 p-6 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm overflow-x-auto gap-8">
+            <div className="flex items-center justify-between mb-12 bg-card p-6 rounded-[32px] border border-border shadow-sm overflow-x-auto gap-8">
               {[
-                { id: 1, name: "Contact", icon: User },
+                { id: 1, name: isAuthenticated ? "Account" : "Contact", icon: User },
                 { id: 2, name: "Shipping", icon: Truck },
                 { id: 3, name: "Payment", icon: CreditCard },
               ].map((s) => (
                 <div key={s.id} className="flex items-center gap-3">
-                  <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold transition-all ${step >= s.id ? "bg-primary text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400"}`}>
+                  <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold transition-all ${step >= s.id ? "bg-primary text-white" : "bg-bg text-text-secondary"}`}>
                     <s.icon className="h-5 w-5" />
                   </div>
-                  <span className={`text-sm font-extrabold uppercase tracking-widest ${step >= s.id ? "text-slate-900 dark:text-white" : "text-slate-400"}`}>
+                  <span className={`text-sm font-extrabold uppercase tracking-widest ${step >= s.id ? "text-text-primary" : "text-text-secondary"}`}>
                     {s.name}
                   </span>
-                  {s.id < 3 && <ChevronRight className="h-4 w-4 text-slate-300 hidden sm:block" />}
+                  {s.id < 3 && <ChevronRight className="h-4 w-4 text-text-secondary/40 hidden sm:block" />}
                 </div>
               ))}
             </div>
@@ -264,7 +250,7 @@ export default function CheckoutPage() {
               <div className="lg:col-span-3 space-y-8">
                 {/* Step 1: Contact Info */}
                 {step === 1 && (
-                  <div className="bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="bg-card p-8 md:p-12 rounded-[40px] border border-border shadow-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <h3 className="text-2xl font-extrabold uppercase tracking-tight">Contact Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
@@ -292,26 +278,26 @@ export default function CheckoutPage() {
 
                 {/* Step 2: Shipping */}
                 {step === 2 && (
-                  <div className="bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="bg-card p-8 md:p-12 rounded-[40px] border border-border shadow-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <h3 className="text-2xl font-extrabold uppercase tracking-tight">Shipping Details</h3>
                     <div className="grid grid-cols-1 gap-6">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Street Address</label>
-                        <input name="address" value={formData.address} onChange={handleInputChange} type="text" placeholder="House No, Street Name" className={`w-full h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.address ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
+                        <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Street Address</label>
+                        <input name="address" value={formData.address} onChange={handleInputChange} type="text" placeholder="House No, Street Name" className={`w-full h-14 bg-bg border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.address ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
                       </div>
                       <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <label className="text-xs font-bold uppercase tracking-widest text-slate-500">City</label>
-                          <input name="city" value={formData.city} onChange={handleInputChange} type="text" placeholder="Lagos" className={`w-full h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.city ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
+                          <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">City</label>
+                          <input name="city" value={formData.city} onChange={handleInputChange} type="text" placeholder="Lagos" className={`w-full h-14 bg-bg border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.city ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs font-bold uppercase tracking-widest text-slate-500">State</label>
-                          <input name="state" value={formData.state} onChange={handleInputChange} type="text" placeholder="Lagos State" className={`w-full h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.state ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
+                          <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">State</label>
+                          <input name="state" value={formData.state} onChange={handleInputChange} type="text" placeholder="Lagos State" className={`w-full h-14 bg-bg border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.state ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-4">
-                      <Button variant="outline" onClick={() => setStep(1)} className="h-16 px-8 rounded-2xl font-bold uppercase tracking-widest">Back</Button>
+                      {!isAuthenticated && <Button variant="outline" onClick={() => setStep(1)} className="h-16 px-8 rounded-2xl font-bold uppercase tracking-widest">Back</Button>}
                       <Button onClick={nextStep} className="flex-grow h-16 text-xl rounded-2xl font-extrabold uppercase tracking-widest">Continue to Payment</Button>
                     </div>
                   </div>
@@ -319,105 +305,63 @@ export default function CheckoutPage() {
 
                 {/* Step 3: Payment */}
                 {step === 3 && (
-                  <div className="bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="bg-card p-8 md:p-12 rounded-[40px] border border-border shadow-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <h3 className="text-2xl font-extrabold uppercase tracking-tight">Payment Method</h3>
                     <div className="grid grid-cols-1 gap-4">
                       <div className="space-y-4">
                         <label 
-                          className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'paystack' ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-slate-800'}`}
+                          className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'paystack' ? 'border-primary bg-primary/5' : 'border-border'}`}
                           onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'paystack' }))}
                         >
                           <div className="flex items-center gap-4">
                             <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center p-1 ${formData.paymentMethod === 'paystack' ? 'border-primary' : 'border-slate-300'}`}>
                               {formData.paymentMethod === 'paystack' && <div className="h-full w-full bg-primary rounded-full" />}
                             </div>
-                            <span className={`font-bold ${formData.paymentMethod === 'paystack' ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>Paystack / Online Payment</span>
+                            <span className={`font-bold ${formData.paymentMethod === 'paystack' ? 'text-text-primary' : 'text-text-secondary'}`}>Paystack / Online Payment</span>
                           </div>
                           <div className="flex gap-2 text-primary font-bold text-xs">
-                            {["VISA", "MC", "VERVE"].map(v => <span key={v} className="bg-white px-2 py-0.5 rounded border border-primary/20">{v}</span>)}
+                            {["VISA", "MC", "VERVE"].map(v => <span key={v} className="bg-bg px-2 py-0.5 rounded border border-primary/20">{v}</span>)}
                           </div>
                         </label>
                         
-                        {/* Card Form Dropdown (Paystack) */}
                         {formData.paymentMethod === 'paystack' && (
-                          <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-[32px] border border-slate-100 dark:border-slate-800 animate-in slide-in-from-top-2 duration-300 space-y-6">
-                            <div className="space-y-2">
-                              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">Card Number (Paystack)</label>
-                              <div className="relative">
-                                <input name="cardNumber" value={formData.cardNumber} onChange={handleInputChange} type="text" placeholder="4084 0840 8408 4081" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.cardNumber ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                                <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">Expiry Date</label>
-                                <input name="expiryDate" value={formData.expiryDate} onChange={handleInputChange} type="text" placeholder="01 / 28" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.expiryDate ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">CVV</label>
-                                <input name="cvv" value={formData.cvv} onChange={handleInputChange} type="text" placeholder="123" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.cvv ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                              </div>
-                            </div>
-                            <p className="text-[10px] text-slate-400 font-medium flex items-center gap-2">
-                              <Lock className="h-3 w-3" />
-                              Secure Paystack encryption enabled.
-                            </p>
-                          </div>
+                          <p className="px-2 text-xs text-text-secondary">
+                            You&apos;ll enter payment details securely on Paystack.
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-4">
                         <label 
-                          className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'flutterwave' ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-slate-800'}`}
+                          className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'flutterwave' ? 'border-primary bg-primary/5' : 'border-border'}`}
                           onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'flutterwave' }))}
                         >
                           <div className="flex items-center gap-4">
                             <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center p-1 ${formData.paymentMethod === 'flutterwave' ? 'border-primary' : 'border-slate-300'}`}>
                               {formData.paymentMethod === 'flutterwave' && <div className="h-full w-full bg-primary rounded-full" />}
                             </div>
-                            <span className={`font-bold ${formData.paymentMethod === 'flutterwave' ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>Flutterwave / Online Payment</span>
+                            <span className={`font-bold ${formData.paymentMethod === 'flutterwave' ? 'text-text-primary' : 'text-text-secondary'}`}>Flutterwave / Online Payment</span>
                           </div>
                           <div className="flex gap-2 text-primary font-bold text-xs uppercase">
-                            <span className="bg-white px-2 py-0.5 rounded border border-primary/20">FLW</span>
+                            <span className="bg-bg px-2 py-0.5 rounded border border-primary/20">FLW</span>
                           </div>
                         </label>
                         
-                        {/* Card Form Dropdown (Flutterwave) */}
                         {formData.paymentMethod === 'flutterwave' && (
-                          <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-[32px] border border-slate-100 dark:border-slate-800 animate-in slide-in-from-top-2 duration-300 space-y-6">
-                            <div className="space-y-2">
-                              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">Card Number (Flutterwave)</label>
-                              <div className="relative">
-                                <input name="cardNumber" value={formData.cardNumber} onChange={handleInputChange} type="text" placeholder="4242 4242 4242 4242" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.cardNumber ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                                <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-orange-500" />
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">Expiry Date</label>
-                                <input name="expiryDate" value={formData.expiryDate} onChange={handleInputChange} type="text" placeholder="09 / 25" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.expiryDate ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-left block">CVV</label>
-                                <input name="cvv" value={formData.cvv} onChange={handleInputChange} type="text" placeholder="123" className={`w-full h-12 bg-white dark:bg-slate-900 border-none rounded-xl px-4 outline-none focus:ring-2 transition-all font-mono ${errors.cvv ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
-                              </div>
-                            </div>
-                            <p className="text-[10px] text-slate-400 font-medium flex items-center gap-2">
-                              <Lock className="h-3 w-3" />
-                              Secure Flutterwave protection active.
-                            </p>
-                          </div>
+                          <p className="px-2 text-xs text-text-secondary">
+                            You&apos;ll enter payment details securely on Flutterwave.
+                          </p>
                         )}
                       </div>
                       <label 
-                        className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'cod' ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-slate-800'}`}
+                        className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'cod' ? 'border-primary bg-primary/5' : 'border-border'}`}
                         onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cod' }))}
                       >
                         <div className="flex items-center gap-4">
                           <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center p-1 ${formData.paymentMethod === 'cod' ? 'border-primary' : 'border-slate-300'}`}>
                             {formData.paymentMethod === 'cod' && <div className="h-full w-full bg-primary rounded-full" />}
                           </div>
-                          <span className={`font-bold ${formData.paymentMethod === 'cod' ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>Cash on Delivery</span>
+                          <span className={`font-bold ${formData.paymentMethod === 'cod' ? 'text-text-primary' : 'text-text-secondary'}`}>Cash on Delivery</span>
                         </div>
                       </label>
                     </div>

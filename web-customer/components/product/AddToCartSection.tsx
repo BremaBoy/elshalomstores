@@ -31,8 +31,10 @@ export const AddToCartSection = ({ product }: AddToCartSectionProps) => {
   const addItem = useCartStore((state) => state.addItem);
   const { addItem: addWishlistItem, removeItem: removeWishlistItem, isInWishlist } = useWishlistStore();
   const inWishlist = isMounted ? isInWishlist(product.id) : false;
+  const isOutOfStock = (product.stock ?? 0) <= 0;
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addItem({
       id: product.id,
       name: product.name,
@@ -58,6 +60,7 @@ export const AddToCartSection = ({ product }: AddToCartSectionProps) => {
         {/* Quantity Controls */}
         <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden h-12">
           <button
+            aria-label="Decrease quantity"
             onClick={decrease}
             disabled={quantity <= 1}
             className="px-4 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors h-full font-bold text-lg"
@@ -66,6 +69,7 @@ export const AddToCartSection = ({ product }: AddToCartSectionProps) => {
           </button>
           <span className="px-4 font-bold text-base w-12 text-center">{quantity}</span>
           <button
+            aria-label="Increase quantity"
             onClick={increase}
             disabled={quantity >= (product.stock ?? 99)}
             className="px-4 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors h-full font-bold text-lg"
@@ -77,6 +81,7 @@ export const AddToCartSection = ({ product }: AddToCartSectionProps) => {
         {/* Add to Cart Button */}
         <Button
           onClick={handleAddToCart}
+          disabled={isOutOfStock}
           className={`flex-grow h-12 text-lg rounded-xl gap-2 font-bold uppercase tracking-wide transition-all ${
             added ? "bg-emerald-500 hover:bg-emerald-600" : ""
           }`}
@@ -89,13 +94,14 @@ export const AddToCartSection = ({ product }: AddToCartSectionProps) => {
           ) : (
             <>
               <ShoppingCart className="h-5 w-5" />
-              Add to Cart
+              {isOutOfStock ? "Out of Stock" : "Add to Cart"}
             </>
           )}
         </Button>
 
         {/* Wishlist Button */}
         <Button 
+          aria-label={inWishlist ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
           variant="outline" 
           size="icon" 
           className={`h-12 w-12 rounded-xl flex-shrink-0 transition-colors ${inWishlist ? "bg-red-50 border-red-200" : "border-slate-200 hover:border-red-200"}`}

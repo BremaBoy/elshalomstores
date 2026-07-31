@@ -28,17 +28,17 @@ export const AccountSidebar = ({ user }: { user: any }) => {
 
   return (
     <aside className="space-y-4">
-      <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-xl text-center">
+      <div className="bg-card p-8 rounded-[40px] border border-border shadow-xl text-center">
         <div className="h-24 w-24 bg-primary/10 rounded-full mx-auto flex items-center justify-center mb-6">
           <User className="h-12 w-12 text-primary" />
         </div>
         <h2 className="text-xl font-extrabold uppercase tracking-tight">
           {user.user_metadata?.full_name || user.email?.split('@')[0]}
         </h2>
-        <p className="text-sm text-slate-500 font-medium mb-6">{user.email}</p>
+        <p className="text-sm text-text-secondary font-medium mb-6">{user.email}</p>
       </div>
 
-      <nav className="bg-white rounded-[32px] border border-slate-100 shadow-lg overflow-hidden">
+      <nav className="bg-card rounded-[32px] border border-border shadow-lg overflow-hidden">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -49,7 +49,7 @@ export const AccountSidebar = ({ user }: { user: any }) => {
                 "w-full flex items-center justify-between px-6 py-4 transition-all group",
                 isActive 
                   ? "bg-primary/5 text-primary border-l-4 border-primary" 
-                  : "text-slate-500 hover:bg-slate-50"
+                  : "text-text-secondary hover:bg-primary/5"
               )}
             >
               <div className="flex items-center gap-3">
@@ -62,7 +62,7 @@ export const AccountSidebar = ({ user }: { user: any }) => {
         })}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-6 py-6 text-red-500 hover:bg-red-50 transition-all mt-4 border-t border-slate-50"
+          className="w-full flex items-center gap-3 px-6 py-6 text-red-500 hover:bg-red-500/10 transition-all mt-4 border-t border-border"
         >
           <LogOut className="h-5 w-5" />
           <span className="text-xs font-black uppercase tracking-widest">Log Out</span>

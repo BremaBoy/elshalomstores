@@ -2,12 +2,13 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { ContactForm } from "@/components/contact/ContactForm";
+import { Suspense } from "react";
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-bg text-text-primary">
       <Header />
       <div className="pt-32 pb-20">
         <Container>
@@ -20,34 +21,34 @@ export default function ContactPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-16">
               <div className="lg:col-span-1 space-y-8">
-                <div className="p-8 bg-white dark:bg-slate-900 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-xl space-y-6">
+                <div className="p-8 bg-card rounded-[40px] border border-border shadow-xl space-y-6">
                   <div className="flex items-center gap-5">
                     <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center">
                       <Mail className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Email Us</p>
-                      <p className="font-bold text-slate-900 dark:text-white">support@elshalomstores.com</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Email Us</p>
+                      <p className="font-bold text-text-primary">support@elshalomstores.com</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-5">
-                    <div className="h-14 w-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
-                      <Phone className="h-6 w-6 text-emerald-600" />
+                    <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center">
+                      <Phone className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Call Us</p>
-                      <p className="font-bold text-slate-900 dark:text-white">+234 800 123 4567</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Call Us</p>
+                      <a href="tel:+2348023980907" className="font-bold text-text-primary hover:text-primary">+2348023980907</a>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-5">
-                    <div className="h-14 w-14 bg-blue-500/10 rounded-2xl flex items-center justify-center">
-                      <MapPin className="h-6 w-6 text-blue-600" />
+                    <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center">
+                      <MapPin className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Visit Us</p>
-                      <p className="font-bold text-slate-900 dark:text-white">Victoria Island, Lagos, NG</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Visit Us</p>
+                      <p className="font-bold text-text-primary">199, Igbe Road, Ikorodu, Lagos</p>
                     </div>
                   </div>
                 </div>
@@ -62,31 +63,10 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[48px] border border-slate-100 dark:border-slate-800 shadow-xl">
-                <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Your Name</label>
-                    <input type="text" placeholder="Full Name" className="w-full h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Email Address</label>
-                    <input type="email" placeholder="email@example.com" className="w-full h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
-                  </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Subject</label>
-                    <input type="text" placeholder="How can we help?" className="w-full h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
-                  </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Message</label>
-                    <textarea rows={5} placeholder="Tell us more about your inquiry..." className="w-full p-6 bg-slate-50 dark:bg-slate-800 border-none rounded-[28px] outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium resize-none"></textarea>
-                  </div>
-                  <div className="md:col-span-2">
-                    <Button className="w-full h-16 text-lg rounded-2xl font-extrabold uppercase tracking-widest gap-3">
-                      Send Message
-                      <Send className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </form>
+              <div className="lg:col-span-2 bg-card p-8 md:p-12 rounded-[48px] border border-border shadow-xl">
+                <Suspense fallback={<p className="text-sm text-text-secondary">Loading contact form…</p>}>
+                  <ContactForm />
+                </Suspense>
               </div>
             </div>
           </div>

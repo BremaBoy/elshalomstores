@@ -2,21 +2,36 @@
 
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
-export const ThemeToggle = () => {
-  const { theme, setTheme } = useTheme();
+export const ThemeToggle = ({ className }: { className?: string }) => {
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Wait for next-themes to resolve the saved/system theme on the client.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted && resolvedTheme === "dark";
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      className="relative text-text-secondary dark:text-slate-300 hover:text-primary transition-colors h-10 w-10 rounded-full"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      aria-label="Toggle theme"
+      className={cn("relative text-text-secondary dark:text-zinc-300 hover:text-primary transition-colors h-10 w-10 rounded-full", className)}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      <Sun className="h-5 w-5 absolute transition-all scale-100 rotate-0 dark:scale-0 dark:-rotate-90" />
-      <Moon className="h-5 w-5 absolute transition-all scale-0 rotate-90 dark:scale-100 dark:rotate-0" />
+      {isDark ? (
+        <Moon key="moon" className="h-5 w-5 animate-in spin-in-45 zoom-in duration-200" />
+      ) : (
+        <Sun key="sun" className="h-5 w-5 animate-in spin-in-45 zoom-in duration-200" />
+      )}
     </Button>
   );
 };

@@ -24,9 +24,21 @@ function sanitizeProduct(product: any): Product {
     ? product.image
     : PLACEHOLDER_IMAGE;
   const galleryImages = Array.isArray(product.gallery_images)
-    ? product.gallery_images.filter((url: unknown) => typeof url === 'string' && url.startsWith('http')).slice(0, 4)
+    ? product.gallery_images
+        .filter((url: unknown) => typeof url === "string" && url.startsWith("http"))
+        .slice(0, 4)
     : [];
-  return { ...product, image, galleryImages };
+  return {
+    ...product,
+    image,
+    galleryImages,
+    discountPrice: product.discountPrice ?? product.discount_price,
+    isNew: product.isNew ?? product.is_new,
+    isSale: product.isSale ?? product.is_sale,
+    rating: Number(product.rating || 0),
+    price: Number(product.price || 0),
+    stock: Number(product.stock || 0),
+  };
 }
 
 export async function getProducts(params?: { category?: string }): Promise<Product[]> {
