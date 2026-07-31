@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Product, Category } from '@/types'
-import { Loader2, Plus, Image as ImageIcon, X, AlertCircle } from 'lucide-react'
+import { Loader2, Plus, Image as ImageIcon, X, AlertCircle, Star } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { uploadImage } from '@/app/actions/productActions'
 
@@ -16,6 +16,7 @@ const productSchema = z.object({
   category: z.string().min(1, 'Please select a category'),
   stock: z.number().int().min(0, 'Stock cannot be negative'),
   image: z.string().min(1, 'Image URL is required'),
+  gallery_images: z.array(z.string().url()).max(4, 'A product can have up to four gallery images'),
   is_new: z.boolean(),
   is_sale: z.boolean(),
 })
@@ -43,6 +44,7 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
       category: initialData.category,
       stock: initialData.stock,
       image: initialData.image,
+      gallery_images: initialData.gallery_images || [],
       is_new: initialData.is_new,
       is_sale: initialData.is_sale,
     } : {
@@ -53,33 +55,71 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
       category: '',
       stock: 0,
       image: '',
+      gallery_images: [],
       is_new: false,
       is_sale: false,
     }
   })
 
   const imageUrl = watch('image')
+  const galleryImages = watch('gallery_images') || []
+  register('gallery_images')
+  const allImages = [imageUrl, ...galleryImages].filter(Boolean)
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
+    const availableSlots = 5 - allImages.length
+    if (availableSlots <= 0) {
+      alert('A product can have one main image and up to four gallery images.')
+      e.target.value = ''
+      return
+    }
+
+    const selectedFiles = files.slice(0, availableSlots)
+    if (files.length > availableSlots) {
+      alert(`Only ${availableSlots} more image${availableSlots === 1 ? '' : 's'} can be added.`)
+    }
 
     setIsUploading(true)
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      
-      const result = await uploadImage(formData, 'products')
-      if (result.success && result.url) {
-        setValue('image', result.url)
+      const uploadedUrls: string[] = []
+      for (const file of selectedFiles) {
+        const formData = new FormData()
+        formData.append('file', file)
+        const result = await uploadImage(formData, 'products')
+        if (!result.success || !result.url) throw new Error(result.error || 'Upload failed')
+        uploadedUrls.push(result.url)
+      }
+
+      if (!imageUrl && uploadedUrls.length) {
+        setValue('image', uploadedUrls[0], { shouldValidate: true })
+        setValue('gallery_images', [...galleryImages, ...uploadedUrls.slice(1)].slice(0, 4))
       } else {
-        alert(`Upload failed: ${result.error}`)
+        setValue('gallery_images', [...galleryImages, ...uploadedUrls].slice(0, 4))
       }
     } catch (error: any) {
       alert(`Error uploading image: ${error.message}`)
     } finally {
       setIsUploading(false)
+      e.target.value = ''
     }
+  }
+
+  const makeMainImage = (url: string) => {
+    if (url === imageUrl) return
+    setValue('image', url, { shouldValidate: true })
+    setValue('gallery_images', [imageUrl, ...galleryImages.filter(image => image !== url)].filter(Boolean).slice(0, 4))
+  }
+
+  const removeImage = (url: string) => {
+    if (url === imageUrl) {
+      const [nextMain = '', ...remaining] = galleryImages
+      setValue('image', nextMain, { shouldValidate: true })
+      setValue('gallery_images', remaining)
+      return
+    }
+    setValue('gallery_images', galleryImages.filter(image => image !== url))
   }
 
   return (
@@ -165,7 +205,8 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Product Image</label>
+            <label className="text-sm font-medium text-foreground">Product Images</label>
+            <p className="text-xs text-muted-foreground">Add up to five images. Choose one main image; the other four appear in the gallery.</p>
             <div className="flex flex-col gap-3">
               {/* File Upload Button */}
               <div 
@@ -177,7 +218,7 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
                     <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity">
                       <ImageIcon className="w-8 h-8 text-foreground mb-2" />
-                      <p className="text-xs text-foreground font-medium">Change Image</p>
+                      <p className="text-xs text-white font-medium">Add More Images</p>
                     </div>
                   </>
                 ) : (
@@ -185,7 +226,7 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
                     <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                       {isUploading ? <Loader2 className="w-6 h-6 text-primary animate-spin" /> : <ImageIcon className="w-6 h-6 text-muted-foreground" />}
                     </div>
-                    <p className="text-sm text-muted-foreground font-medium">Click to upload image</p>
+                    <p className="text-sm text-muted-foreground font-medium">Click to upload images</p>
                     <p className="text-xs text-muted-foreground mt-1">PNG, JPG or WebP (max 5MB)</p>
                   </>
                 )}
@@ -203,8 +244,28 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 accept="image/*"
+                multiple
                 className="hidden"
               />
+
+              {allImages.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                  {allImages.map(url => (
+                    <div key={url} className={`relative aspect-square rounded-lg overflow-hidden border-2 ${url === imageUrl ? 'border-primary' : 'border-border'}`}>
+                      <img src={url} alt="Product preview" className="w-full h-full object-cover" />
+                      <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-black/70 p-1">
+                        <button type="button" onClick={() => makeMainImage(url)} className="p-1 text-white" title="Set as main image" aria-label="Set as main image">
+                          <Star className={`w-3.5 h-3.5 ${url === imageUrl ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                        </button>
+                        <button type="button" onClick={() => removeImage(url)} className="p-1 text-white hover:text-red-400" title="Remove image" aria-label="Remove image">
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      {url === imageUrl && <span className="absolute top-1 left-1 rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">MAIN</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* URL Fallback */}
               <div className="space-y-1">

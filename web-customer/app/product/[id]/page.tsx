@@ -9,8 +9,8 @@ import { getProductById, getFeaturedProducts } from "@/products/getProducts";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { AddToCartSection } from "@/components/product/AddToCartSection";
+import { ProductGallery } from "@/components/product/ProductGallery";
 import { Star, Share2, ShieldCheck, Truck } from "lucide-react";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 
 interface ProductPageProps {
@@ -41,25 +41,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <Container>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
               {/* Product Gallery */}
-              <div className="space-y-4">
-                <div className="relative aspect-square bg-slate-100 dark:bg-slate-800 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-                {/* Thumbnails (Mock) */}
-                <div className="grid grid-cols-4 gap-4">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="relative aspect-square bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all">
-                      <Image src={product.image} alt="" fill className="object-cover opacity-60" />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ProductGallery name={product.name} mainImage={product.image} galleryImages={product.galleryImages} />
 
               {/* Product Info */}
               <div className="flex flex-col space-y-6">

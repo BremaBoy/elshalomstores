@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS categories (
   name TEXT NOT NULL,
   icon TEXT,
   image TEXT,
+  gallery_images TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[] CHECK (cardinality(gallery_images) <= 4),
   item_count INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );

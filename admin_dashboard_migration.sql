@@ -22,6 +22,15 @@ CREATE TABLE IF NOT EXISTS public.settings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE public.products
+  ADD COLUMN IF NOT EXISTS gallery_images TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];
+
+ALTER TABLE public.products
+  DROP CONSTRAINT IF EXISTS products_gallery_images_max_four;
+ALTER TABLE public.products
+  ADD CONSTRAINT products_gallery_images_max_four
+  CHECK (cardinality(gallery_images) <= 4);
+
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Super admins manage settings" ON public.settings;
 CREATE POLICY "Super admins manage settings" ON public.settings

@@ -14,6 +14,7 @@ export interface Product {
   price: number;
   discount_price?: number;
   image: string;
+  gallery_images?: string[];
   category: string;
   rating: number;
   is_new: boolean;

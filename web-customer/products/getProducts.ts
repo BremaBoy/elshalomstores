@@ -6,6 +6,7 @@ export interface Product {
   price: number;
   discountPrice?: number;
   image: string;
+  galleryImages?: string[];
   category: string;
   rating: number;
   description?: string;
@@ -22,7 +23,10 @@ function sanitizeProduct(product: any): Product {
   const image = typeof product.image === "string" && product.image.startsWith("http")
     ? product.image
     : PLACEHOLDER_IMAGE;
-  return { ...product, image };
+  const galleryImages = Array.isArray(product.gallery_images)
+    ? product.gallery_images.filter((url: unknown) => typeof url === 'string' && url.startsWith('http')).slice(0, 4)
+    : [];
+  return { ...product, image, galleryImages };
 }
 
 export async function getProducts(params?: { category?: string }): Promise<Product[]> {
