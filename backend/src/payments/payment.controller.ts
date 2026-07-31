@@ -38,12 +38,13 @@ export const initializePayment = async (req: any, res: Response, next: NextFunct
 
     // 2. Initialize with correct gateway
     const email = req.body.email || req.user?.email || 'customer@example.com';
+    const customerSiteUrl = (process.env.CUSTOMER_SITE_URL || 'https://elshalomstores.com.ng').replace(/\/$/, '');
 
     const response = await paystackService.initializePayment({
       email: email,
       amount: order.total_amount,
       reference: reference,
-      callback_url: `${process.env.CLIENT_URL}/checkout/verify?reference=${reference}&gateway=paystack`,
+      callback_url: `${customerSiteUrl}/checkout/verify?reference=${reference}&gateway=paystack`,
       metadata: { order_id: order.id }
     });
     const authUrl = response.authorization_url;
