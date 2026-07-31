@@ -34,3 +34,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Checkout and payments
+
+Checkout API routes are deployed with this Next.js application; a separate
+`NEXT_PUBLIC_API_URL` is not required. Before deploying, copy the variables in
+`.env.example` into the Vercel project settings. Keep the Supabase service-role
+key and both payment secret keys server-only.
+
+Run `backend/payments_schema.sql` once in the Supabase SQL Editor before enabling
+Paystack or Flutterwave. Cash on delivery only requires the core orders schema.

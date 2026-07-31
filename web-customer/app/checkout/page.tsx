@@ -209,13 +209,13 @@ export default function CheckoutPage() {
         shipping_cost: 0, // Free as per UI
       };
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
+      if (!token) throw new Error("Your session expired. Please sign in again.");
 
-      // 1. Create order via Backend API
+      // 1. Create the order through this deployed Next.js application.
       const orderResponse = await axios.post(
-        `${apiUrl}/api/orders`, 
+        "/api/orders",
         orderData,
         {
           headers: {
@@ -237,7 +237,7 @@ export default function CheckoutPage() {
         };
 
         const response = await axios.post(
-          `${apiUrl}/api/payments/${formData.paymentMethod}/initialize`, 
+          `/api/payments/${formData.paymentMethod}/initialize`,
           payload,
           {
             headers: {
@@ -261,16 +261,11 @@ export default function CheckoutPage() {
       clearCart();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error("DEBUG: Order submission full error:", error);
-      
-      // Robust error extraction for Supabase/Axios
-      const errorMessage = error.message || error.error_description || "Unknown Error";
-      const errorDetail = error.details || error.hint || "";
-      const statusCode = error.code || error.status || "N/A";
-      
-      console.log(`Order Error Details: [Code: ${statusCode}] ${errorMessage} - ${errorDetail}`);
-      
-      alert(`🚨 FAILED TO PLACE ORDER\n\nError: ${errorMessage}\nDetails: ${errorDetail}\nCode: ${statusCode}\n\nTIP: If you see "relation 'orders' does not exist", please run the SQL schema in your Supabase SQL Editor.`);
+      console.error("Order submission error:", error);
+      const errorMessage = error.response?.data?.message
+        || error.message
+        || "The order could not be completed. Please try again.";
+      alert(`Failed to place order\n\n${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }

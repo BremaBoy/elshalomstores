@@ -33,15 +33,13 @@ function VerifyContent() {
       }
 
       try {
-        // Call our backend to verify
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) {
           setStatus("error");
           setMessage("Your session expired. Please sign in and try again.");
           return;
         }
-        const response = await axios.get(`${apiUrl}/api/payments/${gateway}/verify/${reference}`, {
+        const response = await axios.get(`/api/payments/${gateway}/verify/${reference}`, {
             params: { transaction_id: transactionId },
             headers: { Authorization: `Bearer ${session.access_token}` }
         });

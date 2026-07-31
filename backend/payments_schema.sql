@@ -41,3 +41,17 @@ CREATE TABLE IF NOT EXISTS public.payment_logs (
     payload JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- 4. Protect payment data. Customer checkout writes use the server-side
+-- service-role key; customers may only read their own payment records.
+ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.payment_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Customers can view own payments" ON public.payments;
+CREATE POLICY "Customers can view own payments"
+    ON public.payments
+    FOR SELECT
+    USING (auth.uid() = customer_id);
+
+CREATE INDEX IF NOT EXISTS payments_order_id_idx ON public.payments(order_id);
+CREATE INDEX IF NOT EXISTS payments_customer_id_idx ON public.payments(customer_id);
