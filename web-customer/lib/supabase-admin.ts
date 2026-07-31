@@ -7,8 +7,12 @@ export function createAdminClient() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
+    const missingVariables = [
+      !supabaseUrl && "NEXT_PUBLIC_SUPABASE_URL",
+      !serviceRoleKey && "SUPABASE_SERVICE_ROLE_KEY",
+    ].filter(Boolean);
     throw new Error(
-      "Server checkout is not configured. Add NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to the customer deployment.",
+      `Server checkout is not configured. Add ${missingVariables.join(" and ")} to the customer deployment.`,
     );
   }
 

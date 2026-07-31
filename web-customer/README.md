@@ -44,3 +44,12 @@ key and both payment secret keys server-only.
 
 Run `backend/payments_schema.sql` once in the Supabase SQL Editor before enabling
 Paystack or Flutterwave. Cash on delivery only requires the core orders schema.
+
+After deploying, configure Paystack with:
+
+- Callback URL: `https://elshalomstores1000.vercel.app/checkout/verify?gateway=paystack`
+- Webhook URL: `https://elshalomstores1000.vercel.app/api/webhooks/paystack`
+
+The Paystack webhook validates the `x-paystack-signature` header and verifies the
+transaction with Paystack before marking an order as paid. The callback and
+webhook share idempotent finalization so stock is only reduced once.

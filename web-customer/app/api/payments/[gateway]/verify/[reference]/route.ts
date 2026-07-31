@@ -1,21 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { decrementOrderStock, getServerErrorMessage, type StoredOrderItem } from "@/lib/checkout-server";
+import { finalizeSuccessfulPayment, getServerErrorMessage } from "@/lib/checkout-server";
 import { authenticateCheckoutRequest } from "@/lib/supabase-admin";
 
 interface RouteContext {
   params: Promise<{ gateway: string; reference: string }>;
-}
-
-function readStoredItems(value: unknown): StoredOrderItem[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((item): item is StoredOrderItem => {
-    if (!item || typeof item !== "object") return false;
-    const candidate = item as Partial<StoredOrderItem>;
-    return typeof candidate.product_id === "string"
-      && typeof candidate.quantity === "number"
-      && typeof candidate.unit_price === "number";
-  });
 }
 
 export async function GET(request: Request, context: RouteContext) {
@@ -112,33 +101,15 @@ export async function GET(request: Request, context: RouteContext) {
       }, { status: 400 });
     }
 
-    const wasAlreadySuccessful = payment.status === "successful";
-    const { error: paymentUpdateError } = await supabase
-      .from("payments")
-      .update({
-        status: "successful",
-        paid_at: new Date().toISOString(),
-        transaction_id: transactionId,
-      })
-      .eq("id", payment.id);
-    if (paymentUpdateError) throw new Error(paymentUpdateError.message);
-
-    const { error: orderUpdateError } = await supabase
-      .from("orders")
-      .update({ payment_status: "Paid", status: "Processing" })
-      .eq("id", order.id);
-    if (orderUpdateError) throw new Error(orderUpdateError.message);
-
-    if (!wasAlreadySuccessful) {
-      await decrementOrderStock(supabase, readStoredItems(order.items));
-      await supabase.from("cart_items").delete().eq("user_id", user.id);
-      await supabase.from("payment_logs").insert({
-        payment_reference: reference,
-        event_type: "payment_verified",
-        gateway,
-        payload: { order_id: order.id, transaction_id: transactionId },
-      });
-    }
+    await finalizeSuccessfulPayment({
+      supabase,
+      payment,
+      order,
+      reference,
+      gateway,
+      transactionId,
+      eventType: "payment_verified",
+    });
 
     return NextResponse.json({ success: true, status: "success" });
   } catch (error) {
