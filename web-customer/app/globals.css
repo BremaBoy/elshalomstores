@@ -28,6 +28,7 @@
   --primary-foreground: #FFFFFF;
   --border: #DED6C6;
   --muted: #69736D;
+  --marketplace-grid-color: rgba(109, 40, 217, .09);
 }
 
 .dark {
@@ -40,6 +41,7 @@
   --primary-foreground: #ffffff;
   --border: #27272A;
   --muted: #A1A1AA;
+  --marketplace-grid-color: rgba(255, 255, 255, .05);
 }
 
 body {
@@ -121,8 +123,8 @@ body {
 
 .marketplace-grid {
   background-image:
-    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    linear-gradient(var(--marketplace-grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--marketplace-grid-color) 1px, transparent 1px);
   background-size: 36px 36px;
 }
 
