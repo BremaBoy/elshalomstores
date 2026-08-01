@@ -69,9 +69,9 @@ export function MarketplaceHome({
 
   return (
     <>
-      <section className="relative overflow-hidden bg-[#F8F3EA] pt-28 pb-8 text-text-primary transition-colors duration-300 dark:bg-[#0A0710] dark:text-white">
+      <section className="relative overflow-hidden bg-[#F2EAFE] pt-28 pb-8 text-text-primary transition-colors duration-300 dark:bg-[#0D0718] dark:text-white">
         <div className="absolute inset-0 marketplace-grid opacity-20" />
-        <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-primary/15 blur-[140px] dark:bg-primary/30" />
+        <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-violet-400/25 blur-[140px] dark:bg-violet-700/35" />
 
         <Container className="relative">
           <div className="mb-5 grid grid-cols-2 gap-2 md:grid-cols-4">
@@ -85,7 +85,7 @@ export function MarketplaceHome({
               return (
                 <div
                   key={title as string}
-                  className="flex items-center gap-3 rounded-2xl border border-border bg-white/60 p-3 shadow-sm backdrop-blur-md transition-colors dark:border-white/10 dark:bg-white/[.06] dark:shadow-none"
+                  className="flex items-center gap-3 rounded-2xl border border-[#D8C7F3] bg-[#FBF8FF]/80 p-3 shadow-sm backdrop-blur-md transition-colors dark:border-[#35264C] dark:bg-[#171020]/80 dark:shadow-none"
                 >
                   <ServiceIcon className="h-5 w-5 shrink-0 text-primary dark:text-violet-300" />
                   <div>
@@ -98,7 +98,7 @@ export function MarketplaceHome({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[230px_minmax(0,1fr)_230px]">
-            <aside className="hidden rounded-3xl border border-border bg-white/60 p-3 shadow-sm backdrop-blur-xl transition-colors dark:border-white/10 dark:bg-white/[.06] dark:shadow-none lg:block">
+            <aside className="hidden rounded-3xl border border-[#D8C7F3] bg-[#FBF8FF]/80 p-3 shadow-sm backdrop-blur-xl transition-colors dark:border-[#35264C] dark:bg-[#171020]/80 dark:shadow-none lg:block">
               <p className="px-3 pb-3 pt-2 text-[10px] font-black uppercase tracking-[.22em] text-text-secondary dark:text-white/45">
                 Shop by category
               </p>
@@ -125,7 +125,7 @@ export function MarketplaceHome({
               </Link>
             </aside>
 
-            <div className="group relative min-h-[460px] overflow-hidden rounded-[2rem] border border-border bg-[#EAE1D5] shadow-sm transition-colors dark:border-white/10 dark:bg-zinc-900 dark:shadow-none">
+            <div className="group relative min-h-[460px] overflow-hidden rounded-[2rem] border border-[#D1BDEB] bg-[#E8DBFA] shadow-sm transition-colors dark:border-[#35264C] dark:bg-[#120B1D] dark:shadow-none">
               <Image
                 src={hero.image_url || fallbackHero.image_url}
                 alt={hero.title}
@@ -133,7 +133,7 @@ export function MarketplaceHome({
                 priority
                 className="object-cover transition duration-1000 group-hover:scale-[1.03]"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#F8F3EA]/95 via-[#F8F3EA]/75 to-[#F8F3EA]/10 transition-colors dark:from-black/90 dark:via-black/55 dark:to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F2EAFE]/95 via-[#E8DBFA]/78 to-[#E8DBFA]/10 transition-colors dark:from-[#0B0711]/92 dark:via-[#110A1C]/62 dark:to-transparent" />
               <div className="absolute inset-0 flex max-w-2xl flex-col justify-center p-7 md:p-12">
                 <span className="mb-5 flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-[10px] font-black uppercase tracking-[.2em] text-primary dark:border-violet-300/30 dark:bg-violet-300/10 dark:text-violet-200">
                   <Sparkles className="h-3.5 w-3.5" />
@@ -165,7 +165,7 @@ export function MarketplaceHome({
             <aside className="grid grid-cols-2 gap-3 lg:grid-cols-1">
               <Link
                 href="/shop?new=true"
-                className="group relative flex min-h-44 flex-col justify-between overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary to-violet-600 p-5 text-white shadow-sm dark:border-white/10 dark:to-violet-950 dark:shadow-none"
+                className="group relative flex min-h-44 flex-col justify-between overflow-hidden rounded-3xl border border-violet-400/30 bg-gradient-to-br from-violet-500 to-purple-700 p-5 text-white shadow-sm dark:border-violet-400/20 dark:from-violet-700 dark:to-purple-950 dark:shadow-none"
               >
                 <Gift className="absolute -bottom-4 -right-3 h-28 w-28 rotate-12 text-white/10 transition group-hover:rotate-6 group-hover:scale-110" />
                 <span className="text-[10px] font-black uppercase tracking-[.2em] text-white/55">New this week</span>
@@ -178,7 +178,7 @@ export function MarketplaceHome({
               </Link>
               <Link
                 href="/contact"
-                className="group flex min-h-44 flex-col justify-between rounded-3xl border border-border bg-white/60 p-5 shadow-sm backdrop-blur-xl transition hover:bg-white/80 dark:border-white/10 dark:bg-white/[.06] dark:shadow-none dark:hover:bg-white/10"
+                className="group flex min-h-44 flex-col justify-between rounded-3xl border border-[#D8C7F3] bg-[#FBF8FF]/80 p-5 shadow-sm backdrop-blur-xl transition hover:bg-white dark:border-[#35264C] dark:bg-[#171020]/80 dark:shadow-none dark:hover:bg-[#21152F]"
               >
                 <CircleHelp className="h-7 w-7 text-primary dark:text-violet-300" />
                 <div>

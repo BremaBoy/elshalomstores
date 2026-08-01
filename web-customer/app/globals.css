@@ -5,6 +5,11 @@
 @import "swiper/css/autoplay";
 @import "swiper/css/effect-fade";
 
+/* next-themes toggles the .dark class on <html>. Tailwind v4 otherwise uses
+   the operating-system preference, which made dark utilities stay active
+   even after the user selected light mode. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
@@ -28,7 +33,7 @@
   --primary-foreground: #FFFFFF;
   --border: #DED6C6;
   --muted: #69736D;
-  --marketplace-grid-color: rgba(109, 40, 217, .09);
+  --marketplace-grid-color: rgba(109, 40, 217, .12);
 }
 
 .dark {
@@ -41,7 +46,7 @@
   --primary-foreground: #ffffff;
   --border: #27272A;
   --muted: #A1A1AA;
-  --marketplace-grid-color: rgba(255, 255, 255, .05);
+  --marketplace-grid-color: rgba(167, 139, 250, .07);
 }
 
 body {
