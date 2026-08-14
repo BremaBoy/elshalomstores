@@ -71,7 +71,17 @@ export default function ProductsPage() {
     setIsSubmitting(true)
     try {
       const status = validateProduct(data)
-      const submissionData = { ...data, status }
+      const discountPrice = Number(data.discount_price)
+      const submissionData = {
+        ...data,
+        // The product form uses 0 for an empty discount. Persist null so 0 is
+        // never mistaken for the price customers should be charged.
+        discount_price:
+          Number.isFinite(discountPrice) && discountPrice > 0
+            ? discountPrice
+            : null,
+        status,
+      }
 
       let result
       if (editingProduct) {

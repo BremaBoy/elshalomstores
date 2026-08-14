@@ -28,11 +28,15 @@ function sanitizeProduct(product: any): Product {
         .filter((url: unknown) => typeof url === "string" && url.startsWith("http"))
         .slice(0, 4)
     : [];
+  const rawDiscountPrice = Number(product.discountPrice ?? product.discount_price);
   return {
     ...product,
     image,
     galleryImages,
-    discountPrice: product.discountPrice ?? product.discount_price,
+    discountPrice:
+      Number.isFinite(rawDiscountPrice) && rawDiscountPrice > 0
+        ? rawDiscountPrice
+        : undefined,
     isNew: product.isNew ?? product.is_new,
     isSale: product.isSale ?? product.is_sale,
     rating: Number(product.rating || 0),

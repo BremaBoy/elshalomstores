@@ -73,7 +73,15 @@ export async function POST(request: Request) {
         throw new Error(`${product.name} does not have enough stock for this order.`);
       }
 
-      const unitPrice = Number(product.discount_price ?? product.price);
+      const regularPrice = Number(product.price);
+      const discountPrice = Number(product.discount_price);
+      const unitPrice =
+        Number.isFinite(discountPrice) && discountPrice > 0
+          ? discountPrice
+          : regularPrice;
+      if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+        throw new Error(`${product.name} does not have a valid price.`);
+      }
       return {
         id: product.id,
         product_id: product.id,
@@ -87,7 +95,15 @@ export async function POST(request: Request) {
     });
 
     const subtotal = storedItems.reduce((sum, item) => sum + item.subtotal, 0);
-    const totalAmount = subtotal + (Number.isFinite(shippingCost) ? Math.max(0, shippingCost) : 0);
+    const totalAmount = Math.round(
+      (subtotal + (Number.isFinite(shippingCost) ? Math.max(0, shippingCost) : 0) + Number.EPSILON) * 100,
+    ) / 100;
+    if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
+      throw new Error("Order total must be greater than zero.");
+    }
+    if (paymentMethod === "paystack" && totalAmount < 50) {
+      throw new Error("Paystack orders must total at least ₦50.");
+    }
 
     const orderPayload = {
       user_id: user.id,

@@ -49,6 +49,11 @@ export async function POST(request: Request, context: RouteContext) {
     const reference = makePaymentReference("PAY");
     const secretKey = process.env.PAYSTACK_SECRET_KEY;
     if (!secretKey) throw new Error("Paystack is not configured on the customer deployment.");
+    const amountInNaira = Number(order.total_amount);
+    const amountInKobo = Math.round(amountInNaira * 100);
+    if (!Number.isFinite(amountInNaira) || amountInKobo < 5000) {
+      throw new Error("Paystack amount must be a valid value of at least ₦50.");
+    }
 
     const providerResponse = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
@@ -58,7 +63,7 @@ export async function POST(request: Request, context: RouteContext) {
       },
       body: JSON.stringify({
         email,
-        amount: String(Math.round(Number(order.total_amount) * 100)),
+        amount: String(amountInKobo),
         currency: "NGN",
         reference,
         callback_url: `${callbackOrigin}/checkout/verify?gateway=paystack`,

@@ -18,17 +18,27 @@ export class PaystackService {
    */
   async initializePayment(data: {
     email: string;
-    amount: number; // in NGN (will be converted to kobo)
+    amount: number | string; // in NGN (will be converted to kobo)
     reference: string;
     callback_url?: string;
     metadata?: any;
   }) {
+    const amountInNaira = Number(data.amount);
+    const amountInKobo = Math.round(amountInNaira * 100);
+
+    if (!Number.isFinite(amountInNaira) || amountInKobo < 5000) {
+      throw new Error('Paystack amount must be a valid value of at least ₦50');
+    }
+
     try {
       const response = await axios.post(
         `${this.baseUrl}/transaction/initialize`,
         {
           email: data.email,
-          amount: Math.round(data.amount * 100), // convert to kobo
+          // Paystack documents this field as a string containing the amount in
+          // the currency subunit (kobo for NGN).
+          amount: String(amountInKobo),
+          currency: 'NGN',
           reference: data.reference,
           callback_url: data.callback_url || process.env.PAYMENT_CALLBACK_URL,
           metadata: data.metadata,

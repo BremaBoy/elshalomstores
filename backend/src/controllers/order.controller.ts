@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { supabase } from '../config/supabase';
 import { logger } from '../config/logger';
+import { getEffectiveProductPrice } from '../utils/pricing';
 
 export const createOrder = async (req: any, res: Response, next: NextFunction) => {
   try {
@@ -9,7 +10,6 @@ export const createOrder = async (req: any, res: Response, next: NextFunction) =
       payment_method,
       shipping_details, // New: contains full address/contact info
       delivery_instructions,
-      shipping_cost = 0,
       coupon_id,
     } = req.body;
     const user_id = req.user.id;
@@ -18,15 +18,80 @@ export const createOrder = async (req: any, res: Response, next: NextFunction) =
       res.status(400);
       throw new Error('Order must have at least one item');
     }
-
-    // 1. Calculate totals
-    let subtotal = 0;
-    for (const item of items) {
-      subtotal += (item.unit_price || item.price) * item.quantity;
+    if (!['paystack', 'flutterwave', 'cod'].includes(payment_method)) {
+      res.status(400);
+      throw new Error('Unsupported payment method');
+    }
+    if (
+      !shipping_details?.address ||
+      !shipping_details?.city ||
+      !shipping_details?.state
+    ) {
+      res.status(400);
+      throw new Error('A complete shipping address is required');
     }
 
+    // 1. Resolve prices and availability on the server. Never trust cart prices.
+    const productIds = items.map((item: any) => item.product_id || item.id);
+    const { data: products, error: productsError } = await supabase
+      .from('products')
+      .select('id, price, discount_price, stock, status')
+      .in('id', productIds);
+
+    if (productsError) throw productsError;
+    if (!products || products.length !== new Set(productIds).size) {
+      res.status(400);
+      throw new Error('One or more products are unavailable');
+    }
+
+    const productsById = new Map(products.map((product: any) => [product.id, product]));
+    const resolvedItems = items.map((item: any) => {
+      const productId = item.product_id || item.id;
+      const product: any = productsById.get(productId);
+      const quantity = Number(item.quantity);
+
+      if (!Number.isInteger(quantity) || quantity < 1) {
+        res.status(400);
+        throw new Error('Invalid product quantity');
+      }
+      if (product.status !== 'active') {
+        res.status(400);
+        throw new Error('A product in your cart is no longer available');
+      }
+      if (product.stock < quantity) {
+        res.status(409);
+        throw new Error('Insufficient stock for one or more products');
+      }
+
+      let unitPrice: number;
+      try {
+        unitPrice = getEffectiveProductPrice(product);
+      } catch (error) {
+        res.status(400);
+        throw error;
+      }
+      return { ...item, product_id: productId, quantity, unit_price: unitPrice };
+    });
+
+    const subtotal = resolvedItems.reduce(
+      (total: number, item: any) => total + item.unit_price * item.quantity,
+      0
+    );
+
     // TODO: Apply coupon if exists
-    const total_amount = subtotal + (shipping_cost || 0);
+    // Shipping is currently advertised as free. Never accept price adjustments
+    // from the browser; introduce a server-side shipping calculator when needed.
+    const shipping_cost = 0;
+    const total_amount = Math.round((subtotal + shipping_cost + Number.EPSILON) * 100) / 100;
+
+    if (!Number.isFinite(total_amount) || total_amount <= 0) {
+      res.status(400);
+      throw new Error('Order total must be greater than zero');
+    }
+    if (payment_method === 'paystack' && total_amount < 50) {
+      res.status(400);
+      throw new Error('Paystack orders must total at least ₦50');
+    }
 
     // 2. Start Order Creation
     const { data: order, error: orderError } = await supabase
@@ -41,7 +106,7 @@ export const createOrder = async (req: any, res: Response, next: NextFunction) =
           shipping_details,
           delivery_instructions,
           coupon_id,
-          items, // JSONB backup for easy frontend access
+          items: resolvedItems, // JSONB backup with server-authoritative prices
         },
       ])
       .select()
@@ -50,12 +115,12 @@ export const createOrder = async (req: any, res: Response, next: NextFunction) =
     if (orderError) throw orderError;
 
     // 3. Create relational Order Items
-    const orderItems = items.map((item: any) => ({
+    const orderItems = resolvedItems.map((item: any) => ({
       order_id: order.id,
       product_id: item.product_id || item.id,
       quantity: item.quantity,
-      unit_price: item.unit_price || item.price,
-      subtotal: (item.unit_price || item.price) * item.quantity,
+      unit_price: item.unit_price,
+      subtotal: item.unit_price * item.quantity,
     }));
 
     const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
@@ -67,7 +132,7 @@ export const createOrder = async (req: any, res: Response, next: NextFunction) =
     }
 
     // 4. Update Stock & Clear Cart
-    for (const item of items) {
+    for (const item of resolvedItems) {
       const product_id = item.product_id || item.id;
       // Decrement stock
       const { data: product } = await supabase

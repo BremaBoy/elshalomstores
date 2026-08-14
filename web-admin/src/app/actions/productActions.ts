@@ -154,10 +154,17 @@ export async function bulkImportProducts(products: any[]) {
       }
     }
 
-    const finalProducts = products.map(p => ({
-      ...p,
-      category: categoryMap[String(p.category).toLowerCase().trim()] || (existingCategories?.[0]?.id || p.category)
-    }))
+    const finalProducts = products.map(p => {
+      const discountPrice = Number(p.discount_price)
+      return {
+        ...p,
+        discount_price:
+          Number.isFinite(discountPrice) && discountPrice > 0
+            ? discountPrice
+            : null,
+        category: categoryMap[String(p.category).toLowerCase().trim()] || (existingCategories?.[0]?.id || p.category)
+      }
+    })
 
     const chunkSize = 50
     for (let i = 0; i < finalProducts.length; i += chunkSize) {
