@@ -19,7 +19,7 @@ export default function FAQPage() {
             <SectionTitle title="Frequently Asked Questions" subtitle="Quick answers to common inquiries." />
             <div className="space-y-6">
               {faqs.map((faq, i) => (
-                <div key={i} className="bg-white dark:bg-slate-900 p-10 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-lg">
+                <div key={i} className="bg-card p-10 rounded-[40px] border border-border shadow-lg shadow-primary/5">
                   <h3 className="text-xl font-bold uppercase tracking-tight mb-4 text-primary">{faq.q}</h3>
                   <p className="text-slate-500 leading-relaxed font-medium italic">{faq.a}</p>
                 </div>

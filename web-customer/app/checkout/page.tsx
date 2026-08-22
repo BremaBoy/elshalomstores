@@ -348,20 +348,20 @@ export default function CheckoutPage() {
                     <h3 className="text-2xl font-extrabold uppercase tracking-tight">Contact Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">First Name</label>
-                        <input name="firstName" value={formData.firstName} onChange={handleInputChange} type="text" placeholder="John" className={`w-full h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.firstName ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
+                        <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">First Name</label>
+                        <input name="firstName" value={formData.firstName} onChange={handleInputChange} type="text" placeholder="John" className={`w-full h-14 bg-bg border border-border rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.firstName ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Last Name</label>
-                        <input name="lastName" value={formData.lastName} onChange={handleInputChange} type="text" placeholder="Doe" className={`w-full h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.lastName ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
+                        <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Last Name</label>
+                        <input name="lastName" value={formData.lastName} onChange={handleInputChange} type="text" placeholder="Doe" className={`w-full h-14 bg-bg border border-border rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.lastName ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
                       </div>
                       <div className="md:col-span-2 space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Email Address</label>
-                        <input name="email" value={formData.email} onChange={handleInputChange} type="email" placeholder="john@example.com" className={`w-full h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.email ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
+                        <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Email Address</label>
+                        <input name="email" value={formData.email} onChange={handleInputChange} type="email" placeholder="john@example.com" className={`w-full h-14 bg-bg border border-border rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.email ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
                       </div>
                       <div className="md:col-span-2 space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Phone Number</label>
-                        <input name="phone" value={formData.phone} onChange={handleInputChange} type="tel" placeholder="+234 800 000 0000" className={`w-full h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.phone ? 'ring-2 ring-red-500/50' : 'focus:ring-primary/20'}`} />
+                        <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Phone Number</label>
+                        <input name="phone" value={formData.phone} onChange={handleInputChange} type="tel" placeholder="+234 800 000 0000" className={`w-full h-14 bg-bg border border-border rounded-2xl px-6 outline-none focus:ring-2 transition-all font-medium ${errors.phone ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
                       </div>
                     </div>
                     <Button onClick={nextStep} className="w-full h-16 text-xl rounded-2xl font-extrabold uppercase tracking-widest">
@@ -554,46 +554,46 @@ export default function CheckoutPage() {
               </div>
 
               <div className="lg:col-span-2">
-                <div className="bg-slate-900 text-white p-8 md:p-10 rounded-[48px] shadow-2xl space-y-8 sticky top-32">
-                  <h4 className="text-xl font-bold uppercase tracking-widest text-primary">Your Order</h4>
+                <div className="bg-primary text-white p-8 md:p-10 rounded-[48px] shadow-2xl shadow-primary/20 space-y-8 sticky top-32">
+                  <h4 className="text-xl font-bold uppercase tracking-widest text-gold-soft">Your Order</h4>
                   <div className="space-y-4 max-h-[300px] overflow-y-auto no-scrollbar">
                     {items.map((item) => (
                       <div key={item.id} className="flex gap-4 items-center group">
-                        <div className="relative h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 bg-slate-800">
+                        <div className="relative h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 bg-white/10 ring-1 ring-white/15">
                           <Image src={item.image} alt={item.name} fill className="object-cover opacity-80" />
-                          <span className="absolute top-0 right-0 h-5 w-5 bg-primary text-[10px] flex items-center justify-center rounded-bl-lg font-bold">
+                          <span className="absolute top-0 right-0 h-5 w-5 bg-gold-soft text-text-primary text-[10px] flex items-center justify-center rounded-bl-lg font-bold">
                             {item.quantity}
                           </span>
                         </div>
                         <div className="flex-grow min-w-0">
                           <p className="text-sm font-bold line-clamp-1">{item.name}</p>
-                          <p className="text-xs text-slate-500 font-medium">₦{(item.discountPrice || item.price).toLocaleString()} / each</p>
+                          <p className="text-xs text-white/80 font-medium">₦{(item.discountPrice || item.price).toLocaleString()} / each</p>
                         </div>
-                        <span className="text-sm font-bold text-primary">
+                        <span className="text-sm font-bold text-gold-soft">
                           ₦{((item.discountPrice || item.price) * item.quantity).toLocaleString()}
                         </span>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="pt-6 border-t border-slate-800 space-y-4">
-                    <div className="flex justify-between items-center text-sm font-medium text-slate-500">
+                  <div className="pt-6 border-t border-white/15 space-y-4">
+                    <div className="flex justify-between items-center text-sm font-medium text-white/80">
                       <span>Subtotal</span>
                       <span className="text-white">₦{getTotalPrice().toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm font-medium text-slate-500">
+                    <div className="flex justify-between items-center text-sm font-medium text-white/80">
                       <span>Shipping</span>
                       <span className="text-emerald-400 font-bold uppercase text-[10px] tracking-widest border border-emerald-400/20 px-2 py-0.5 rounded-full">Free</span>
                     </div>
                     <div className="flex justify-between items-center text-xl font-extrabold">
                       <span>Total</span>
-                      <span className="text-primary text-3xl">₦{getTotalPrice().toLocaleString()}</span>
+                      <span className="text-gold-soft text-3xl">₦{getTotalPrice().toLocaleString()}</span>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-3xl bg-slate-800/50 border border-slate-700/50 flex gap-4">
-                    <ShieldCheck className="h-6 w-6 text-primary shrink-0" />
-                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest leading-relaxed">
+                  <div className="p-4 rounded-3xl bg-white/10 border border-white/15 flex gap-4">
+                    <ShieldCheck className="h-6 w-6 text-gold-soft shrink-0" />
+                    <p className="text-[10px] text-white/80 uppercase font-bold tracking-widest leading-relaxed">
                       Secure checkout. Your data is protected by industry standard encryption.
                     </p>
                   </div>

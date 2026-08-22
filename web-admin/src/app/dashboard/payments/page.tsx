@@ -76,9 +76,9 @@ export default function PaymentsPage() {
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6 relative overflow-hidden group">
-           <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 -mr-10 -mt-10 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors" />
+           <div className="absolute top-0 right-0 w-32 h-32 bg-lilac -mr-10 -mt-10 rounded-full blur-2xl transition-colors" />
            <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
+            <div className="p-2 bg-lilac rounded-lg text-[#6F5B8C]">
                <CreditCard className="w-5 h-5" />
             </div>
             <p className="text-sm text-muted-foreground font-medium">Payment Methods</p>

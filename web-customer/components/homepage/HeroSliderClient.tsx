@@ -2,99 +2,98 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectFade } from "swiper/modules";
-import { Button } from "@/components/ui/Button";
-import { Container } from "@/components/ui/Container";
 import type { HeroSlide } from "@/products/getHomepageData";
 
-// Import Swiper styles
 import "swiper/css";
-import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
 const fallbackSlides: HeroSlide[] = [
   {
-    id: "1",
-    title: "Good finds. Great living.",
-    subtitle: "Useful, beautiful things for your home, your pocket, and everyone on your list.",
-    image_url: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop",
-    link: "/shop?category=electronics",
+    id: "elshalom-edit",
+    title: "Good things, chosen for real life.",
+    subtitle: "Useful finds, everyday essentials, and thoughtful gifts without the endless scrolling.",
+    image_url: "/elshalom-og.png",
+    link: "/shop",
     badge: "The Elshalom edit",
-    cta_text: "Shop the collection"
+    cta_text: "Shop the collection",
   },
   {
-    id: "2",
-    title: "Little luxuries, every day.",
-    subtitle: "Fresh homeware, memorable gifts, and feel-good essentials—chosen with care.",
-    image_url: "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?q=80&w=2070&auto=format&fit=crop",
+    id: "home-refresh",
+    title: "Small upgrades. Better everyday living.",
+    subtitle: "Discover practical homeware and feel-good essentials selected with care.",
+    image_url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=85&w=1600",
     link: "/shop?category=home-decor",
-    badge: "Made for real life",
-    cta_text: "Discover what’s new"
-  }
+    badge: "For home and beyond",
+    cta_text: "Discover home finds",
+  },
+  {
+    id: "gift-worthy",
+    title: "Gift-worthy finds for every kind of moment.",
+    subtitle: "Thoughtful picks that feel special, useful, and easy to love.",
+    image_url: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=85&w=1600&auto=format&fit=crop",
+    link: "/shop?category=gifts",
+    badge: "Made for giving",
+    cta_text: "Shop gifts",
+  },
 ];
 
 export const HeroSliderClient = ({ slides: initialSlides }: { slides: HeroSlide[] }) => {
   const slides = initialSlides.length > 0 ? initialSlides : fallbackSlides;
+  const hasMultipleSlides = slides.length > 1;
 
   return (
-    <section className="relative min-h-[720px] h-[88vh] max-h-[900px] overflow-hidden bg-black">
+    <div className="marketplace-hero-frame relative h-[480px] w-full overflow-hidden rounded-[2rem] border border-border bg-primary shadow-[0_22px_60px_rgba(49,94,138,0.16)] sm:h-[520px]">
       <Swiper
         modules={[Pagination, Autoplay, EffectFade]}
-        pagination={{ clickable: true, el: ".swiper-pagination-custom" }}
-        autoplay={{ delay: 5000, disableOnInteraction: false }}
+        pagination={{ clickable: true, el: ".marketplace-hero-pagination" }}
+        autoplay={hasMultipleSlides ? { delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: false } : false}
+        speed={700}
         effect="fade"
-        loop
+        loop={hasMultipleSlides}
         className="h-full w-full"
       >
-        {slides.map((slide) => (
+        {slides.map((slide, index) => (
           <SwiperSlide key={slide.id}>
             <div className="relative h-full w-full">
-              {/* Background Image */}
-              <div className="absolute inset-0">
-                <Image
-                  src={slide.image_url}
-                  alt={slide.title}
-                  fill
-                  priority
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/5 z-10" />
-                <div className="absolute inset-0 z-10 opacity-20" style={{backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "28px 28px"}} />
-              </div>
+              <Image
+                src={slide.image_url || fallbackSlides[0].image_url}
+                alt={slide.title}
+                fill
+                priority={index === 0}
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 58vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#183B5D]/95 via-[#183B5D]/74 to-[#183B5D]/10" />
+              <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#183B5D]/70 to-transparent" />
 
-              {/* Content */}
-              <Container className="h-full relative z-20">
-                <div className="flex flex-col justify-center h-full max-w-3xl text-white pt-20">
-                  <div className="animate-in fade-in slide-in-from-bottom-6 duration-1000">
-                    <span className="eyebrow text-violet-300 mb-8">
-                      {slide.badge}
-                    </span>
-                    <h1 className="display-title mb-8 max-w-3xl">
-                      {slide.title}
-                    </h1>
-                    <p className="text-lg md:text-2xl text-white/75 mb-10 max-w-xl leading-relaxed">
-                      {slide.subtitle}
-                    </p>
-                    <div className="flex flex-wrap gap-4">
-                      <Link href={slide.link || '/shop'}>
-                        <Button variant="primary" className="h-14 px-9 rounded-full shadow-xl shadow-black/20 font-black uppercase tracking-[.16em] text-[11px]">
-                          {slide.cta_text}
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </Container>
+              <div className="relative z-10 flex h-full max-w-2xl flex-col justify-center p-7 text-white sm:p-10 min-[700px]:p-7 xl:p-12">
+                <span className="flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-[.18em] text-gold-soft backdrop-blur">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {slide.badge || "Curated by Elshalom"}
+                </span>
+                <h1 className="mt-6 max-w-xl text-4xl font-black leading-[.96] tracking-[-.05em] sm:text-5xl min-[700px]:text-4xl xl:text-[3.5rem]">
+                  {slide.title}
+                </h1>
+                <p className="mt-5 max-w-lg text-sm leading-6 text-white/85 sm:text-base">
+                  {slide.subtitle}
+                </p>
+                <Link
+                  href={slide.link || "/shop"}
+                  className="mt-8 inline-flex h-12 w-fit items-center gap-2 rounded-xl bg-gold-soft px-6 text-[10px] font-black uppercase tracking-[.16em] text-text-primary shadow-xl shadow-black/15 transition hover:-translate-y-0.5 hover:bg-white"
+                >
+                  {slide.cta_text || "Shop now"} <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
           </SwiperSlide>
         ))}
       </Swiper>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center gap-6">
-        <div className="swiper-pagination-custom !relative !bottom-0 !w-auto !flex items-center gap-3" />
-      </div>
-    </section>
+      <div className="marketplace-hero-pagination absolute bottom-5 left-7 z-20 !flex !w-auto items-center gap-2 sm:left-10" />
+    </div>
   );
 };

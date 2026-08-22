@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Mail, ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -28,8 +27,8 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-bg px-6 text-text-primary">
-      <ThemeToggle className="absolute right-6 top-6 border border-border bg-card" />
-      <div className="w-full max-w-md rounded-[2rem] border border-border bg-card p-8 shadow-xl md:p-10">
+      <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-gold via-lilac to-primary" />
+      <div className="w-full max-w-md rounded-[2rem] border border-border bg-card p-8 shadow-xl shadow-primary/10 md:p-10">
         <Link href="/auth/login" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-text-secondary hover:text-primary">
           <ArrowLeft className="h-4 w-4" /> Back to sign in
         </Link>

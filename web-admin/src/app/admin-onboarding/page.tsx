@@ -41,10 +41,12 @@ export default function AdminOnboardingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
-      <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-8 shadow-2xl">
+    <main className="relative min-h-screen overflow-hidden bg-background text-foreground flex items-center justify-center p-4">
+      <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-gold via-lilac to-primary" />
+      <div className="absolute -left-32 top-24 h-96 w-96 rounded-full bg-lilac/70 blur-3xl" />
+      <div className="relative w-full max-w-lg rounded-[2rem] border border-border bg-card p-8 shadow-2xl shadow-primary/10">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground ring-4 ring-gold-soft">
             <Store className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-bold">Complete your admin profile</h1>

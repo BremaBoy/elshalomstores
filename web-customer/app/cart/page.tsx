@@ -42,7 +42,7 @@ export default function CartPage() {
                 {/* Cart Items List */}
                 <div className="lg:col-span-2 space-y-6">
                   {items.map((item) => (
-                    <div key={item.id} className="flex flex-col sm:flex-row gap-6 p-6 bg-card rounded-[32px] border border-border hover:shadow-xl hover:shadow-black/10 transition-shadow group">
+                    <div key={item.id} className="flex flex-col sm:flex-row gap-6 p-6 bg-card rounded-[32px] border border-border hover:shadow-xl hover:shadow-primary/10 transition-shadow group">
                       <div className="relative h-32 w-full sm:w-32 rounded-2xl overflow-hidden bg-bg border border-border flex-shrink-0">
                         <Image src={item.image} alt={item.name} fill className="object-cover" />
                       </div>
@@ -94,7 +94,7 @@ export default function CartPage() {
 
                 {/* Order Summary */}
                 <div className="lg:col-span-1">
-                  <div className="p-8 bg-card text-text-primary border border-border rounded-[40px] shadow-2xl shadow-black/10 sticky top-32">
+                  <div className="p-8 bg-gradient-to-b from-blue-soft/60 to-card text-text-primary border border-primary/15 rounded-[40px] shadow-2xl shadow-primary/10 sticky top-32">
                     <h3 className="text-2xl font-bold mb-8 uppercase tracking-widest text-primary">Order Summary</h3>
                     
                     <div className="space-y-6">

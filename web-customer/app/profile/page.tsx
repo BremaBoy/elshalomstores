@@ -88,14 +88,14 @@ export default async function ProfilePage() {
                 <div className="space-y-6">
                   {orders && orders.length > 0 ? (
                     orders.map((order) => (
-                      <div key={order.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl group hover:shadow-md transition-all gap-6">
+                      <div key={order.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-blue-soft/40 rounded-3xl border border-primary/10 group hover:shadow-md transition-all gap-6">
                         <div className="flex items-center gap-6">
-                          <div className="h-16 w-16 bg-white dark:bg-slate-700 rounded-2xl flex items-center justify-center shadow-sm">
-                            <Package className="h-8 w-8 text-slate-400" />
+                          <div className="h-16 w-16 bg-card rounded-2xl flex items-center justify-center shadow-sm">
+                            <Package className="h-8 w-8 text-primary" />
                           </div>
                           <div>
                             <p className="text-lg font-extrabold tracking-tight uppercase">{order.id.slice(0, 8)}</p>
-                            <div className="flex items-center gap-2 text-xs text-slate-500 font-bold uppercase tracking-widest">
+                            <div className="flex items-center gap-2 text-xs text-text-secondary font-bold uppercase tracking-widest">
                               <Clock className="h-3 w-3" />
                               {new Date(order.created_at).toLocaleDateString()}
                             </div>
@@ -104,7 +104,7 @@ export default async function ProfilePage() {
                         
                         <div className="flex items-center gap-12">
                           <div className="text-right">
-                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Status</p>
+                            <p className="text-xs text-text-secondary font-bold uppercase tracking-widest mb-1">Status</p>
                             <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest border ${
                               order.status === 'Delivered' || order.status === 'Completed' 
                                 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
@@ -114,7 +114,7 @@ export default async function ProfilePage() {
                             </span>
                           </div>
                           <div className="text-right min-w-[100px]">
-                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Total</p>
+                            <p className="text-xs text-text-secondary font-bold uppercase tracking-widest mb-1">Total</p>
                             <p className="text-lg font-extrabold text-primary">₦{order.total_amount?.toLocaleString()}</p>
                           </div>
                           <Button variant="ghost" size="icon" className="group-hover:translate-x-1 transition-transform">
@@ -142,16 +142,16 @@ export default async function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="p-10 rounded-[48px] bg-primary text-white shadow-2xl shadow-primary/20 space-y-6">
                     <h4 className="text-2xl font-extrabold uppercase tracking-tight">Shipping Addresses</h4>
-                    <p className="text-indigo-100 font-medium">Manage your delivery locations for faster checkout.</p>
+                    <p className="text-white/75 font-medium">Manage your delivery locations for faster checkout.</p>
                     <Link href="/account/addresses">
-                      <Button className="bg-white text-primary hover:bg-indigo-50 font-bold rounded-2xl uppercase tracking-widest">Manage Addresses</Button>
+                      <Button className="bg-gold-soft text-text-primary hover:bg-white font-bold rounded-2xl uppercase tracking-widest">Manage Addresses</Button>
                     </Link>
                 </div>
-                <div className="p-10 rounded-[48px] bg-slate-900 text-white shadow-2xl space-y-6">
+                <div className="p-10 rounded-[48px] bg-lilac text-text-primary border border-border shadow-2xl space-y-6">
                     <h4 className="text-2xl font-extrabold uppercase tracking-tight">Security Settings</h4>
-                    <p className="text-slate-400 font-medium">Update your password and enable two-factor authentication.</p>
+                    <p className="text-text-secondary font-medium">Update your password and enable two-factor authentication.</p>
                     <Link href="/account/settings">
-                      <Button variant="outline" className="border-slate-700 text-white hover:bg-slate-800 font-bold rounded-2xl uppercase tracking-widest">Privacy Settings</Button>
+                      <Button variant="outline" className="border-primary/25 text-primary hover:bg-blue-soft font-bold rounded-2xl uppercase tracking-widest">Privacy Settings</Button>
                     </Link>
                 </div>
               </div>

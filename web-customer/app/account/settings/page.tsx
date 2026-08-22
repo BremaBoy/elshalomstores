@@ -76,7 +76,7 @@ export default function SettingsPage() {
     <div className="space-y-8">
       {/* Password Section */}
       <div className="bg-card text-text-primary p-8 md:p-12 rounded-[48px] border border-border shadow-xl space-y-8">
-        <div className="flex items-center gap-4 pb-6 border-b border-slate-50">
+        <div className="flex items-center gap-4 pb-6 border-b border-border">
           <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center flex-shrink-0">
             <Lock className="h-6 w-6 text-primary" />
           </div>
@@ -84,7 +84,7 @@ export default function SettingsPage() {
             <h3 className="text-xl font-black uppercase tracking-tight text-text-primary">
               Change Password
             </h3>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+            <p className="text-xs text-text-secondary font-bold uppercase tracking-widest mt-0.5">
               Keep your account secure
             </p>
           </div>
@@ -92,7 +92,7 @@ export default function SettingsPage() {
 
         <div className="space-y-5 max-w-lg">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
               New Password
             </label>
             <div className="relative">
@@ -106,7 +106,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={() => setShowNewPass((v) => !v)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-primary transition-colors"
               >
                 {showNewPass ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -114,7 +114,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
               Confirm New Password
             </label>
             <div className="relative">
@@ -128,7 +128,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPass((v) => !v)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-primary transition-colors"
               >
                 {showConfirmPass ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -164,15 +164,15 @@ export default function SettingsPage() {
 
       {/* Notification Preferences */}
       <div className="bg-card text-text-primary p-8 md:p-12 rounded-[48px] border border-border shadow-xl space-y-8">
-        <div className="flex items-center gap-4 pb-6 border-b border-slate-50">
-          <div className="h-12 w-12 bg-blue-500/10 rounded-2xl flex items-center justify-center flex-shrink-0">
-            <Bell className="h-6 w-6 text-blue-600" />
+        <div className="flex items-center gap-4 pb-6 border-b border-border">
+          <div className="h-12 w-12 bg-blue-soft rounded-2xl flex items-center justify-center flex-shrink-0">
+            <Bell className="h-6 w-6 text-primary" />
           </div>
           <div>
             <h3 className="text-xl font-black uppercase tracking-tight text-text-primary">
               Notifications
             </h3>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+            <p className="text-xs text-text-secondary font-bold uppercase tracking-widest mt-0.5">
               Choose what you want to hear about
             </p>
           </div>
@@ -188,12 +188,12 @@ export default function SettingsPage() {
             <div key={key} className="flex items-center justify-between p-5 bg-bg rounded-2xl border border-border">
               <div>
                 <p className="text-sm font-bold text-text-primary uppercase tracking-wide">{label}</p>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">{desc}</p>
+                <p className="text-xs text-text-secondary font-medium mt-0.5">{desc}</p>
               </div>
               <button
                 onClick={() => setNotifications((n) => ({ ...n, [key]: !n[key as keyof typeof n] }))}
                 className={`relative h-7 w-12 rounded-full transition-all duration-300 flex-shrink-0 ${
-                  notifications[key as keyof typeof notifications] ? "bg-primary" : "bg-slate-200"
+                  notifications[key as keyof typeof notifications] ? "bg-primary" : "bg-border"
                 }`}
               >
                 <span

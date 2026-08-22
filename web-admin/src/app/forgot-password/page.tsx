@@ -46,30 +46,31 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 p-4">
-      <div className="w-full max-w-sm">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background p-4">
+      <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-gold via-lilac to-primary" />
+      <div className="relative w-full max-w-md rounded-[2rem] border border-border bg-card p-8 shadow-2xl shadow-primary/10 md:p-10">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-xl shadow-purple-900/40">
+          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-xl shadow-primary/25 ring-4 ring-gold-soft">
             <Store className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Reset Password</h1>
-          <p className="text-sm text-neutral-400 mt-1">Enter your email and we&apos;ll send you a link</p>
+          <h1 className="text-2xl font-bold text-foreground">Reset Password</h1>
+          <p className="text-sm text-muted-foreground mt-1">Enter your email and we&apos;ll send you a link</p>
         </div>
 
         {isSent ? (
-          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 text-center space-y-4">
+          <div className="bg-blue-soft/50 border border-primary/15 rounded-2xl p-6 text-center space-y-4">
             <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-6 h-6 text-green-500" />
             </div>
             <div>
-              <h3 className="text-white font-semibold text-lg">Check your email</h3>
-              <p className="text-neutral-400 text-sm mt-1">
-                We have sent a password reset link to <span className="text-white">{email}</span>.
+              <h3 className="text-foreground font-semibold text-lg">Check your email</h3>
+              <p className="text-muted-foreground text-sm mt-1">
+                We have sent a password reset link to <span className="text-foreground">{email}</span>.
               </p>
             </div>
             <a
               href="/login"
-              className="block w-full py-2.5 rounded-lg border border-neutral-800 text-white text-sm hover:bg-neutral-800 transition-colors"
+              className="block w-full py-2.5 rounded-xl border border-primary/25 text-primary text-sm font-semibold hover:bg-blue-soft transition-colors"
             >
               Back to Login
             </a>
@@ -83,21 +84,21 @@ export default function ForgotPasswordPage() {
             )}
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-neutral-300">Email Address</label>
+              <label className="text-sm font-medium text-foreground">Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="admin@elshalomstores.com.ng"
-                className="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                className="w-full px-4 py-3 rounded-xl bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 rounded-lg bg-primary text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-[#244A70] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               {isLoading ? 'Sending Link...' : 'Send Reset Link'}
@@ -105,7 +106,7 @@ export default function ForgotPasswordPage() {
 
             <a
               href="/login"
-              className="flex items-center justify-center gap-2 text-sm text-neutral-500 hover:text-neutral-300 transition-colors py-2"
+              className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors py-2"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Login

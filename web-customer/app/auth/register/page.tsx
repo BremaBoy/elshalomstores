@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import Link from "next/link";
 import { Mail, Lock, User, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -37,12 +36,9 @@ function RegisterContent() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col md:flex-row bg-slate-50">
+    <main className="min-h-screen flex flex-col md:flex-row bg-bg">
       {/* Form Side */}
       <div className="relative flex-grow flex items-center justify-center p-8 pt-24 md:p-16 lg:p-24 bg-bg text-text-primary order-2 md:order-1">
-        <div className="absolute left-6 top-6 md:left-8 md:top-8">
-          <ThemeToggle className="border border-border bg-card shadow-sm hover:bg-primary/10" />
-        </div>
         <div className="w-full max-w-md space-y-10">
           <div className="space-y-2 text-center md:text-left">
             <h2 className="text-4xl font-extrabold uppercase tracking-tight text-text-primary">Create Account</h2>
@@ -119,27 +115,27 @@ function RegisterContent() {
 
       {/* Visual Side */}
       <div className="hidden md:flex md:w-1/2 relative bg-primary overflow-hidden order-1 md:order-2">
-        <div className="absolute inset-0 bg-gradient-to-bl from-primary via-primary/80 to-indigo-900 opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-bl from-primary via-primary/95 to-[#183B5D]" />
         <div className="absolute inset-0 p-16 flex flex-col justify-between text-white z-10 text-right">
           <Link href="/">
-            <span className="text-3xl font-bold tracking-tight">ELSHALOM<span className="text-indigo-200">STORES</span></span>
+            <span className="text-3xl font-bold tracking-tight">ELSHALOM<span className="text-gold-soft">/</span>STORES</span>
           </Link>
           <div className="space-y-6">
             <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight uppercase tracking-tighter">
               Start Your <br /> Journey.
             </h1>
-            <p className="text-xl text-indigo-100/80 ml-auto max-w-md leading-relaxed">
+            <p className="text-xl text-white/75 ml-auto max-w-md leading-relaxed">
               Create an account to gain exclusive access to deals, track orders in real-time, and manage your wishlist.
             </p>
           </div>
-          <div className="flex items-center justify-end gap-4 text-indigo-200/50">
+          <div className="flex items-center justify-end gap-4 text-gold-soft/75">
             <span className="text-xs font-bold uppercase tracking-widest">Premium Customer Experience</span>
             <ShieldCheck className="h-6 w-6" />
           </div>
         </div>
         {/* Decorative elements */}
         <div className="absolute -top-20 -left-20 h-96 w-96 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute bottom-1/4 -right-20 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl" />
+        <div className="absolute bottom-1/4 -right-20 h-64 w-64 rounded-full bg-gold-soft/10 blur-3xl" />
       </div>
     </main>
   );

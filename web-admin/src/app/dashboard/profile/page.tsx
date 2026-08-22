@@ -49,7 +49,7 @@ export default function ProfilePage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border">
         <div className="flex items-center gap-6">
           <div className="relative group">
-            <div className="w-24 h-24 rounded-3xl bg-primary flex items-center justify-center text-foreground text-3xl font-bold shadow-2xl shadow-purple-900/40 relative z-10">
+            <div className="w-24 h-24 rounded-3xl bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold shadow-2xl shadow-primary/25 ring-4 ring-gold-soft relative z-10">
               {user?.name?.[0]?.toUpperCase()}
             </div>
             <button className="absolute -bottom-2 -right-2 p-2 bg-card border border-border rounded-xl text-muted-foreground hover:text-foreground transition-colors z-20 shadow-lg group-hover:scale-110">
@@ -116,7 +116,7 @@ export default function ProfilePage() {
                 <button 
                   type="submit"
                   disabled={isUpdating}
-                  className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm shadow-xl shadow-purple-900/30 hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2"
+                  className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2"
                 >
                   {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Save Profile Changes
@@ -160,7 +160,7 @@ export default function ProfilePage() {
 
            <section className="bg-card border border-border rounded-3xl p-6 border-l-4 border-l-purple-500">
               <div className="flex items-center gap-2 mb-2">
-                 <Shield className="w-4 h-4 text-purple-500" />
+                 <Shield className="w-4 h-4 text-[#6F5B8C]" />
                  <h4 className="text-xs font-bold text-foreground uppercase tracking-widest">Permissions</h4>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed italic">

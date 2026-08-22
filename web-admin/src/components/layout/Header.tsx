@@ -2,15 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Search, Sun, Moon, Menu, User, Settings, LogOut, ChevronDown } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { Bell, Search, Menu, User, Settings, LogOut, ChevronDown, Sparkles } from 'lucide-react'
 import { useUIStore, useAuthStore } from '@/store/useStore'
 import { supabaseAuth } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 
 export default function Header() {
   const router = useRouter()
-  const { theme, setTheme } = useTheme()
   const { toggleSidebar } = useUIStore()
   const { user, setUser } = useAuthStore()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
@@ -33,7 +31,7 @@ export default function Header() {
   }
 
   return (
-    <header className="h-16 flex items-center gap-4 px-6 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
+    <header className="h-[4.5rem] flex items-center gap-4 px-4 md:px-6 border-b border-border bg-card/90 backdrop-blur-xl sticky top-0 z-10 shadow-[0_8px_30px_rgba(49,94,138,0.06)]">
       {/* Mobile menu & sidebar toggle */}
       <button
         onClick={toggleSidebar}
@@ -47,22 +45,18 @@ export default function Header() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           type="text"
-          placeholder="Search products, orders..."
+          placeholder="Search the storehouse..."
           className={cn(
-            'w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-input bg-transparent',
+            'w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-input bg-background/80',
             'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring'
           )}
         />
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        {/* Theme Toggle */}
-        <button
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-accent"
-        >
-          {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
+        <div className="hidden lg:flex items-center gap-2 rounded-full bg-gold-soft px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.16em] text-foreground">
+          <Sparkles className="h-3.5 w-3.5 text-gold" /> Live workspace
+        </div>
 
         {/* Notifications */}
         <button className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-accent">
@@ -76,7 +70,7 @@ export default function Header() {
             onClick={() => setIsProfileOpen(!isProfileOpen)}
             className="flex items-center gap-2 pl-2 border-l border-border hover:bg-accent/50 p-1 rounded-lg transition-colors group"
           >
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold shadow-lg shadow-purple-900/20 group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform ring-2 ring-gold-soft">
               {user?.name?.[0]?.toUpperCase() ?? 'A'}
             </div>
             <div className="hidden sm:block text-left">
@@ -111,7 +105,7 @@ export default function Header() {
                <div className="p-1.5 border-t border-border bg-red-500/5">
                   <button 
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors group"
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-700 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors group"
                   >
                     <LogOut className="w-4 h-4 text-red-500/50 group-hover:text-red-500 transition-colors" />
                     <span className="font-semibold">Sign Out</span>

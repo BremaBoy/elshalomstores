@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { X, ChevronRight, User, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { InstantSearch } from "@/components/search/InstantSearch";
 
 interface MobileMenuProps {
@@ -49,11 +48,10 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border dark:border-slate-800">
+          <div className="flex items-center justify-between p-6 border-b border-border bg-card">
             <span className="text-xl font-black text-text-primary tracking-[-.06em]">ELSHALOM<span className="text-primary">/</span>STORES</span>
             <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <button onClick={onClose} className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors">
+              <button onClick={onClose} className="p-2 hover:bg-blue-soft rounded-full transition-colors">
                 <X className="h-6 w-6 text-text-secondary" />
               </button>
             </div>
@@ -82,7 +80,7 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
               <Link
                 key={link.name}
                 href={link.href}
-                className="flex items-center justify-between px-6 py-4 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors group"
+                className="flex items-center justify-between px-6 py-4 rounded-xl hover:bg-blue-soft transition-colors group"
                 onClick={onClose}
               >
                 <span className="font-bold text-sm text-text-secondary group-hover:text-primary transition-colors">{link.name}</span>

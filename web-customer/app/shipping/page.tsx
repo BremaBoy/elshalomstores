@@ -11,7 +11,7 @@ export default function ShippingPage() {
         <Container>
           <div className="max-w-4xl mx-auto space-y-12">
             <SectionTitle title="Shipping Information" subtitle="Everything you need to know about our delivery process." />
-            <div className="bg-white dark:bg-slate-900 p-12 rounded-[48px] border border-slate-100 dark:border-slate-800 shadow-xl space-y-8">
+            <div className="bg-card p-12 rounded-[48px] border border-border shadow-xl shadow-primary/5 space-y-8">
               <section className="space-y-4">
                 <h3 className="text-2xl font-bold uppercase tracking-tight">Delivery Times</h3>
                 <p className="text-slate-500 leading-relaxed font-medium italic">Standard delivery usually takes 3-5 business days within Lagos and 5-7 business days for other states.</p>

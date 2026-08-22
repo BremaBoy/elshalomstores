@@ -17,7 +17,7 @@ export default async function OrdersPage() {
 
   return (
     <div className="bg-card text-text-primary p-8 md:p-12 rounded-[48px] border border-border shadow-xl min-h-[600px]">
-      <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-50">
+      <div className="flex justify-between items-center mb-10 pb-6 border-b border-border">
         <h3 className="text-2xl font-black uppercase tracking-tight text-text-primary">My <span className="text-primary">Orders</span></h3>
         <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">{orders?.length || 0} Orders found</p>
       </div>
@@ -75,10 +75,10 @@ export default async function OrdersPage() {
         ) : (
           <div className="py-20 text-center">
             <div className="h-24 w-24 bg-bg rounded-full flex items-center justify-center mx-auto mb-6">
-              <Package className="h-12 w-12 text-slate-200" />
+              <Package className="h-12 w-12 text-primary/30" />
             </div>
             <h4 className="text-lg font-black text-text-secondary uppercase tracking-widest">No orders yet</h4>
-            <p className="text-slate-500 text-sm mt-2 font-medium">Your shopping history will appear here once you place an order.</p>
+            <p className="text-text-secondary text-sm mt-2 font-medium">Your shopping history will appear here once you place an order.</p>
             <Link href="/shop" className="mt-8 inline-block">
               <Button className="rounded-full px-10 h-12 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20">Explore Products</Button>
             </Link>

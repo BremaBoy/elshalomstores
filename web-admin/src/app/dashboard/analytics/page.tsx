@@ -99,7 +99,7 @@ export default function AnalyticsPage() {
 
         <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-5">
            <div className="flex items-center justify-between mb-4">
-             <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
+             <div className="p-2 bg-lilac rounded-lg text-[#6F5B8C]">
                 <TrendingUp className="w-5 h-5" />
              </div>
              <span className="text-xs font-medium text-muted-foreground">Static</span>

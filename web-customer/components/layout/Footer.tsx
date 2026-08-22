@@ -27,29 +27,31 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="bg-black text-white pt-20 pb-10">
+    <footer className="relative overflow-hidden bg-primary pt-20 pb-10 text-white">
+      <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-lilac/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 left-1/4 h-64 w-64 rounded-full bg-gold-soft/10 blur-3xl" />
       <Container>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand Info */}
           <div className="space-y-8">
             <Link href="/" className="inline-block group">
               <span className="text-3xl font-black text-white tracking-[-.06em] group-hover:scale-105 transition-transform inline-block">
-                ELSHALOM<span className="text-primary">/</span>STORES
+                ELSHALOM<span className="text-gold-soft">/</span>STORES
               </span>
             </Link>
-            <p className="text-white/55 text-base leading-relaxed max-w-xs">
+            <p className="text-white/75 text-base leading-relaxed max-w-xs">
               Thoughtful products for better everyday living—selected with care and delivered across Nigeria.
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-8">
-            <h4 className="font-black text-violet-300 uppercase tracking-widest text-[10px]">Shop Collection</h4>
+            <h4 className="font-black text-gold-soft uppercase tracking-widest text-[10px]">Shop Collection</h4>
             <ul className="space-y-4">
               {footerLinks.shop.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-text-secondary text-sm font-bold hover:text-primary transition-colors flex items-center gap-2 group">
-                    <span className="w-1.5 h-1.5 bg-primary/20 rounded-full group-hover:bg-primary transition-colors" />
+                  <Link href={link.href} className="text-white/75 text-sm font-bold hover:text-gold-soft transition-colors flex items-center gap-2 group">
+                    <span className="w-1.5 h-1.5 bg-gold-soft/40 rounded-full group-hover:bg-gold-soft transition-colors" />
                     {link.name}
                   </Link>
                 </li>
@@ -59,12 +61,12 @@ export const Footer = () => {
 
           {/* Customer Service */}
           <div className="space-y-8">
-            <h4 className="font-black text-text-primary uppercase tracking-widest text-[10px]">Customer Service</h4>
+            <h4 className="font-black text-gold-soft uppercase tracking-widest text-[10px]">Customer Service</h4>
             <ul className="space-y-4">
               {footerLinks.customerService.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-text-secondary text-sm font-bold hover:text-primary transition-colors flex items-center gap-2 group">
-                    <span className="w-1.5 h-1.5 bg-primary/20 rounded-full group-hover:bg-primary transition-colors" />
+                  <Link href={link.href} className="text-white/75 text-sm font-bold hover:text-gold-soft transition-colors flex items-center gap-2 group">
+                    <span className="w-1.5 h-1.5 bg-gold-soft/40 rounded-full group-hover:bg-gold-soft transition-colors" />
                     {link.name}
                   </Link>
                 </li>
@@ -74,37 +76,37 @@ export const Footer = () => {
 
           {/* Contact Info */}
           <div className="space-y-8">
-            <h4 className="font-black text-text-primary uppercase tracking-widest text-[10px]">Contact Us</h4>
+            <h4 className="font-black text-gold-soft uppercase tracking-widest text-[10px]">Contact Us</h4>
             <ul className="space-y-6">
               <li className="flex items-start gap-4">
-                <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                  <MapPin className="h-5 w-5 text-primary" />
+                <div className="h-10 w-10 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                  <MapPin className="h-5 w-5 text-gold-soft" />
                 </div>
-                    <span className="text-white/55 text-sm font-medium leading-relaxed">199, Igbe Road, Ikorodu, Lagos</span>
+                    <span className="text-white/75 text-sm font-medium leading-relaxed">199, Igbe Road, Ikorodu, Lagos</span>
               </li>
               <li className="flex items-center gap-4">
-                <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                  <Phone className="h-5 w-5 text-primary" />
+                <div className="h-10 w-10 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                  <Phone className="h-5 w-5 text-gold-soft" />
                 </div>
-                <a href="tel:+2348023980907" className="text-text-secondary text-sm font-bold tracking-tight hover:text-primary">+2348023980907</a>
+                <a href="tel:+2348023980907" className="text-white/75 text-sm font-bold tracking-tight hover:text-gold-soft">+2348023980907</a>
               </li>
               <li className="flex items-center gap-4">
-                <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                  <Mail className="h-5 w-5 text-primary" />
+                <div className="h-10 w-10 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                  <Mail className="h-5 w-5 text-gold-soft" />
                 </div>
-                <span className="text-text-secondary text-sm font-bold tracking-tight">support@elshalomstores.com</span>
+                <span className="text-white/75 text-sm font-bold tracking-tight">support@elshalomstores.com</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="pt-10 border-t border-border flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-text-secondary text-xs font-bold uppercase tracking-widest text-center">
+        <div className="relative pt-10 border-t border-white/15 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-white/80 text-xs font-bold uppercase tracking-widest text-center">
             &copy; {currentYear} Elshalomstores. Built for excellence.
           </p>
           <div className="flex items-center gap-8">
-            <Link href="/privacy" className="text-text-secondary text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="text-text-secondary text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors">Terms of Service</Link>
+            <Link href="/privacy" className="text-white/80 text-[10px] font-black uppercase tracking-widest hover:text-gold-soft transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="text-white/80 text-[10px] font-black uppercase tracking-widest hover:text-gold-soft transition-colors">Terms of Service</Link>
           </div>
         </div>
       </Container>

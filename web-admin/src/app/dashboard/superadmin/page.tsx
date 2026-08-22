@@ -5,8 +5,8 @@ import DashboardPage from '../page'
 export default function SuperAdminDashboard() {
     return (
         <div className="space-y-6">
-            <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl mb-6">
-                <p className="text-purple-400 text-sm font-semibold">Super Admin Mode Activated</p>
+            <div className="p-4 bg-gold-soft border border-gold/30 rounded-2xl mb-6">
+                <p className="text-[#694B12] text-sm font-semibold">Super Admin workspace · Full operational access</p>
             </div>
             <DashboardPage />
         </div>

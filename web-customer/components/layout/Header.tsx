@@ -12,28 +12,20 @@ import { useCartStore } from "@/store/cartStore";
 import { NotificationBell } from "./NotificationBell";
 
 import { supabase } from "@/lib/supabase";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { InstantSearch } from "@/components/search/InstantSearch";
 
 export const Header = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
-  const hasSolidBackground = isScrolled || pathname !== "/";
   const cartItemCount = useCartStore((state) => state.getTotalItems());
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
-    window.addEventListener("scroll", handleScroll);
-    
     // Check auth state
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user || null);
@@ -44,7 +36,6 @@ export const Header = () => {
     });
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
       subscription.unsubscribe();
     };
   }, []);
@@ -57,41 +48,37 @@ export const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        hasSolidBackground
-          ? "bg-bg/92 backdrop-blur-xl border-b border-border py-2"
-          : "bg-transparent py-4 text-white"
-      }`}
+      className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-bg/95 py-2 text-text-primary shadow-[0_10px_35px_rgba(49,94,138,0.08)] backdrop-blur-xl"
     >
       <Container>
         <div className="flex items-center justify-between gap-6">
           {/* Mobile Menu Toggle */}
           <button
-            className={`lg:hidden p-2 hover:text-primary transition-colors ${hasSolidBackground ? "text-text-secondary" : "text-white"}`}
+            className="rounded-full p-2 text-text-secondary transition-colors hover:bg-blue-soft hover:text-primary lg:hidden"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="h-6 w-6" />
           </button>
 
           <Link href="/" className="flex-shrink-0 group">
-            <span className={`text-xl md:text-2xl font-black tracking-[-.06em] transition-transform group-hover:scale-105 inline-block uppercase ${hasSolidBackground ? "text-text-primary" : "text-white"}`}>
-              ELSHALOM<span className="text-primary">/</span>STORES
+            <span className="inline-block text-xl font-black uppercase tracking-[-.06em] text-text-primary transition-transform group-hover:scale-105 md:text-2xl">
+              ELSHALOM<span className="text-gold">/</span>STORES
             </span>
           </Link>
 
           {/* Search Bar - Desktop */}
-          <InstantSearch transparent={!hasSolidBackground} />
+          <InstantSearch transparent={false} />
 
           {/* Actions */}
           <div className="flex items-center gap-2 md:gap-4">
             {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center gap-6 mr-4 border-r border-border dark:border-slate-700 pr-6">
+            <nav className="mr-4 hidden items-center gap-6 border-r border-border pr-6 xl:flex">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
                   className={`text-[11px] uppercase tracking-[.14em] font-black transition-colors hover:text-primary ${
-                    pathname === link.href ? "text-primary" : hasSolidBackground ? "text-text-secondary" : "text-white/80"
+                    pathname === link.href ? "text-primary" : "text-text-secondary"
                   }`}
                 >
                   {link.name}
@@ -100,20 +87,18 @@ export const Header = () => {
             </nav>
 
             <div className="flex items-center gap-1 md:gap-2">
-              <ThemeToggle className={hasSolidBackground ? "" : "!text-white hover:!text-primary"} />
-
               {mounted && user ? (
                 <div className="flex items-center gap-1 md:gap-2">
                   <NotificationBell userId={user.id} />
                   <Link href="/profile">
-                    <Button variant="ghost" size="icon" className={hasSolidBackground ? "text-text-secondary hover:text-primary" : "text-white hover:text-primary"}>
+                    <Button variant="ghost" size="icon" className="text-text-secondary hover:bg-blue-soft hover:text-primary">
                       <User className="h-5 w-5" />
                     </Button>
                   </Link>
                 </div>
               ) : mounted ? (
                 <Link href="/auth/login" className="hidden sm:block">
-                  <Button variant="ghost" className={`${hasSolidBackground ? "text-text-secondary" : "text-white"} hover:text-primary font-bold uppercase tracking-widest text-[10px]`}>
+                  <Button variant="ghost" className="text-[10px] font-bold uppercase tracking-widest text-text-secondary hover:bg-blue-soft hover:text-primary">
                     Sign In <ArrowUpRight className="h-3 w-3 ml-1" />
                   </Button>
                 </Link>
@@ -122,12 +107,12 @@ export const Header = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className={`relative ${hasSolidBackground ? "text-text-secondary" : "text-white"} hover:text-primary`}
+                className="relative text-text-secondary hover:bg-blue-soft hover:text-primary"
                 onClick={() => setIsCartOpen(true)}
               >
                 <ShoppingBag className="h-5 w-5" />
                 {mounted && cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-black h-5 w-5 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
+                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-bg bg-primary text-[10px] font-black text-white">
                     {cartItemCount}
                   </span>
                 )}

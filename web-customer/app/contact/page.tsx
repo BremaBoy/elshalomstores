@@ -53,9 +53,9 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="p-10 bg-slate-900 text-white rounded-[40px] shadow-2xl space-y-4">
-                    <h4 className="text-xl font-extrabold uppercase tracking-tight text-primary">Working Hours</h4>
-                    <div className="space-y-2 text-sm text-slate-400">
+                <div className="p-10 bg-primary text-white rounded-[40px] shadow-2xl shadow-primary/20 space-y-4">
+                    <h4 className="text-xl font-extrabold uppercase tracking-tight text-gold-soft">Working Hours</h4>
+                    <div className="space-y-2 text-sm text-white/75">
                         <div className="flex justify-between"><span>Mon - Fri</span><span>9:00 - 18:00</span></div>
                         <div className="flex justify-between"><span>Saturday</span><span>10:00 - 16:00</span></div>
                         <div className="flex justify-between"><span>Sunday</span><span>Closed</span></div>

@@ -20,8 +20,8 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, change, changeType, color = 'bg-primary/10 text-primary', href }: StatCardProps) {
   const content = (
-    <div className={`bg-card border border-border rounded-xl p-5 flex items-start gap-4 shadow-sm transition-all h-full ${href ? 'hover:shadow-md hover:border-primary/50 cursor-pointer' : ''}`}>
-      <div className={`p-2.5 rounded-lg ${color}`}>
+    <div className={`bg-card border border-border rounded-2xl p-5 flex items-start gap-4 shadow-sm transition-all h-full ${href ? 'hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/40 cursor-pointer' : ''}`}>
+      <div className={`p-3 rounded-2xl ${color}`}>
         <Icon className="w-5 h-5" />
       </div>
       <div className="flex-1 min-w-0">
@@ -43,12 +43,12 @@ function StatCard({ title, value, icon: Icon, change, changeType, color = 'bg-pr
 }
 
 const statusColors: Record<string, string> = {
-  Delivered: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  Processing: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  Shipped: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-  'Out for Delivery': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-  Pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  Cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+  Delivered: 'bg-green-100 text-green-800',
+  Processing: 'bg-blue-soft text-[#183B5D]',
+  Shipped: 'bg-lilac text-[#4D3E68]',
+  'Out for Delivery': 'bg-teal-100 text-teal-800',
+  Pending: 'bg-gold-soft text-[#694B12]',
+  Cancelled: 'bg-red-100 text-red-800',
 }
 
 export default function DashboardPage() {
@@ -92,20 +92,21 @@ export default function DashboardPage() {
   }
 
   const coreStats = [
-    { title: 'Total Revenue', value: `₦${stats.revenue.toLocaleString()}`, icon: TrendingUp, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400', href: '/dashboard/payments' },
-    { title: 'Total Orders', value: stats.orders.toString(), icon: ShoppingCart, color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', href: '/dashboard/orders' },
-    { title: 'Total Customers', value: stats.customers.toString(), icon: Users, color: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400', href: '/dashboard/customers' },
-    { title: 'Total Products', value: stats.products.toString(), icon: Package, color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400', href: '/dashboard/products' },
-    { title: 'Out of Stock', value: stats.outOfStock.toString(), icon: AlertTriangle, color: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400', href: '/dashboard/inventory' },
-    { title: 'Pending Orders', value: stats.pendingOrders.toString(), icon: Clock, color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400', href: '/dashboard/orders' },
+    { title: 'Total Revenue', value: `₦${stats.revenue.toLocaleString()}`, icon: TrendingUp, color: 'bg-gold-soft text-[#694B12]', href: '/dashboard/payments' },
+    { title: 'Total Orders', value: stats.orders.toString(), icon: ShoppingCart, color: 'bg-blue-soft text-[#183B5D]', href: '/dashboard/orders' },
+    { title: 'Total Customers', value: stats.customers.toString(), icon: Users, color: 'bg-lilac text-[#4D3E68]', href: '/dashboard/customers' },
+    { title: 'Total Products', value: stats.products.toString(), icon: Package, color: 'bg-[#F9E6D1] text-[#7A481E]', href: '/dashboard/products' },
+    { title: 'Out of Stock', value: stats.outOfStock.toString(), icon: AlertTriangle, color: 'bg-red-100 text-red-700', href: '/dashboard/inventory' },
+    { title: 'Pending Orders', value: stats.pendingOrders.toString(), icon: Clock, color: 'bg-[#EEF1D3] text-[#59651A]', href: '/dashboard/orders' },
   ]
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold">Welcome back, {user?.name?.split(' ')[0] ?? 'Admin'} 👋</h1>
-        <p className="text-muted-foreground text-sm mt-1">Here&apos;s what&apos;s happening with your store today.</p>
+      <div className="rounded-[2rem] border border-primary/15 bg-gradient-to-r from-blue-soft via-card to-lilac p-6 md:p-8">
+        <p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">Elshalom Storehouse</p>
+        <h1 className="mt-2 text-2xl md:text-3xl font-bold tracking-tight">Welcome back, {user?.name?.split(' ')[0] ?? 'Admin'} 👋</h1>
+        <p className="text-muted-foreground text-sm mt-2">Here&apos;s what&apos;s happening with your store today.</p>
       </div>
 
       {error && (
@@ -125,12 +126,12 @@ export default function DashboardPage() {
         <div className="space-y-4">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Financial Health (Super Admin)</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-card border border-border rounded-xl p-5">
+            <div className="bg-card border border-border rounded-2xl p-5">
               <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Total Net Profit (EST)</p>
               <p className="text-2xl font-black text-foreground mt-1">₦{(stats.revenue * 0.85).toLocaleString()}</p>
               <span className="text-[10px] text-green-500 font-bold">15% Margin Applied</span>
             </div>
-            <div className="bg-card border border-border rounded-xl p-5">
+            <div className="bg-card border border-border rounded-2xl p-5">
               <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Platform Fees</p>
               <p className="text-2xl font-black text-foreground mt-1">₦{(stats.revenue * 0.05).toLocaleString()}</p>
               <span className="text-[10px] text-primary font-bold">5% Processing Fee</span>
@@ -140,7 +141,7 @@ export default function DashboardPage() {
       )}
 
       {/* Recent Orders */}
-      <div className="bg-card border border-border rounded-xl shadow-sm">
+      <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
         <div className="p-5 border-b border-border flex items-center justify-between">
           <h2 className="text-base font-semibold">Recent Orders</h2>
           <a href="/dashboard/orders" className="text-sm text-primary hover:underline">View all</a>

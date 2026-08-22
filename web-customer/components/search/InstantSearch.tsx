@@ -161,13 +161,13 @@ export function InstantSearch({
     mode === "desktop"
       ? `w-full border rounded-full py-2.5 pl-11 pr-4 text-sm outline-none transition-all focus:ring-4 focus:ring-primary/10 ${
           transparent
-            ? "bg-white/10 border-white/20 text-white placeholder:text-white/60 backdrop-blur-md"
+            ? "bg-white/10 border-white/20 text-white placeholder:text-white/80 backdrop-blur-md"
             : "bg-card border-border text-text-primary placeholder:text-text-secondary/60"
         }`
       : "h-12 w-full rounded-xl border border-border bg-card pl-11 pr-4 text-sm text-text-primary outline-none placeholder:text-text-secondary/60 focus:border-primary focus:ring-4 focus:ring-primary/10";
 
   const iconClass = transparent
-    ? "text-white/70 group-focus-within:text-primary"
+    ? "text-white/80 group-focus-within:text-gold-soft"
     : "text-text-secondary group-focus-within:text-primary";
 
   return (
@@ -268,7 +268,7 @@ export function InstantSearch({
                   className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${
                     activeIndex === index
                       ? "bg-primary/10"
-                      : "hover:bg-black/5 dark:hover:bg-white/5"
+                      : "hover:bg-blue-soft/60"
                   }`}
                 >
                   {result.type === "product" ? (

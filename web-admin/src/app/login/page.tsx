@@ -70,15 +70,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 p-4">
-      <div className="w-full max-w-sm">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background p-4">
+      <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-gold via-lilac to-primary" />
+      <div className="absolute -left-32 top-24 h-96 w-96 rounded-full bg-lilac/70 blur-3xl" />
+      <div className="absolute -right-32 bottom-10 h-96 w-96 rounded-full bg-blue-soft/80 blur-3xl" />
+      <div className="relative w-full max-w-md rounded-[2rem] border border-border bg-card/95 p-8 shadow-2xl shadow-primary/10 backdrop-blur md:p-10">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-xl shadow-purple-900/40">
+          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-xl shadow-primary/25 ring-4 ring-gold-soft">
             <Store className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Elshalom Admin</h1>
-          <p className="text-sm text-neutral-400 mt-1">Sign in to manage your store</p>
+          <h1 className="text-2xl font-bold text-foreground">Elshalom Storehouse</h1>
+          <p className="text-sm text-muted-foreground mt-1">Sign in to manage your store</p>
         </div>
 
         {/* Form */}
@@ -90,20 +93,20 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-neutral-300">Email Address</label>
+            <label className="text-sm font-medium text-foreground">Email Address</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
               placeholder="admin@elshalomstores.com.ng"
-              className="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+              className="w-full px-4 py-3 rounded-xl bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
             />
           </div>
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-neutral-300">Password</label>
+              <label className="text-sm font-medium text-foreground">Password</label>
               <a href="/forgot-password" className="text-xs text-primary hover:underline">Forgot password?</a>
             </div>
             <div className="relative">
@@ -113,12 +116,12 @@ export default function LoginPage() {
                 onChange={e => setPassword(e.target.value)}
                 required
                 placeholder="Enter your password"
-                className="w-full px-4 py-2.5 pr-10 rounded-lg bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                className="w-full px-4 py-3 pr-10 rounded-xl bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -128,14 +131,14 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2.5 rounded-lg bg-primary text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-[#244A70] transition-colors disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
           >
             {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
             {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <p className="text-center text-xs text-neutral-600 mt-8">
+        <p className="text-center text-xs text-muted-foreground mt-8">
           Elshalomstores Admin Panel &bull; Authorized access only
         </p>
       </div>

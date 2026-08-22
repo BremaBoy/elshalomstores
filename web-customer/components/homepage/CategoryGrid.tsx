@@ -53,7 +53,7 @@ export const CategoryGrid = async () => {
                     {cat.name}
                     <ChevronRight className="h-5 w-5 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500" />
                   </h3>
-                  <p className="text-[10px] text-white/60 font-black uppercase tracking-[0.2em]">
+                  <p className="text-[10px] text-white/80 font-black uppercase tracking-[0.2em]">
                     {cat.itemCount || 0} products
                   </p>
                 </div>

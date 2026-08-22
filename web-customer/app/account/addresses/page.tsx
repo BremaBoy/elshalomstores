@@ -68,12 +68,12 @@ export default function AddressesPage() {
 
   return (
     <div className="bg-card text-text-primary p-8 md:p-12 rounded-[48px] border border-border shadow-xl min-h-[600px] space-y-10">
-      <div className="flex justify-between items-center pb-6 border-b border-slate-50">
+      <div className="flex justify-between items-center pb-6 border-b border-border">
         <div>
           <h3 className="text-2xl font-black uppercase tracking-tight text-text-primary">
             Saved <span className="text-primary">Addresses</span>
           </h3>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
+          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mt-1">
             {addresses.length} {addresses.length === 1 ? "address" : "addresses"} saved
           </p>
         </div>
@@ -115,7 +115,7 @@ export default function AddressesPage() {
               { field: "state", label: "State", placeholder: "Lagos State" },
             ].map(({ field, label, placeholder }) => (
               <div key={field} className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                <label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
                   {label}
                 </label>
                 <input
@@ -149,13 +149,13 @@ export default function AddressesPage() {
         {addresses.length === 0 ? (
           <div className="text-center py-20 space-y-6">
             <div className="h-24 w-24 bg-bg rounded-full flex items-center justify-center mx-auto">
-              <MapPin className="h-12 w-12 text-slate-200" />
+              <MapPin className="h-12 w-12 text-primary/30" />
             </div>
             <div>
-              <h4 className="text-lg font-black text-slate-400 uppercase tracking-widest">
+              <h4 className="text-lg font-black text-text-secondary uppercase tracking-widest">
                 No addresses saved
               </h4>
-              <p className="text-slate-500 text-sm mt-2 font-medium">
+              <p className="text-text-secondary text-sm mt-2 font-medium">
                 Add a delivery address for faster checkout.
               </p>
             </div>
@@ -189,7 +189,7 @@ export default function AddressesPage() {
                       )}
                     </div>
                     <p className="text-sm font-bold text-text-primary">{addr.name}</p>
-                    <p className="text-sm text-slate-500 font-medium">
+                    <p className="text-sm text-text-secondary font-medium">
                       {addr.street}, {addr.city}, {addr.state}
                     </p>
                   </div>
@@ -198,7 +198,7 @@ export default function AddressesPage() {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={() => handleDelete(addr.id)}
-                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                    className="p-2 text-text-secondary/60 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                     aria-label={`Delete ${addr.label} address`}
                   >
                     <Trash2 className="h-4 w-4" />

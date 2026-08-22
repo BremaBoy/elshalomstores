@@ -38,18 +38,18 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        'flex flex-col h-screen bg-background border-r border-border transition-all duration-300 relative z-20',
+        'flex flex-col h-screen bg-[#183B5D] text-white border-r border-[#183B5D] transition-all duration-300 relative z-20 shadow-2xl shadow-blue-950/20',
         isSidebarOpen ? 'w-64' : 'w-16'
       )}
     >
       {/* Logo */}
-      <div className={cn('flex items-center gap-3 px-4 py-5 border-b border-border', !isSidebarOpen && 'justify-center px-2')}>
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-          <Store className="w-4 h-4 text-primary-foreground" />
+      <div className={cn('flex items-center gap-3 px-4 py-5 border-b border-white/15', !isSidebarOpen && 'justify-center px-2')}>
+        <div className="w-9 h-9 rounded-xl bg-gold-soft flex items-center justify-center flex-shrink-0 shadow-lg shadow-black/10">
+          <Store className="w-4 h-4 text-[#183B5D]" />
         </div>
         {isSidebarOpen && (
-          <span className="font-bold text-foreground text-sm leading-tight">
-            Elshalom<br /><span className="text-primary text-xs font-medium">Admin</span>
+          <span className="font-bold text-white text-sm leading-tight">
+            Elshalom<br /><span className="text-[#F3E2B8] text-xs font-medium">Storehouse</span>
           </span>
         )}
       </div>
@@ -57,7 +57,7 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
         {isSidebarOpen && (
-          <p className="text-xs text-muted-foreground uppercase tracking-wider px-3 mb-2 font-medium">Main</p>
+          <p className="text-xs text-white/80 uppercase tracking-wider px-3 mb-2 font-medium">Main</p>
         )}
         
         {/* Dynamic Dashboard Link */}
@@ -66,8 +66,8 @@ export default function Sidebar() {
           className={cn(
             'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
             (pathname === '/dashboard/admin' || pathname === '/dashboard/superadmin')
-              ? 'bg-primary text-primary-foreground shadow-lg shadow-purple-900/30'
-              : 'text-muted-foreground hover:text-foreground hover:bg-accent',
+              ? 'bg-[#FFF9EC] text-[#183B5D] shadow-lg shadow-black/15'
+              : 'text-white/75 hover:text-white hover:bg-white/10',
             !isSidebarOpen && 'justify-center px-2'
           )}
           title={!isSidebarOpen ? 'Dashboard' : undefined}
@@ -83,8 +83,8 @@ export default function Sidebar() {
             className={cn(
               'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
               pathname === href || pathname.startsWith(href + '/')
-                ? 'bg-primary text-primary-foreground shadow-lg shadow-purple-900/30'
-                : 'text-muted-foreground hover:text-foreground hover:bg-accent',
+                ? 'bg-[#FFF9EC] text-[#183B5D] shadow-lg shadow-black/15'
+                : 'text-white/75 hover:text-white hover:bg-white/10',
               !isSidebarOpen && 'justify-center px-2'
             )}
             title={!isSidebarOpen ? label : undefined}
@@ -97,9 +97,9 @@ export default function Sidebar() {
         {isSuperAdmin && (
           <>
             {isSidebarOpen && (
-              <p className="text-xs text-muted-foreground uppercase tracking-wider px-3 mt-4 mb-2 font-medium">Super Admin</p>
+              <p className="text-xs text-[#F3E2B8] uppercase tracking-wider px-3 mt-4 mb-2 font-medium">Super Admin</p>
             )}
-            {!isSidebarOpen && <div className="border-t border-border my-2" />}
+            {!isSidebarOpen && <div className="border-t border-white/15 my-2" />}
             {superAdminLinks.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
@@ -107,8 +107,8 @@ export default function Sidebar() {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
                   pathname === href || pathname.startsWith(href + '/')
-                    ? 'bg-primary text-primary-foreground shadow-lg shadow-purple-900/30'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent',
+                    ? 'bg-[#FFF9EC] text-[#183B5D] shadow-lg shadow-black/15'
+                    : 'text-white/75 hover:text-white hover:bg-white/10',
                   !isSidebarOpen && 'justify-center px-2'
                 )}
                 title={!isSidebarOpen ? label : undefined}
@@ -124,7 +124,7 @@ export default function Sidebar() {
       {/* Collapse Toggle */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-background border border-border shadow-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+        className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-gold-soft border border-gold shadow-sm flex items-center justify-center text-[#183B5D] hover:bg-white transition-colors"
         aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
       >
         {isSidebarOpen ? <ChevronLeft className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}

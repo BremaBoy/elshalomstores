@@ -5,15 +5,14 @@
 @import "swiper/css/autoplay";
 @import "swiper/css/effect-fade";
 
-/* next-themes toggles the .dark class on <html>. Tailwind v4 otherwise uses
-   the operating-system preference, which made dark utilities stay active
-   even after the user selected light mode. */
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme {
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
-  --color-secondary: #09090B;
+  --color-secondary: var(--secondary);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-lilac: var(--lilac);
+  --color-blue-soft: var(--blue-soft);
   
   --color-bg: var(--background);
   --color-card: var(--card);
@@ -24,41 +23,39 @@
 }
 
 :root {
-  --background: #FCF8F1;
-  --foreground: #17211B;
-  --card: #F3EDDF;
-  --card-foreground: #17211B;
-  --primary: #6D28D9;
-  --primary-hover: #5B21B6;
+  color-scheme: light;
+  --background: #FFF9EC;
+  --foreground: #17233A;
+  --card: #FFFEFA;
+  --card-foreground: #17233A;
+  --primary: #315E8A;
+  --primary-hover: #244A70;
   --primary-foreground: #FFFFFF;
-  --border: #DED6C6;
-  --muted: #69736D;
-  --marketplace-grid-color: rgba(109, 40, 217, .12);
-}
-
-.dark {
-  --background: #050505;
-  --foreground: #FAFAFA;
-  --card: #111113;
-  --card-foreground: #FAFAFA;
-  --primary: #A78BFA;
-  --primary-hover: #8B5CF6;
-  --primary-foreground: #ffffff;
-  --border: #27272A;
-  --muted: #A1A1AA;
-  --marketplace-grid-color: rgba(167, 139, 250, .07);
+  --secondary: #6F5B8C;
+  --gold: #B8872E;
+  --gold-soft: #F3E2B8;
+  --lilac: #E8DDF4;
+  --blue-soft: #DCEAF6;
+  --border: #DED4BF;
+  --muted: #596579;
+  --marketplace-grid-color: rgba(49, 94, 138, .11);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
 }
 
 ::selection {
-  background: var(--primary);
-  color: white;
+  background: var(--gold-soft);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 45%, transparent);
+  outline-offset: 3px;
 }
 
 .eyebrow {
@@ -139,6 +136,30 @@ body {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+.marketplace-hero-pagination .swiper-pagination-bullet {
+  width: .5rem;
+  height: .5rem;
+  margin: 0 !important;
+  background: rgba(255, 255, 255, .72);
+  opacity: 1;
+  transition: width 200ms ease, background-color 200ms ease;
+}
+
+.marketplace-hero-pagination .swiper-pagination-bullet-active {
+  width: 1.75rem;
+  border-radius: 999px;
+  background: var(--gold-soft);
+}
+
+@media (min-width: 700px) {
+  .marketplace-hero-frame {
+    position: absolute;
+    inset: 0;
+    height: auto !important;
+    min-height: 0 !important;
+  }
 }
 
 @keyframes zoom-in {

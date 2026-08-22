@@ -30,12 +30,12 @@ export default async function CategoryDetailPage({ params }: CategoryPageProps) 
           { label: categoryName }
         ]} />
         
-        <header className="py-16 bg-slate-50 dark:bg-slate-900/50">
+        <header className="py-16 bg-gradient-to-r from-lilac via-card to-blue-soft">
           <Container>
-            <h1 className="text-4xl md:text-5xl font-extrabold uppercase tracking-tighter mb-4 text-slate-900 dark:text-white">
+            <h1 className="text-4xl md:text-5xl font-extrabold uppercase tracking-tighter mb-4 text-text-primary">
               {categoryName}
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-lg max-w-2xl">
+            <p className="text-text-secondary text-lg max-w-2xl">
               Browsing our collection of premium {categoryName.toLowerCase()} products. Quality and style guaranteed.
             </p>
           </Container>

@@ -88,7 +88,7 @@ export default function AdminManagementPage() {
             setEditingAdmin(undefined)
             setShowForm(true)
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity font-semibold text-sm shadow-lg shadow-purple-900/20"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition-opacity font-semibold text-sm shadow-lg shadow-primary/20"
         >
           <Plus className="w-4 h-4" />
           <span>New Admin</span>
@@ -150,8 +150,8 @@ export default function AdminManagementPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <Shield className={`w-3.5 h-3.5 ${admin.role === 'SUPER_ADMIN' ? 'text-purple-500' : 'text-blue-500'}`} />
-                      <span className={`text-[10px] font-bold uppercase tracking-wider ${admin.role === 'SUPER_ADMIN' ? 'text-purple-400' : 'text-blue-400'}`}>
+                      <Shield className={`w-3.5 h-3.5 ${admin.role === 'SUPER_ADMIN' ? 'text-[#6F5B8C]' : 'text-primary'}`} />
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${admin.role === 'SUPER_ADMIN' ? 'text-[#6F5B8C]' : 'text-primary'}`}>
                         {admin.role.replace('_', ' ')}
                       </span>
                     </div>

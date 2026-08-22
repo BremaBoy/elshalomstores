@@ -66,7 +66,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <div className="group relative bg-bg rounded-2xl border border-border overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-black/10 hover:-translate-y-1 text-text-primary">
+    <div className="group relative bg-card rounded-3xl border border-border overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 text-text-primary">
       {/* Badges */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
         {product.isNew && <Badge variant="primary">New Arrival</Badge>}
@@ -97,7 +97,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           className={`h-10 w-10 rounded-xl shadow-xl flex items-center justify-center transition-all scale-90 hover:scale-100 border ${
             inWishlist 
               ? "bg-red-50 text-red-500 border-red-200" 
-              : "bg-white text-text-secondary hover:bg-primary hover:text-white border-border hover:border-primary"
+              : "bg-card text-text-secondary hover:bg-primary hover:text-white border-border hover:border-primary"
           }`}
         >
           <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
@@ -112,7 +112,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </div>
 
       {/* Image Container */}
-      <Link href={`/product/${product.id}`} className="block relative aspect-[4/3] overflow-hidden bg-card">
+      <Link href={`/product/${product.id}`} className="block relative aspect-[4/3] overflow-hidden bg-blue-soft/50">
         <Image
           src={imgSrc}
           alt={product.name}
@@ -130,7 +130,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           <p className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em]">
             {product.category}
           </p>
-          <div className="flex items-center gap-1 text-amber-500">
+          <div className="flex items-center gap-1 text-gold">
             <Star className="h-3 w-3 fill-current" />
             <span className="text-[10px] font-black">
               {product.rating ? product.rating.toFixed(1) : "—"}

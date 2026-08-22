@@ -8,13 +8,13 @@ export default function PrivacyPage() {
       <Header />
       <div className="pt-32 pb-20">
         <Container>
-          <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 p-12 md:p-20 rounded-[48px] border border-slate-100 dark:border-slate-800 shadow-xl space-y-12">
+          <div className="max-w-4xl mx-auto bg-card p-12 md:p-20 rounded-[48px] border border-border shadow-xl shadow-primary/5 space-y-12">
             <div className="space-y-4">
                 <h1 className="text-4xl md:text-5xl font-extrabold uppercase tracking-tighter">Privacy Policy</h1>
                 <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Last Updated: March 2024</p>
             </div>
 
-            <div className="prose prose-slate dark:prose-invert max-w-none space-y-8">
+            <div className="prose prose-slate max-w-none space-y-8">
               <section className="space-y-4">
                 <h2 className="text-2xl font-bold uppercase tracking-tight">1. Information We Collect</h2>
                 <p className="text-slate-500 leading-relaxed font-medium">We collect information you provide directly to us, such as when you create or modify your account, request services, contact customer support, or otherwise communicate with us. This information may include: name, email, phone number, postal address, profile picture, payment method, and other information you choose to provide.</p>

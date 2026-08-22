@@ -11,11 +11,11 @@ export default function CategoriesPage() {
       <Header />
       <div className="pt-20">
         <Breadcrumbs items={[{ label: "Categories" }]} />
-        <section className="py-12 bg-white dark:bg-slate-900">
+        <section className="py-12 bg-bg text-text-primary">
           <Container>
             <div className="max-w-3xl mb-12">
               <h1 className="text-4xl font-extrabold mb-4 uppercase tracking-tighter">Browse Categories</h1>
-              <p className="text-lg text-slate-500 leading-relaxed">
+              <p className="text-lg text-text-secondary leading-relaxed">
                 Explore our diverse range of high-quality products curated across multiple categories. From the latest tech to timeless fashion, we have it all.
               </p>
             </div>

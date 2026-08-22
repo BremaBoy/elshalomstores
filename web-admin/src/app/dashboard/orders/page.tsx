@@ -7,13 +7,13 @@ import { format } from 'date-fns'
 import OrderForm from '@/components/forms/OrderForm'
 
 const statusColors: Record<string, string> = {
-  Delivered: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  Processing: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  Shipped: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-  'Out for Delivery': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-  Pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  Cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-  Refunded: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400',
+  Delivered: 'bg-green-100 text-green-800',
+  Processing: 'bg-blue-soft text-[#183B5D]',
+  Shipped: 'bg-lilac text-[#4D3E68]',
+  'Out for Delivery': 'bg-teal-100 text-teal-800',
+  Pending: 'bg-gold-soft text-[#694B12]',
+  Cancelled: 'bg-red-100 text-red-800',
+  Refunded: 'bg-gray-100 text-gray-800',
 }
 
 const ALL_STATUSES = ['Pending', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded']

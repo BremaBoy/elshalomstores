@@ -28,7 +28,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const relatedProducts = await getFeaturedProducts();
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-bg text-text-primary">
       <Header />
       <div className="pt-20">
         <Breadcrumbs items={[
@@ -50,17 +50,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     <Badge variant="primary">{product.category}</Badge>
                     {product.isNew && <Badge variant="success">New Arrival</Badge>}
                   </div>
-                  <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white uppercase tracking-tighter">
+                  <h1 className="text-3xl md:text-4xl font-extrabold text-text-primary uppercase tracking-tighter">
                     {product.name}
                   </h1>
                   <div className="flex items-center gap-4 text-sm font-medium">
-                    <div className="flex items-center gap-1 text-amber-500">
+                    <div className="flex items-center gap-1 text-gold">
                         <Star className="h-4 w-4 fill-current" />
                         <Star className="h-4 w-4 fill-current" />
                         <Star className="h-4 w-4 fill-current" />
                         <Star className="h-4 w-4 fill-current" />
                         <Star className="h-4 w-4 fill-current" />
-                        <span className="ml-1 text-slate-500 font-bold">{product.rating}</span>
+                        <span className="ml-1 text-text-secondary font-bold">{product.rating}</span>
                     </div>
                     <span className="text-slate-300">|</span>
                     <span className="text-primary hover:underline cursor-pointer">48 Reviews</span>
@@ -69,7 +69,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
                 <ProductPrice price={product.price} discountPrice={product.discountPrice} size="lg" />
 
-                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-lg">
+                <p className="text-text-secondary leading-relaxed text-lg">
                   {product.description || "Experience superior quality and design with our flagship product. Crafted with care and built to last, it combines functionality with a modern aesthetic."}
                 </p>
 
@@ -84,21 +84,21 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 }} />
 
                     <div className="flex gap-4">
-                        <Button variant="ghost" className="text-sm font-bold gap-2 text-slate-500 hover:text-primary">
+                        <Button variant="ghost" className="text-sm font-bold gap-2 text-text-secondary hover:text-primary">
                             <Share2 className="h-4 w-4" /> Share Product
                         </Button>
                     </div>
 
                 {/* Features Badges */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6">
-                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20">
+                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
                         <ShieldCheck className="h-6 w-6 text-emerald-600" />
                         <div>
                             <p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Extended Warranty</p>
                             <p className="text-xs text-emerald-600/80">2 Years secure protection</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
+                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-soft border border-primary/10">
                         <Truck className="h-6 w-6 text-blue-600" />
                         <div>
                             <p className="text-xs font-bold uppercase tracking-widest text-blue-700">Free Shipping</p>

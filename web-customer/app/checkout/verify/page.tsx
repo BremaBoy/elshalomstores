@@ -81,8 +81,8 @@ function VerifyContent() {
           {status === "success" && (
             <div className="space-y-6 animate-in zoom-in-95 duration-500">
               <div className="flex justify-center">
-                <div className="h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+                <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center">
+                  <CheckCircle2 className="h-10 w-10 text-green-700" />
                 </div>
               </div>
               <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">Payment Successful!</h1>
@@ -95,7 +95,7 @@ function VerifyContent() {
                   </Button>
                 </Link>
                 <Link href="/shop">
-                  <Button variant="ghost" className="w-full h-12 rounded-xl font-bold uppercase tracking-widest flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400">
+                  <Button variant="ghost" className="w-full h-12 rounded-xl font-bold uppercase tracking-widest flex items-center justify-center gap-2 text-text-secondary">
                     Continue Shopping
                     <ArrowRight className="h-5 w-5" />
                   </Button>
@@ -107,8 +107,8 @@ function VerifyContent() {
           {status === "error" && (
             <div className="space-y-6 animate-in zoom-in-95 duration-500">
               <div className="flex justify-center">
-                <div className="h-20 w-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                  <XCircle className="h-10 w-10 text-red-600 dark:text-red-400" />
+                <div className="h-20 w-20 rounded-full bg-red-100 flex items-center justify-center">
+                  <XCircle className="h-10 w-10 text-red-700" />
                 </div>
               </div>
               <h1 className="text-2xl font-bold text-text-primary uppercase tracking-tight">Payment Failed</h1>
@@ -120,7 +120,7 @@ function VerifyContent() {
                   </Button>
                 </Link>
                 <Link href="/contact">
-                  <Button variant="ghost" className="w-full h-12 rounded-xl font-bold uppercase tracking-widest flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400">
+                  <Button variant="ghost" className="w-full h-12 rounded-xl font-bold uppercase tracking-widest flex items-center justify-center gap-2 text-text-secondary">
                     Contact Support
                   </Button>
                 </Link>

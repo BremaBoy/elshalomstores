@@ -14,16 +14,16 @@ export default function AboutPage() {
   ];
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-bg text-text-primary">
       <Header />
       <div className="pt-32 pb-20">
         <Container>
           {/* Hero Section */}
           <div className="text-center max-w-4xl mx-auto space-y-8 mb-24">
-            <h1 className="text-5xl md:text-7xl font-extrabold uppercase tracking-tighter leading-tight text-slate-900 dark:text-white">
+            <h1 className="text-5xl md:text-7xl font-extrabold uppercase tracking-tighter leading-tight text-text-primary">
               Redefining <br /> <span className="text-primary italic">Modern Commerce</span>
             </h1>
-            <p className="text-xl text-slate-500 leading-relaxed font-medium">
+            <p className="text-xl text-text-secondary leading-relaxed font-medium">
               Elshalomstores is more than just an e-commerce platform. We are a community-driven marketplace dedicated to bringing premium quality and exceptional value to every doorstep.
             </p>
           </div>
@@ -31,12 +31,12 @@ export default function AboutPage() {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-32">
             {stats.map((stat) => (
-              <div key={stat.label} className="p-8 bg-white dark:bg-slate-900 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-xl text-center group hover:-translate-y-2 transition-transform duration-500">
-                <div className="h-14 w-14 bg-primary/10 rounded-2xl mx-auto flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <div key={stat.label} className="p-8 bg-card rounded-[40px] border border-border shadow-xl shadow-primary/5 text-center group hover:-translate-y-2 transition-transform duration-500">
+                <div className="h-14 w-14 bg-blue-soft rounded-2xl mx-auto flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <stat.icon className="h-6 w-6 text-primary" />
                 </div>
-                <p className="text-3xl font-extrabold text-slate-900 dark:text-white mb-1 uppercase tracking-tight">{stat.value}</p>
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-400">{stat.label}</p>
+                <p className="text-3xl font-extrabold text-text-primary mb-1 uppercase tracking-tight">{stat.value}</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -61,7 +61,7 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <h4 className="text-lg font-bold mb-1">Uncompromising Quality</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed">Every product in our store undergoes rigorous quality checks to ensure you receive only the best.</p>
+                    <p className="text-text-secondary text-sm leading-relaxed">Every product in our store undergoes rigorous quality checks to ensure you receive only the best.</p>
                   </div>
                 </div>
                 
@@ -71,7 +71,7 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <h4 className="text-lg font-bold mb-1">Seamless Experience</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed">From browsing to delivery, we&apos;ve optimized every step to make your shopping journey effortless.</p>
+                    <p className="text-text-secondary text-sm leading-relaxed">From browsing to delivery, we&apos;ve optimized every step to make your shopping journey effortless.</p>
                   </div>
                 </div>
 
@@ -81,7 +81,7 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <h4 className="text-lg font-bold mb-1">Customer First</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed">Your satisfaction is our primary goal. Our support team is always ready to assist you.</p>
+                    <p className="text-text-secondary text-sm leading-relaxed">Your satisfaction is our primary goal. Our support team is always ready to assist you.</p>
                   </div>
                 </div>
               </div>
@@ -89,14 +89,14 @@ export default function AboutPage() {
           </div>
 
           {/* CTA Banner */}
-          <div className="relative bg-slate-900 rounded-[56px] overflow-hidden p-12 md:p-24 text-center space-y-8 shadow-2xl">
+          <div className="relative bg-primary rounded-[56px] overflow-hidden p-12 md:p-24 text-center space-y-8 shadow-2xl shadow-primary/20">
             <div className="absolute top-0 right-0 h-96 w-96 bg-primary/20 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="relative z-10 space-y-6">
                 <h2 className="text-4xl md:text-6xl font-extrabold text-white uppercase tracking-tighter">Ready to Start Shopping?</h2>
-                <p className="text-slate-400 max-w-xl mx-auto text-lg">Join our growing community and experience the difference of premium service.</p>
+                <p className="text-white/75 max-w-xl mx-auto text-lg">Join our growing community and experience the difference of premium service.</p>
                 <div className="pt-4">
                     <Link href="/shop">
-                      <Button className="h-16 px-12 text-lg rounded-2xl font-extrabold uppercase tracking-widest bg-white text-primary hover:bg-slate-100 shadow-xl shadow-white/5">
+                      <Button className="h-16 px-12 text-lg rounded-2xl font-extrabold uppercase tracking-widest bg-gold-soft text-text-primary hover:bg-white shadow-xl shadow-white/5">
                           Browse Shop
                       </Button>
                     </Link>

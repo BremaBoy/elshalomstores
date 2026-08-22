@@ -55,15 +55,15 @@ export const AddToCartSection = ({ product }: AddToCartSectionProps) => {
   const increase = () => setQuantity((q) => Math.min(product.stock ?? 99, q + 1));
 
   return (
-    <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+    <div className="space-y-4 pt-4 border-t border-border">
       <div className="flex items-center gap-4">
         {/* Quantity Controls */}
-        <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden h-12">
+        <div className="flex items-center border border-border bg-card rounded-xl overflow-hidden h-12">
           <button
             aria-label="Decrease quantity"
             onClick={decrease}
             disabled={quantity <= 1}
-            className="px-4 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors h-full font-bold text-lg"
+            className="px-4 hover:bg-blue-soft disabled:opacity-40 transition-colors h-full font-bold text-lg"
           >
             <Minus className="h-4 w-4" />
           </button>
@@ -72,7 +72,7 @@ export const AddToCartSection = ({ product }: AddToCartSectionProps) => {
             aria-label="Increase quantity"
             onClick={increase}
             disabled={quantity >= (product.stock ?? 99)}
-            className="px-4 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors h-full font-bold text-lg"
+            className="px-4 hover:bg-blue-soft disabled:opacity-40 transition-colors h-full font-bold text-lg"
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -104,7 +104,7 @@ export const AddToCartSection = ({ product }: AddToCartSectionProps) => {
           aria-label={inWishlist ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
           variant="outline" 
           size="icon" 
-          className={`h-12 w-12 rounded-xl flex-shrink-0 transition-colors ${inWishlist ? "bg-red-50 border-red-200" : "border-slate-200 hover:border-red-200"}`}
+          className={`h-12 w-12 rounded-xl flex-shrink-0 transition-colors ${inWishlist ? "bg-red-50 border-red-200" : "border-border hover:border-red-200"}`}
           onClick={() => {
             if (inWishlist) {
               removeWishlistItem(product.id);
@@ -121,7 +121,7 @@ export const AddToCartSection = ({ product }: AddToCartSectionProps) => {
             }
           }}
         >
-          <Heart className={`h-5 w-5 ${inWishlist ? "text-red-500 fill-current" : "text-slate-400 hover:text-red-500"}`} />
+          <Heart className={`h-5 w-5 ${inWishlist ? "text-red-500 fill-current" : "text-text-secondary hover:text-red-500"}`} />
         </Button>
       </div>
     </div>

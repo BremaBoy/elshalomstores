@@ -53,7 +53,7 @@ export default function SettingsPage() {
         <button 
           onClick={handleSave}
           disabled={isLoading}
-          className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition-all font-bold text-sm shadow-xl shadow-purple-900/40"
+          className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition-all font-bold text-sm shadow-xl shadow-primary/20"
         >
           <Save className="w-4 h-4" />
           <span>{isLoading ? 'Saving…' : 'Save Changes'}</span>

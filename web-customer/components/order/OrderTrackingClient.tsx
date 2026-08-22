@@ -176,9 +176,9 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
 
               {/* Tracking Info (if exists) */}
               {activeShipment && (
-                <Card className="rounded-[2.5rem] bg-black text-white border-none shadow-2xl shadow-primary/20 overflow-hidden">
+                <Card className="rounded-[2.5rem] bg-primary text-white border-none shadow-2xl shadow-primary/20 overflow-hidden">
                   <CardHeader className="border-b border-white/10 p-8">
-                    <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-white/60">Shipping Details</CardTitle>
+                    <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-white/80">Shipping Details</CardTitle>
                   </CardHeader>
                   <CardContent className="p-8 space-y-6">
                     <div className="flex items-center gap-4">
@@ -186,13 +186,13 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
                           <Truck className="h-5 w-5 text-primary" />
                        </div>
                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-white/50">Courier Service</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-white/80">Courier Service</p>
                           <p className="text-sm font-bold uppercase tracking-tight">{activeShipment.courier}</p>
                        </div>
                     </div>
 
                     <div className="space-y-2">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-white/50">Tracking Number</p>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-white/80">Tracking Number</p>
                        <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
                           <span className="font-mono font-bold text-primary">{activeShipment.tracking_number}</span>
                           <button className="text-[9px] font-black uppercase tracking-widest hover:text-primary transition-colors">Copy</button>
@@ -205,7 +205,7 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
                             <Calendar className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-white/50">Est. Delivery</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/80">Est. Delivery</p>
                             <p className="text-sm font-bold uppercase tracking-tight">{new Date(activeShipment.estimated_delivery).toLocaleDateString()}</p>
                         </div>
                       </div>

@@ -77,7 +77,7 @@ export default function CouponsPage() {
           <h1 className="text-2xl font-bold text-foreground">Coupons & Discounts</h1>
           <p className="text-muted-foreground text-sm">Manage promotional codes and campaign offers</p>
         </div>
-        <button onClick={() => { setEditingCoupon(undefined); setShowForm(true) }} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity font-semibold text-sm shadow-lg shadow-purple-900/20">
+        <button onClick={() => { setEditingCoupon(undefined); setShowForm(true) }} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition-opacity font-semibold text-sm shadow-lg shadow-primary/20">
           <Plus className="w-4 h-4" />
           <span>Create Coupon</span>
         </button>
@@ -100,7 +100,7 @@ export default function CouponsPage() {
               </div>
 
               <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500 border border-purple-500/10">
+                <div className="p-3 bg-lilac rounded-2xl text-[#6F5B8C] border border-border">
                   <Tag className="w-6 h-6" />
                 </div>
                 <div>
@@ -149,4 +149,3 @@ export default function CouponsPage() {
     </div>
   )
 }
-

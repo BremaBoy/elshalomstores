@@ -23,7 +23,7 @@ export default function ActivityLogsPage() {
       const { data: orderLogs } = await supabaseAuth.from('orders').select('id, created_at, status').order('created_at', { ascending: false }).limit(10)
       
       const combined = [
-        ...(adminLogs?.map(a => ({ id: `admin-${a.id}`, type: 'auth', action: 'Administrator Added', detail: a.name, date: a.created_at, icon: Shield, color: 'text-purple-500 bg-purple-500/10' })) || []),
+        ...(adminLogs?.map(a => ({ id: `admin-${a.id}`, type: 'auth', action: 'Administrator Added', detail: a.name, date: a.created_at, icon: Shield, color: 'text-[#4D3E68] bg-lilac' })) || []),
         ...(orderLogs?.map(o => ({ id: o.id, type: 'order', action: `Order Status: ${o.status}`, detail: `Order #${o.id.split('-')[0]}`, date: o.created_at, icon: Layout, color: 'text-blue-500 bg-blue-500/10' })) || []),
       ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 

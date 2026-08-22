@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function UpdatePasswordPage() {
   const router = useRouter();
@@ -28,8 +27,8 @@ export default function UpdatePasswordPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-bg px-6 text-text-primary">
-      <ThemeToggle className="absolute right-6 top-6 border border-border bg-card" />
-      <div className="w-full max-w-md rounded-[2rem] border border-border bg-card p-8 shadow-xl md:p-10">
+      <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-gold via-lilac to-primary" />
+      <div className="w-full max-w-md rounded-[2rem] border border-border bg-card p-8 shadow-xl shadow-primary/10 md:p-10">
         <h1 className="text-3xl font-black uppercase tracking-tight">Choose a new password</h1>
         <p className="mt-2 text-sm text-text-secondary">Use at least eight characters.</p>
         <form onSubmit={submit} className="mt-8 space-y-5">

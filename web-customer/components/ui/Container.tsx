@@ -8,15 +8,13 @@ function cn(...inputs: ClassValue[]) {
 interface ContainerProps {
   children: React.ReactNode;
   className?: string;
-  fluid?: boolean;
 }
 
-export const Container = ({ children, className, fluid = false }: ContainerProps) => {
+export const Container = ({ children, className }: ContainerProps) => {
   return (
     <div
       className={cn(
-        "mx-auto px-4 md:px-6 lg:px-8",
-        fluid ? "max-w-full" : "max-w-7xl",
+        "mx-auto w-full max-w-full px-4 md:px-6 lg:px-8",
         className
       )}
     >

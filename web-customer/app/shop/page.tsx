@@ -85,15 +85,15 @@ export default async function ShopPage({
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Sidebar Filters */}
               <aside className="w-full lg:w-64 space-y-8">
-                <div>
+                <div className="rounded-3xl border border-border bg-card p-5 shadow-sm lg:sticky lg:top-28">
                   <h3 className="text-lg font-bold mb-4">Categories</h3>
                   <div className="space-y-2">
-                    <Link href={`/shop${q ? `?q=${encodeURIComponent(q)}` : ""}`} className={`flex items-center gap-2 rounded-lg px-2 py-2 text-sm transition-colors ${!category ? "bg-primary/10 font-bold text-primary" : "text-text-secondary hover:text-primary"}`}>
+                    <Link href={`/shop${q ? `?q=${encodeURIComponent(q)}` : ""}`} className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors ${!category ? "bg-blue-soft font-bold text-primary" : "text-text-secondary hover:bg-gold-soft/50 hover:text-text-primary"}`}>
                       <span className="flex h-4 w-4 items-center justify-center rounded border border-border">{!category && <Check className="h-3 w-3" />}</span>
                       All Products
                     </Link>
                     {categories.map((cat) => (
-                      <Link key={cat.id} href={`/shop?category=${encodeURIComponent(cat.slug)}${queryParams}`} className={`flex items-center gap-2 rounded-lg px-2 py-2 text-sm transition-colors ${category === cat.slug || category === cat.id ? "bg-primary/10 font-bold text-primary" : "text-text-secondary hover:text-primary"}`}>
+                      <Link key={cat.id} href={`/shop?category=${encodeURIComponent(cat.slug)}${queryParams}`} className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors ${category === cat.slug || category === cat.id ? "bg-blue-soft font-bold text-primary" : "text-text-secondary hover:bg-gold-soft/50 hover:text-text-primary"}`}>
                         <span className="flex h-4 w-4 items-center justify-center rounded border border-border">{(category === cat.slug || category === cat.id) && <Check className="h-3 w-3" />}</span>
                         {cat.name}
                       </Link>
@@ -101,7 +101,7 @@ export default async function ShopPage({
                   </div>
                 </div>
 
-                <Link href="/shop" className="block">
+                <Link href="/shop" className="block mt-5">
                   <Button variant="outline" className="w-full">Clear Filters</Button>
                 </Link>
               </aside>
