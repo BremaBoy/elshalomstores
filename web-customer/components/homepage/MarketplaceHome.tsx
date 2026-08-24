@@ -7,7 +7,6 @@ import {
   CircleHelp,
   Gift,
   Headphones,
-  PackageCheck,
   RefreshCcw,
   ShieldCheck,
   Sparkles,
@@ -203,25 +202,29 @@ export function MarketplaceHome({
           <div className="grid gap-4 md:grid-cols-2">
             <Link
               href="/shop"
-              className="group relative min-h-64 overflow-hidden rounded-[2rem] bg-primary p-8 text-white"
+              aria-label="Shop the Elshalom home collection"
+              className="group relative aspect-[2/1] overflow-hidden rounded-[2rem] border border-primary/15 bg-primary shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
             >
-              <div className="absolute -right-16 -top-20 h-72 w-72 rounded-full bg-primary/50 blur-3xl transition group-hover:bg-primary/70" />
-              <BadgePercent className="relative h-8 w-8 text-gold-soft" />
-              <div className="relative mt-12 max-w-sm">
-                <p className="text-3xl font-black tracking-tight">Prices that feel like a win.</p>
-                <p className="mt-3 text-sm text-white/80">Great value across your everyday essentials.</p>
-              </div>
+              <Image
+                src="/promos/home-collection.jpeg"
+                alt="Elshalom home, kitchen, and cleaning collection"
+                fill
+                className="object-cover transition duration-500 group-hover:scale-[1.02]"
+                sizes="(max-width: 767px) 100vw, 50vw"
+              />
             </Link>
             <Link
-              href="/shop?featured=true"
-              className="group relative min-h-64 overflow-hidden rounded-[2rem] border border-border bg-card p-8"
+              href="/categories/phone-accessories"
+              aria-label="Shop phone accessories"
+              className="group relative aspect-[2/1] overflow-hidden rounded-[2rem] border border-primary/15 bg-cream shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
             >
-              <div className="absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-primary/15 blur-3xl transition group-hover:bg-primary/25" />
-              <PackageCheck className="relative h-8 w-8 text-primary" />
-              <div className="relative mt-12 max-w-sm">
-                <p className="text-3xl font-black tracking-tight text-text-primary">Picked with more care.</p>
-                <p className="mt-3 text-sm text-text-secondary">Useful products, trusted quality, no endless scrolling.</p>
-              </div>
+              <Image
+                src="/promos/phone-accessories.jpeg"
+                alt="Phone accessories including headphones, earbuds, speaker, and sports phone holder"
+                fill
+                className="object-cover transition duration-500 group-hover:scale-[1.02]"
+                sizes="(max-width: 767px) 100vw, 50vw"
+              />
             </Link>
           </div>
         </Container>
