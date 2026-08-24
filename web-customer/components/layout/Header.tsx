@@ -48,7 +48,7 @@ export const Header = () => {
 
   return (
     <header
-      className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-bg/95 py-2 text-text-primary shadow-[0_10px_35px_rgba(49,94,138,0.08)] backdrop-blur-xl"
+      className="fixed left-0 right-0 top-0 z-50 border-b border-primary/15 bg-lilac/90 py-2 text-text-primary shadow-[0_10px_35px_rgba(118,81,143,0.14)] backdrop-blur-xl"
     >
       <Container>
         <div className="flex items-center justify-between gap-6">

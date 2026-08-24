@@ -37,7 +37,7 @@ function LoginContent() {
     <main className="min-h-screen flex flex-col md:flex-row bg-bg">
       {/* Visual Side */}
       <div className="hidden md:flex md:w-1/2 relative bg-primary overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-[#183B5D]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-[#4A315F]" />
         <div className="absolute -right-24 top-20 h-80 w-80 rounded-full bg-lilac/15 blur-3xl" />
         <div className="absolute inset-0 p-16 flex flex-col justify-between text-white z-10">
           <Link href="/">

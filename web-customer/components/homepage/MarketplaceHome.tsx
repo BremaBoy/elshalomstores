@@ -57,11 +57,11 @@ export function MarketplaceHome({
 
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-b from-lilac/55 via-bg to-bg pb-8 pt-24 text-text-primary md:pt-28">
+      <section className="relative overflow-hidden bg-gradient-to-b from-lilac via-bg to-bg pb-8 pt-24 text-text-primary md:pt-28">
         <div className="absolute inset-0 marketplace-grid opacity-20" />
         <Container className="relative">
           <div className="grid items-stretch gap-4 min-[700px]:grid-cols-[190px_minmax(0,1fr)_240px] xl:grid-cols-[250px_minmax(0,1fr)_310px]">
-            <aside className="hidden min-h-[620px] rounded-[2rem] border border-border bg-card shadow-sm min-[700px]:flex min-[700px]:flex-col">
+            <aside className="hidden min-h-[620px] rounded-[2rem] border border-primary/15 bg-card/90 shadow-sm min-[700px]:flex min-[700px]:flex-col">
               <div className="bg-primary px-5 py-5 text-white">
                 <p className="text-[10px] font-black uppercase tracking-[.2em] text-gold-soft">Browse the store</p>
                 <h2 className="mt-1 text-lg font-black">Shop by category</h2>
@@ -88,7 +88,7 @@ export function MarketplaceHome({
             </div>
 
             <aside className="grid grid-cols-1 gap-3 sm:grid-cols-3 min-[700px]:min-h-[620px] min-[700px]:self-stretch min-[700px]:!grid-cols-1 min-[700px]:grid-rows-3">
-              <Link href="/shop?new=true" className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-3xl border border-gold/25 bg-gold-soft p-5 text-text-primary transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0 min-[700px]:flex-row min-[700px]:items-end">
+              <Link href="/shop?new=true" className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-3xl border border-gold/25 bg-cream p-5 text-text-primary transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0 min-[700px]:flex-row min-[700px]:items-end">
                 <Gift className="absolute -bottom-5 -right-4 h-28 w-28 rotate-12 text-gold/15 transition group-hover:rotate-6 group-hover:scale-110" />
                 <span className="text-[9px] font-black uppercase tracking-[.2em] text-[#694B12]">New arrivals</span>
                 <div className="relative">
@@ -106,7 +106,7 @@ export function MarketplaceHome({
                 </div>
               </Link>
 
-              <Link href="/contact" className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-3xl border border-primary/15 bg-blue-soft p-5 text-text-primary transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0 min-[700px]:flex-row min-[700px]:items-end">
+              <Link href="/contact" className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-3xl border border-primary/15 bg-lilac p-5 text-text-primary transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0 min-[700px]:flex-row min-[700px]:items-end">
                 <CircleHelp className="h-7 w-7 text-primary" />
                 <div>
                   <p className="text-lg font-black leading-tight">Need help choosing?</p>
@@ -116,7 +116,7 @@ export function MarketplaceHome({
             </aside>
           </div>
 
-          <div className="mt-4 grid overflow-hidden rounded-2xl border border-border bg-card shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid overflow-hidden rounded-2xl border border-primary/15 bg-lilac/65 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
             {[
               [Truck, "Fast delivery", "Across Nigeria"],
               [ShieldCheck, "Secure checkout", "Protected payments"],
@@ -138,14 +138,14 @@ export function MarketplaceHome({
         </Container>
       </section>
 
-      <section className="border-b border-border bg-card py-6">
+      <section className="border-b border-border bg-cream py-6">
         <Container>
           <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
             {categories.map((category, index) => (
               <Link
                 key={category.id}
                 href={categoryPath(category)}
-                className="group flex min-w-[118px] flex-col items-center gap-3 rounded-2xl border border-border bg-bg p-3 text-center transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+                className="group flex min-w-[118px] flex-col items-center gap-3 rounded-2xl border border-primary/15 bg-card p-3 text-center transition hover:-translate-y-1 hover:border-primary/40 hover:bg-lilac/55 hover:shadow-lg"
               >
                 <div className="relative h-16 w-16 overflow-hidden rounded-full bg-card ring-4 ring-primary/5">
                   {category.image_url ? (
@@ -173,7 +173,7 @@ export function MarketplaceHome({
       <section className="py-10 md:py-14">
         <Container>
           <div className="overflow-hidden rounded-[2rem] border border-border bg-card">
-            <div className="flex flex-col gap-4 bg-gradient-to-r from-primary to-[#183B5D] px-5 py-5 text-white sm:flex-row sm:items-center sm:justify-between md:px-8">
+            <div className="flex flex-col gap-4 bg-gradient-to-r from-primary to-[#4A315F] px-5 py-5 text-white sm:flex-row sm:items-center sm:justify-between md:px-8">
               <div className="flex items-center gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
                   <Zap className="h-6 w-6 fill-current" />
@@ -227,7 +227,7 @@ export function MarketplaceHome({
         </Container>
       </section>
 
-      <section className="border-y border-border bg-card py-10 md:py-14">
+      <section className="border-y border-primary/15 bg-lilac/55 py-10 md:py-14">
         <Container>
           <div className="mb-7 flex items-end justify-between gap-4">
             <div>
@@ -244,7 +244,7 @@ export function MarketplaceHome({
 
       <section className="py-10 md:py-14">
         <Container>
-          <div className="rounded-[2rem] border border-primary/20 bg-gradient-to-br from-primary/10 via-bg to-bg p-7 md:flex md:items-center md:justify-between md:p-12">
+          <div className="rounded-[2rem] border border-primary/20 bg-gradient-to-br from-lilac via-cream to-card p-7 md:flex md:items-center md:justify-between md:p-12">
             <div className="max-w-xl">
               <span className="text-[10px] font-black uppercase tracking-[.2em] text-primary">The Elshalom list</span>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-text-primary md:text-4xl">Good finds, delivered to your inbox.</h2>

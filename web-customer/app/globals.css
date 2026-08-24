@@ -12,6 +12,7 @@
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
   --color-lilac: var(--lilac);
+  --color-cream: var(--cream);
   --color-blue-soft: var(--blue-soft);
   
   --color-bg: var(--background);
@@ -24,21 +25,22 @@
 
 :root {
   color-scheme: light;
-  --background: #FFF9EC;
-  --foreground: #17233A;
-  --card: #FFFEFA;
+  --background: #F3EAFB;
+  --foreground: #23324C;
+  --card: #FFFEFC;
   --card-foreground: #17233A;
-  --primary: #315E8A;
-  --primary-hover: #244A70;
+  --primary: #76518F;
+  --primary-hover: #5E3E76;
   --primary-foreground: #FFFFFF;
-  --secondary: #6F5B8C;
-  --gold: #B8872E;
-  --gold-soft: #F3E2B8;
-  --lilac: #E8DDF4;
-  --blue-soft: #DCEAF6;
-  --border: #DED4BF;
-  --muted: #596579;
-  --marketplace-grid-color: rgba(49, 94, 138, .11);
+  --secondary: #315E8A;
+  --gold: #B7862E;
+  --gold-soft: #F4E2B8;
+  --lilac: #DFC9F2;
+  --cream: #FFF7E8;
+  --blue-soft: #DDEBF7;
+  --border: #D8C8E3;
+  --muted: #5D6475;
+  --marketplace-grid-color: rgba(118, 81, 143, .14);
 }
 
 body {
@@ -49,7 +51,7 @@ body {
 }
 
 ::selection {
-  background: var(--gold-soft);
+  background: var(--lilac);
   color: var(--foreground);
 }
 
@@ -96,11 +98,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E5E7EB;
+  background: var(--lilac);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #D1D5DB;
+  background: color-mix(in srgb, var(--primary) 55%, var(--lilac));
 }
 
 /* Animations */

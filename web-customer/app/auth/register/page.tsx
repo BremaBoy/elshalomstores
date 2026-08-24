@@ -115,7 +115,7 @@ function RegisterContent() {
 
       {/* Visual Side */}
       <div className="hidden md:flex md:w-1/2 relative bg-primary overflow-hidden order-1 md:order-2">
-        <div className="absolute inset-0 bg-gradient-to-bl from-primary via-primary/95 to-[#183B5D]" />
+        <div className="absolute inset-0 bg-gradient-to-bl from-primary via-primary/95 to-[#4A315F]" />
         <div className="absolute inset-0 p-16 flex flex-col justify-between text-white z-10 text-right">
           <Link href="/">
             <span className="text-3xl font-bold tracking-tight">ELSHALOM<span className="text-gold-soft">/</span>STORES</span>

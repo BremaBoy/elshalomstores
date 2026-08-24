@@ -46,7 +46,7 @@ export const HeroSliderClient = ({ slides: initialSlides }: { slides: HeroSlide[
   const hasMultipleSlides = slides.length > 1;
 
   return (
-    <div className="marketplace-hero-frame relative h-[480px] w-full overflow-hidden rounded-[2rem] border border-border bg-primary shadow-[0_22px_60px_rgba(49,94,138,0.16)] sm:h-[520px]">
+    <div className="marketplace-hero-frame relative h-[480px] w-full overflow-hidden rounded-[2rem] border border-border bg-primary shadow-[0_22px_60px_rgba(116,81,143,0.2)] sm:h-[520px]">
       <Swiper
         modules={[Pagination, Autoplay, EffectFade]}
         pagination={{ clickable: true, el: ".marketplace-hero-pagination" }}
@@ -67,8 +67,8 @@ export const HeroSliderClient = ({ slides: initialSlides }: { slides: HeroSlide[
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 58vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#183B5D]/95 via-[#183B5D]/74 to-[#183B5D]/10" />
-              <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#183B5D]/70 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#4A315F]/95 via-[#4A315F]/76 to-[#4A315F]/12" />
+              <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#4A315F]/72 to-transparent" />
 
               <div className="relative z-10 flex h-full max-w-2xl flex-col justify-center p-7 text-white sm:p-10 min-[700px]:p-7 xl:p-12">
                 <span className="flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-[.18em] text-gold-soft backdrop-blur">
