@@ -12,6 +12,7 @@
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
   --color-lilac: var(--lilac);
+  --color-cream: var(--cream);
   --color-blue-soft: var(--blue-soft);
   
   --color-primary: var(--primary);
@@ -46,32 +47,33 @@
 
 :root {
   color-scheme: light;
-  --background: #fff9ec;
-  --foreground: #17233a;
-  --card: #fffefa;
-  --card-foreground: #17233a;
-  --popover: #fffefa;
-  --popover-foreground: #17233a;
-  --primary: #315e8a;
+  --background: #efe3f8;
+  --foreground: #23324c;
+  --card: #fffefc;
+  --card-foreground: #23324c;
+  --popover: #fffefc;
+  --popover-foreground: #23324c;
+  --primary: #76518f;
   --primary-foreground: #ffffff;
-  --secondary: #e8ddf4;
+  --secondary: #d9beeb;
   --secondary-foreground: #332a48;
-  --muted: #f5eddb;
-  --muted-foreground: #596579;
-  --accent: #dceaf6;
-  --accent-foreground: #183b5d;
+  --muted: #fff7e8;
+  --muted-foreground: #5d6475;
+  --accent: #d9beeb;
+  --accent-foreground: #332a48;
   --destructive: #b42318;
   --destructive-foreground: #ffffff;
-  --border: #ded4bf;
-  --input: #cfc3ac;
-  --ring: #315e8a;
-  --gold: #b8872e;
-  --gold-soft: #f3e2b8;
-  --lilac: #e8ddf4;
-  --blue-soft: #dceaf6;
-  --chart-1: #315e8a;
-  --chart-2: #6f5b8c;
-  --chart-3: #b8872e;
+  --border: #d3bfe1;
+  --input: #cbb4dc;
+  --ring: #76518f;
+  --gold: #b7862e;
+  --gold-soft: #f4e2b8;
+  --lilac: #d9beeb;
+  --cream: #fff7e8;
+  --blue-soft: #ddebf7;
+  --chart-1: #76518f;
+  --chart-2: #315e8a;
+  --chart-3: #b7862e;
   --chart-4: #4e7f74;
   --chart-5: #9b5f73;
   --radius: 0.875rem;
@@ -85,14 +87,14 @@
     @apply bg-background text-foreground;
     min-height: 100vh;
     background-image:
-      radial-gradient(circle at top right, color-mix(in srgb, var(--lilac) 55%, transparent), transparent 34rem),
-      linear-gradient(135deg, transparent 0 72%, color-mix(in srgb, var(--gold-soft) 24%, transparent) 72% 100%);
+      radial-gradient(circle at top right, color-mix(in srgb, var(--lilac) 78%, transparent), transparent 34rem),
+      linear-gradient(135deg, transparent 0 72%, color-mix(in srgb, var(--cream) 48%, transparent) 72% 100%);
     background-attachment: fixed;
   }
 }
 
 ::selection {
-  background: var(--gold-soft);
+  background: var(--lilac);
   color: var(--foreground);
 }
 

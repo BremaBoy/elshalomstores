@@ -38,14 +38,14 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        'flex flex-col h-screen bg-[#183B5D] text-white border-r border-[#183B5D] transition-all duration-300 relative z-20 shadow-2xl shadow-blue-950/20',
+        'flex flex-col h-screen bg-primary text-white border-r border-primary transition-all duration-300 relative z-20 shadow-2xl shadow-primary/25',
         isSidebarOpen ? 'w-64' : 'w-16'
       )}
     >
       {/* Logo */}
       <div className={cn('flex items-center gap-3 px-4 py-5 border-b border-white/15', !isSidebarOpen && 'justify-center px-2')}>
         <div className="w-9 h-9 rounded-xl bg-gold-soft flex items-center justify-center flex-shrink-0 shadow-lg shadow-black/10">
-          <Store className="w-4 h-4 text-[#183B5D]" />
+          <Store className="w-4 h-4 text-primary" />
         </div>
         {isSidebarOpen && (
           <span className="font-bold text-white text-sm leading-tight">
@@ -66,7 +66,7 @@ export default function Sidebar() {
           className={cn(
             'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
             (pathname === '/dashboard/admin' || pathname === '/dashboard/superadmin')
-              ? 'bg-[#FFF9EC] text-[#183B5D] shadow-lg shadow-black/15'
+              ? 'bg-lilac text-foreground shadow-lg shadow-black/15'
               : 'text-white/75 hover:text-white hover:bg-white/10',
             !isSidebarOpen && 'justify-center px-2'
           )}
@@ -83,7 +83,7 @@ export default function Sidebar() {
             className={cn(
               'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
               pathname === href || pathname.startsWith(href + '/')
-                ? 'bg-[#FFF9EC] text-[#183B5D] shadow-lg shadow-black/15'
+                ? 'bg-lilac text-foreground shadow-lg shadow-black/15'
                 : 'text-white/75 hover:text-white hover:bg-white/10',
               !isSidebarOpen && 'justify-center px-2'
             )}
@@ -107,7 +107,7 @@ export default function Sidebar() {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
                   pathname === href || pathname.startsWith(href + '/')
-                    ? 'bg-[#FFF9EC] text-[#183B5D] shadow-lg shadow-black/15'
+                    ? 'bg-lilac text-foreground shadow-lg shadow-black/15'
                     : 'text-white/75 hover:text-white hover:bg-white/10',
                   !isSidebarOpen && 'justify-center px-2'
                 )}
@@ -124,7 +124,7 @@ export default function Sidebar() {
       {/* Collapse Toggle */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-gold-soft border border-gold shadow-sm flex items-center justify-center text-[#183B5D] hover:bg-white transition-colors"
+        className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-gold-soft border border-gold shadow-sm flex items-center justify-center text-primary hover:bg-white transition-colors"
         aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
       >
         {isSidebarOpen ? <ChevronLeft className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}

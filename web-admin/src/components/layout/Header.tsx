@@ -31,7 +31,7 @@ export default function Header() {
   }
 
   return (
-    <header className="h-[4.5rem] flex items-center gap-4 px-4 md:px-6 border-b border-border bg-card/90 backdrop-blur-xl sticky top-0 z-10 shadow-[0_8px_30px_rgba(49,94,138,0.06)]">
+    <header className="h-[4.5rem] flex items-center gap-4 px-4 md:px-6 border-b border-primary/15 bg-lilac/85 backdrop-blur-xl sticky top-0 z-10 shadow-[0_8px_30px_rgba(118,81,143,0.12)]">
       {/* Mobile menu & sidebar toggle */}
       <button
         onClick={toggleSidebar}
