@@ -2,10 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  BadgePercent,
   ChevronRight,
-  CircleHelp,
-  Gift,
   Headphones,
   RefreshCcw,
   ShieldCheck,
@@ -87,30 +84,34 @@ export function MarketplaceHome({
             </div>
 
             <aside className="grid grid-cols-1 gap-3 sm:grid-cols-3 min-[700px]:min-h-[620px] min-[700px]:self-stretch min-[700px]:!grid-cols-1 min-[700px]:grid-rows-3">
-              <Link href="/shop?new=true" className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-3xl border border-gold/25 bg-cream p-5 text-text-primary transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0 min-[700px]:flex-row min-[700px]:items-end">
-                <Gift className="absolute -bottom-5 -right-4 h-28 w-28 rotate-12 text-gold/15 transition group-hover:rotate-6 group-hover:scale-110" />
-                <span className="text-[9px] font-black uppercase tracking-[.2em] text-[#694B12]">New arrivals</span>
-                <div className="relative">
-                  <p className="max-w-[150px] text-lg font-black leading-tight">Fresh finds just landed.</p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-primary">Explore <ArrowRight className="h-3.5 w-3.5" /></span>
-                </div>
+              <Link href="/categories/oils-and-candles" aria-label="Shop scents and oils" className="group relative min-h-40 overflow-hidden rounded-3xl border border-gold/25 bg-cream transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0">
+                <Image
+                  src="/promos/hero-side/scents-and-oils.jpeg"
+                  alt="Scents and oils, including scented candles, reed diffusers, and humidifiers"
+                  fill
+                  sizes="(min-width: 1280px) 310px, (min-width: 700px) 240px, 100vw"
+                  className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                />
               </Link>
 
-              <Link href="/shop?featured=true" className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-3xl bg-primary p-5 text-white transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0 min-[700px]:flex-row min-[700px]:items-end">
-                <BadgePercent className="absolute -bottom-4 -right-4 h-28 w-28 -rotate-12 text-white/10 transition group-hover:rotate-0 group-hover:scale-110" />
-                <span className="text-[9px] font-black uppercase tracking-[.2em] text-gold-soft">Featured deals</span>
-                <div className="relative">
-                  <p className="max-w-[155px] text-lg font-black leading-tight">Good value, picked with care.</p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white">Shop deals <ArrowRight className="h-3.5 w-3.5" /></span>
-                </div>
+              <Link href="/categories/kitchen-utensils" aria-label="Shop pots and cookware" className="group relative min-h-40 overflow-hidden rounded-3xl bg-primary transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0">
+                <Image
+                  src="/promos/hero-side/cookware.jpeg"
+                  alt="Premium pots and cookware for every kitchen"
+                  fill
+                  sizes="(min-width: 1280px) 310px, (min-width: 700px) 240px, 100vw"
+                  className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                />
               </Link>
 
-              <Link href="/contact" className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-3xl border border-primary/15 bg-lilac p-5 text-text-primary transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0 min-[700px]:flex-row min-[700px]:items-end">
-                <CircleHelp className="h-7 w-7 text-primary" />
-                <div>
-                  <p className="text-lg font-black leading-tight">Need help choosing?</p>
-                  <p className="mt-2 text-[10px] font-medium leading-4 text-text-secondary">Talk to our shopping support team.</p>
-                </div>
+              <Link href="/categories/house-hold%20items" aria-label="Shop household essentials" className="group relative min-h-40 overflow-hidden rounded-3xl border border-primary/15 bg-lilac transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0">
+                <Image
+                  src="/promos/hero-side/household-essentials.jpeg"
+                  alt="Household essentials and quality products for a better everyday"
+                  fill
+                  sizes="(min-width: 1280px) 310px, (min-width: 700px) 240px, 100vw"
+                  className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                />
               </Link>
             </aside>
           </div>
