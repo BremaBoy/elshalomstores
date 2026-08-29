@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { X, ChevronRight, User, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -30,7 +31,7 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
 
   if (!mounted) return null;
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
@@ -42,7 +43,7 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
 
       {/* Drawer */}
       <div
-        className={`fixed inset-y-0 left-0 w-[300px] bg-bg text-text-primary z-[70] transition-transform duration-500 ease-in-out transform shadow-2xl ${
+        className={`fixed inset-y-0 left-0 w-[300px] bg-white text-text-primary z-[70] transition-transform duration-500 ease-in-out transform shadow-2xl ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -99,6 +100,7 @@ export const MobileMenu = ({ isOpen, onClose, navLinks }: MobileMenuProps) => {
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 };
