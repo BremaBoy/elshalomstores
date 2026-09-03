@@ -83,7 +83,7 @@ export function MarketplaceHome({
             <aside className="grid grid-cols-1 gap-3 sm:grid-cols-3 min-[700px]:min-h-[620px] min-[700px]:self-stretch min-[700px]:!grid-cols-1 min-[700px]:grid-rows-3">
               {/* Temporary campaign images. They contain their own text, so these
                   cards intentionally have no overlay, button, or destination link. */}
-              <div className="relative min-h-40 overflow-hidden rounded-3xl border border-gold/25 bg-cream min-[700px]:min-h-0">
+              <div className="relative aspect-[1280/895] overflow-hidden rounded-3xl border border-gold/25 bg-cream min-[700px]:aspect-auto min-[700px]:min-h-0">
                 <Image
                   src="/promos/hero-side/mini-fan-deals.jpeg"
                   alt="Mini fan deals"
@@ -93,7 +93,7 @@ export function MarketplaceHome({
                 />
               </div>
 
-              <div className="relative min-h-40 overflow-hidden rounded-3xl bg-primary min-[700px]:min-h-0">
+              <div className="relative aspect-[1280/895] overflow-hidden rounded-3xl bg-primary min-[700px]:aspect-auto min-[700px]:min-h-0">
                 <Image
                   src="/promos/hero-side/air-fryer-deals.jpeg"
                   alt="Air fryer deals"
@@ -103,7 +103,7 @@ export function MarketplaceHome({
                 />
               </div>
 
-              <div className="relative min-h-40 overflow-hidden rounded-3xl border border-primary/15 bg-lilac min-[700px]:min-h-0">
+              <div className="relative aspect-[1280/893] overflow-hidden rounded-3xl border border-primary/15 bg-lilac min-[700px]:aspect-auto min-[700px]:min-h-0">
                 <Image
                   src="/promos/hero-side/flash-sale.jpeg"
                   alt="Fifth anniversary flash sale"
@@ -234,7 +234,7 @@ export function MarketplaceHome({
           <div className="grid gap-4 md:grid-cols-2">
             {/* Temporary campaign images. Their messaging is part of the artwork,
                 so these cards have no extra text, buttons, or destination links. */}
-            <div className="relative aspect-[2/1] overflow-hidden rounded-[2rem] border border-primary/15 bg-primary shadow-sm">
+            <div className="relative aspect-[1280/658] overflow-hidden rounded-[2rem] border border-primary/15 bg-primary shadow-sm">
               <Image
                 src="/promos/blender-deals.jpeg"
                 alt="Premium blender deals"
@@ -243,7 +243,7 @@ export function MarketplaceHome({
                 sizes="(max-width: 767px) 100vw, 50vw"
               />
             </div>
-            <div className="relative aspect-[2/1] overflow-hidden rounded-[2rem] border border-primary/15 bg-cream shadow-sm">
+            <div className="relative aspect-[1280/658] overflow-hidden rounded-[2rem] border border-primary/15 bg-cream shadow-sm">
               <Image
                 src="/promos/unbreakable-plates.jpeg"
                 alt="Unbreakable plates offer"
