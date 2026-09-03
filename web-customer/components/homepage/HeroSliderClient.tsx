@@ -66,7 +66,7 @@ export const HeroSliderClient = () => {
   const hasMultipleSlides = slides.length > 1;
 
   return (
-    <div className="marketplace-hero-frame relative aspect-square w-full overflow-hidden rounded-[2rem] border border-border bg-primary shadow-[0_22px_60px_rgba(116,81,143,0.2)] min-[700px]:aspect-auto min-[700px]:h-[520px]">
+    <div className="marketplace-hero-frame relative aspect-[1280/1059] w-full overflow-hidden rounded-[2rem] border border-border bg-primary shadow-[0_22px_60px_rgba(116,81,143,0.2)] min-[700px]:aspect-auto min-[700px]:h-[520px]">
       <Swiper
         modules={[Pagination, Autoplay, EffectFade]}
         pagination={{ clickable: true, el: ".marketplace-hero-pagination" }}
