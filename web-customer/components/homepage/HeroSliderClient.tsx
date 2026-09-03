@@ -66,7 +66,7 @@ export const HeroSliderClient = () => {
   const hasMultipleSlides = slides.length > 1;
 
   return (
-    <div className="marketplace-hero-frame relative h-[480px] w-full overflow-hidden rounded-[2rem] border border-border bg-primary shadow-[0_22px_60px_rgba(116,81,143,0.2)] sm:h-[520px]">
+    <div className="marketplace-hero-frame relative aspect-square w-full overflow-hidden rounded-[2rem] border border-border bg-primary shadow-[0_22px_60px_rgba(116,81,143,0.2)] min-[700px]:aspect-auto min-[700px]:h-[520px]">
       <Swiper
         modules={[Pagination, Autoplay, EffectFade]}
         pagination={{ clickable: true, el: ".marketplace-hero-pagination" }}
@@ -93,7 +93,7 @@ export const HeroSliderClient = () => {
         ))}
       </Swiper>
 
-      <div className="marketplace-hero-pagination absolute bottom-5 left-7 z-20 !flex !w-auto items-center gap-2 sm:left-10" />
+      <div className="marketplace-hero-pagination absolute bottom-5 left-7 z-20 hidden !w-auto items-center gap-2 min-[700px]:!flex min-[700px]:left-10" />
     </div>
   );
 };
