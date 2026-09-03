@@ -84,6 +84,39 @@ export function MarketplaceHome({
             </div>
 
             <aside className="grid grid-cols-1 gap-3 sm:grid-cols-3 min-[700px]:min-h-[620px] min-[700px]:self-stretch min-[700px]:!grid-cols-1 min-[700px]:grid-rows-3">
+              {/* Temporary campaign images. They contain their own text, so these
+                  cards intentionally have no overlay, button, or destination link. */}
+              <div className="relative min-h-40 overflow-hidden rounded-3xl border border-gold/25 bg-cream min-[700px]:min-h-0">
+                <Image
+                  src="/promos/hero-side/mini-fan-deals.jpeg"
+                  alt="Mini fan deals"
+                  fill
+                  sizes="(min-width: 1280px) 310px, (min-width: 700px) 240px, 100vw"
+                  className="object-cover"
+                />
+              </div>
+
+              <div className="relative min-h-40 overflow-hidden rounded-3xl bg-primary min-[700px]:min-h-0">
+                <Image
+                  src="/promos/hero-side/air-fryer-deals.jpeg"
+                  alt="Air fryer deals"
+                  fill
+                  sizes="(min-width: 1280px) 310px, (min-width: 700px) 240px, 100vw"
+                  className="object-cover"
+                />
+              </div>
+
+              <div className="relative min-h-40 overflow-hidden rounded-3xl border border-primary/15 bg-lilac min-[700px]:min-h-0">
+                <Image
+                  src="/promos/hero-side/flash-sale.jpeg"
+                  alt="Fifth anniversary flash sale"
+                  fill
+                  sizes="(min-width: 1280px) 310px, (min-width: 700px) 240px, 100vw"
+                  className="object-cover"
+                />
+              </div>
+
+              {/* Previous side promos — kept for easy restoration.
               <Link href="/categories/oils-and-candles" aria-label="Shop scents and oils" className="group relative min-h-40 overflow-hidden rounded-3xl border border-gold/25 bg-cream transition hover:-translate-y-0.5 hover:shadow-lg min-[700px]:min-h-0">
                 <Image
                   src="/promos/hero-side/scents-and-oils.jpeg"
@@ -113,6 +146,7 @@ export function MarketplaceHome({
                   className="object-cover transition duration-500 group-hover:scale-[1.03]"
                 />
               </Link>
+              */}
             </aside>
           </div>
 
@@ -201,6 +235,28 @@ export function MarketplaceHome({
       <section className="pb-10 md:pb-14">
         <Container>
           <div className="grid gap-4 md:grid-cols-2">
+            {/* Temporary campaign images. Their messaging is part of the artwork,
+                so these cards have no extra text, buttons, or destination links. */}
+            <div className="relative aspect-[2/1] overflow-hidden rounded-[2rem] border border-primary/15 bg-primary shadow-sm">
+              <Image
+                src="/promos/blender-deals.jpeg"
+                alt="Premium blender deals"
+                fill
+                className="object-cover"
+                sizes="(max-width: 767px) 100vw, 50vw"
+              />
+            </div>
+            <div className="relative aspect-[2/1] overflow-hidden rounded-[2rem] border border-primary/15 bg-cream shadow-sm">
+              <Image
+                src="/promos/unbreakable-plates.jpeg"
+                alt="Unbreakable plates offer"
+                fill
+                className="object-cover"
+                sizes="(max-width: 767px) 100vw, 50vw"
+              />
+            </div>
+
+            {/* Previous promotional cards — kept for easy restoration.
             <Link
               href="/shop"
               aria-label="Shop the Elshalom home collection"
@@ -227,6 +283,7 @@ export function MarketplaceHome({
                 sizes="(max-width: 767px) 100vw, 50vw"
               />
             </Link>
+            */}
           </div>
         </Container>
       </section>

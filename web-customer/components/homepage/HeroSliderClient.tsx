@@ -1,8 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectFade } from "swiper/modules";
 import type { HeroSlide } from "@/products/getHomepageData";
@@ -11,6 +9,27 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
+// Temporary campaign images. The previous carousel configuration is commented
+// out below for easy restoration.
+const temporarySlides: HeroSlide[] = [
+  {
+    id: "five-years-of-grace",
+    title: "Five years of grace",
+    image_url: "/promos/hero/five-years-of-grace.jpeg",
+  },
+  {
+    id: "cook-more-worry-less",
+    title: "Cook more, worry less",
+    image_url: "/promos/hero/cook-more-worry-less.jpeg",
+  },
+  {
+    id: "website-launch",
+    title: "Elshalomstores website launch",
+    image_url: "/promos/hero/website-launch.jpeg",
+  },
+];
+
+/* Previous carousel content — kept here for easy restoration.
 const fallbackSlides: HeroSlide[] = [
   {
     id: "elshalom-edit",
@@ -40,9 +59,10 @@ const fallbackSlides: HeroSlide[] = [
     cta_text: "Shop gifts",
   },
 ];
+*/
 
-export const HeroSliderClient = ({ slides: initialSlides }: { slides: HeroSlide[] }) => {
-  const slides = initialSlides.length > 0 ? initialSlides : fallbackSlides;
+export const HeroSliderClient = () => {
+  const slides = temporarySlides;
   const hasMultipleSlides = slides.length > 1;
 
   return (
@@ -60,34 +80,14 @@ export const HeroSliderClient = ({ slides: initialSlides }: { slides: HeroSlide[
           <SwiperSlide key={slide.id}>
             <div className="relative h-full w-full">
               <Image
-                src={slide.image_url || fallbackSlides[0].image_url}
+                src={slide.image_url}
                 alt={slide.title}
                 fill
                 priority={index === 0}
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 58vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#4A315F]/95 via-[#4A315F]/76 to-[#4A315F]/12" />
-              <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#4A315F]/72 to-transparent" />
-
-              <div className="relative z-10 flex h-full max-w-2xl flex-col justify-center p-7 text-white sm:p-10 min-[700px]:p-7 xl:p-12">
-                <span className="flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-[.18em] text-gold-soft backdrop-blur">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  {slide.badge || "Curated by Elshalom"}
-                </span>
-                <h1 className="mt-6 max-w-xl text-4xl font-black leading-[.96] tracking-[-.05em] sm:text-5xl min-[700px]:text-4xl xl:text-[3.5rem]">
-                  {slide.title}
-                </h1>
-                <p className="mt-5 max-w-lg text-sm leading-6 text-white/85 sm:text-base">
-                  {slide.subtitle}
-                </p>
-                <Link
-                  href={slide.link || "/shop"}
-                  className="mt-8 inline-flex h-12 w-fit items-center gap-2 rounded-xl bg-gold-soft px-6 text-[10px] font-black uppercase tracking-[.16em] text-text-primary shadow-xl shadow-black/15 transition hover:-translate-y-0.5 hover:bg-white"
-                >
-                  {slide.cta_text || "Shop now"} <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
+              {/* The campaign artwork already contains its own messaging. */}
             </div>
           </SwiperSlide>
         ))}
