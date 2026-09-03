@@ -15,12 +15,10 @@ import { ProductGrid } from "@/components/product/ProductGrid";
 import { HeroSliderClient } from "@/components/homepage/HeroSliderClient";
 import type { Product } from "@/products/getProducts";
 import type { Category } from "@/products/getCategories";
-import type { HeroSlide } from "@/products/getHomepageData";
 
 interface MarketplaceHomeProps {
   products: Product[];
   categories: Category[];
-  slides: HeroSlide[];
 }
 
 const categoryIcons = ["🎁", "🏠", "💨", "🍳", "🕯️", "✨", "🔌", "🧼"];
@@ -40,7 +38,6 @@ function categoryPath(category: Category) {
 export function MarketplaceHome({
   products,
   categories,
-  slides,
 }: MarketplaceHomeProps) {
   const saleProducts = products
     .filter((product) => product.discountPrice || product.isSale)
@@ -80,7 +77,7 @@ export function MarketplaceHome({
             </aside>
 
             <div className="relative min-w-0 self-stretch min-[700px]:min-h-[620px]">
-              <HeroSliderClient slides={slides} />
+              <HeroSliderClient />
             </div>
 
             <aside className="grid grid-cols-1 gap-3 sm:grid-cols-3 min-[700px]:min-h-[620px] min-[700px]:self-stretch min-[700px]:!grid-cols-1 min-[700px]:grid-rows-3">
