@@ -61,7 +61,8 @@ export default function LoginPage() {
 
       // Small delay to ensure cookies are written
       setTimeout(() => {
-        window.location.href = '/dashboard'
+        router.push('/dashboard')
+        router.refresh()
       }, 500)
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.')
