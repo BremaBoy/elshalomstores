@@ -35,6 +35,7 @@ export default function LoginPage() {
         console.error('Admin Profile Fetch Error:', profileError || 'No profile found')
         setError(profileError?.message || 'Access denied. You are not registered as an admin.')
         await supabaseAuth.auth.signOut()
+        setIsLoading(false)
         return
       }
 
@@ -60,11 +61,10 @@ export default function LoginPage() {
 
       // Small delay to ensure cookies are written
       setTimeout(() => {
-        router.push('/dashboard')
+        window.location.href = '/dashboard'
       }, 500)
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.')
-    } finally {
       setIsLoading(false)
     }
   }

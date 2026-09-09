@@ -209,9 +209,9 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
             <p className="text-xs text-muted-foreground">Add up to five images. Choose one main image; the other four appear in the gallery.</p>
             <div className="flex flex-col gap-3">
               {/* File Upload Button */}
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full aspect-video rounded-xl border-2 border-dashed border-border bg-card/50 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-card transition-all group relative overflow-hidden"
+              <label 
+                htmlFor="product-images"
+                className={`w-full aspect-video rounded-xl border-2 border-dashed border-border bg-card/50 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-card transition-all group relative overflow-hidden ${isUploading ? 'pointer-events-none' : ''}`}
               >
                 {imageUrl ? (
                   <>
@@ -238,13 +238,15 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
                     </div>
                   </div>
                 )}
-              </div>
+              </label>
               <input 
+                id="product-images"
                 type="file" 
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 accept="image/*"
                 multiple
+                disabled={isUploading}
                 className="hidden"
               />
 
