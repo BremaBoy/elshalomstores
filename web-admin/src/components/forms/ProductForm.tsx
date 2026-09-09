@@ -247,7 +247,7 @@ export function ProductForm({ initialData, categories, onSubmit, isLoading }: Pr
                 accept="image/*"
                 multiple
                 disabled={isUploading}
-                className="hidden"
+                className="sr-only"
               />
 
               {allImages.length > 0 && (
