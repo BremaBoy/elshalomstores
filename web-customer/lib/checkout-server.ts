@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { arrangeTopshipPickup } from "@/lib/topship";
 
 export interface StoredOrderItem {
   id: string;
@@ -22,6 +23,7 @@ interface OrderToFinalize {
   id: string;
   user_id: string;
   items: unknown;
+  shipping_details?: unknown;
 }
 
 export function getServerErrorMessage(error: unknown) {
@@ -58,6 +60,40 @@ export async function decrementOrderStock(
       .update({ stock: Math.max(0, product.stock - item.quantity) })
       .eq("id", item.product_id);
   }
+}
+
+async function arrangePaidOrderShipment(supabase: SupabaseClient, order: OrderToFinalize) {
+  if (!order.shipping_details || typeof order.shipping_details !== "object") return;
+  const topship = (order.shipping_details as Record<string, unknown>).topship;
+  if (!topship || typeof topship !== "object") return;
+  const details = topship as Record<string, unknown>;
+  const rateId = typeof details.rate_id === "string" ? details.rate_id : "";
+  if (!rateId) return;
+
+  const { data: existing } = await supabase
+    .from("shipments")
+    .select("id")
+    .eq("order_id", order.id)
+    .eq("provider", "topship")
+    .limit(1)
+    .maybeSingle();
+  if (existing) return;
+
+  const shipment = await arrangeTopshipPickup(rateId);
+  const extras = shipment.extras && typeof shipment.extras === "object" ? shipment.extras as Record<string, unknown> : {};
+  const { error } = await supabase.from("shipments").insert({
+    order_id: order.id,
+    provider: "topship",
+    provider_shipment_id: typeof shipment.shipment_id === "string" ? shipment.shipment_id : typeof shipment.id === "string" ? shipment.id : null,
+    courier: typeof details.carrier === "string" ? details.carrier : "Topship",
+    tracking_number: typeof extras.tracking_number === "string" ? extras.tracking_number : null,
+    tracking_url: typeof extras.tracking_url === "string" ? extras.tracking_url : null,
+    shipping_method: typeof details.service === "string" ? details.service : null,
+    estimated_delivery: typeof details.delivery_date === "string" ? details.delivery_date : null,
+    status: typeof shipment.status === "string" ? shipment.status : "Confirmed",
+    provider_payload: shipment,
+  });
+  if (error) throw new Error(error.message);
 }
 
 export async function finalizeSuccessfulPayment({
@@ -120,6 +156,13 @@ export async function finalizeSuccessfulPayment({
         ...eventPayload,
       },
     });
+    try {
+      await arrangePaidOrderShipment(supabase, order);
+    } catch (shipmentError) {
+      // Payment remains successful if the shipping provider is temporarily
+      // unavailable. The selected rate is retained on the order for staff.
+      console.error("Topship paid-order booking failed:", getServerErrorMessage(shipmentError));
+    }
   }
 
   return { newlyFinalized };

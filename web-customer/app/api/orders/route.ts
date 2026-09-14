@@ -2,11 +2,31 @@ import { NextResponse } from "next/server";
 
 import { decrementOrderStock, getServerErrorMessage, type StoredOrderItem } from "@/lib/checkout-server";
 import { authenticateCheckoutRequest } from "@/lib/supabase-admin";
+import { arrangeTopshipPickup, getAuthoritativeTopshipRate, verifyTopshipQuote, type ShippingAddress } from "@/lib/topship";
 
 interface IncomingCartItem {
   id?: unknown;
   product_id?: unknown;
   quantity?: unknown;
+}
+
+async function saveTopshipShipment(supabase: Awaited<ReturnType<typeof authenticateCheckoutRequest>>["supabase"], orderId: string, shipment: Record<string, unknown>) {
+  const extras = asRecord(shipment.extras);
+  const rate = asRecord(shipment.rate);
+  const payload = {
+    order_id: orderId,
+    provider: "topship",
+    provider_shipment_id: typeof shipment.shipment_id === "string" ? shipment.shipment_id : typeof shipment.id === "string" ? shipment.id : null,
+    courier: typeof rate?.carrier_name === "string" ? rate.carrier_name : "Topship",
+    tracking_number: typeof extras?.tracking_number === "string" ? extras.tracking_number : null,
+    tracking_url: typeof extras?.tracking_url === "string" ? extras.tracking_url : null,
+    shipping_method: typeof rate?.carrier_rate_description === "string" ? rate.carrier_rate_description : null,
+    estimated_delivery: typeof rate?.delivery_date === "string" ? rate.delivery_date : null,
+    status: typeof shipment.status === "string" ? shipment.status : "Confirmed",
+    provider_payload: shipment,
+  };
+  const { error } = await supabase.from("shipments").insert(payload);
+  if (error) console.warn("Topship shipment could not be saved:", error.message);
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -22,7 +42,7 @@ export async function POST(request: Request) {
     const incomingItems = Array.isArray(body.items) ? body.items as IncomingCartItem[] : [];
     const paymentMethod = typeof body.payment_method === "string" ? body.payment_method : "";
     const shippingDetails = asRecord(body.shipping_details);
-    const shippingCost = Number(body.shipping_cost || 0);
+    const shippingQuote = typeof body.shipping_quote === "string" ? body.shipping_quote : "";
 
     if (!incomingItems.length) throw new Error("Your cart is empty.");
     if (!["cod", "paystack"].includes(paymentMethod)) {
@@ -37,7 +57,7 @@ export async function POST(request: Request) {
         throw new Error("Payment tables are not installed. Run backend/payments_schema.sql in Supabase.");
       }
     }
-    if (!shippingDetails?.address || !shippingDetails.city || !shippingDetails.state) {
+    if (!shippingDetails?.address || !shippingDetails.city || !shippingDetails.state || !shippingDetails.firstName || !shippingDetails.lastName || !shippingDetails.email || !shippingDetails.phone) {
       throw new Error("Please choose a complete delivery address.");
     }
 
@@ -95,8 +115,20 @@ export async function POST(request: Request) {
     });
 
     const subtotal = storedItems.reduce((sum, item) => sum + item.subtotal, 0);
+    const address: ShippingAddress = {
+      firstName: String(shippingDetails.firstName),
+      lastName: String(shippingDetails.lastName),
+      email: String(shippingDetails.email),
+      phone: String(shippingDetails.phone),
+      address: String(shippingDetails.address),
+      city: String(shippingDetails.city),
+      state: String(shippingDetails.state),
+    };
+    const signedQuote = verifyTopshipQuote(shippingQuote, user.id, address, storedItems);
+    const currentRate = await getAuthoritativeTopshipRate(signedQuote.rateId);
+    const shippingCost = currentRate.amount;
     const totalAmount = Math.round(
-      (subtotal + (Number.isFinite(shippingCost) ? Math.max(0, shippingCost) : 0) + Number.EPSILON) * 100,
+      (subtotal + shippingCost + Number.EPSILON) * 100,
     ) / 100;
     if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
       throw new Error("Order total must be greater than zero.");
@@ -108,8 +140,19 @@ export async function POST(request: Request) {
     const orderPayload = {
       user_id: user.id,
       items: storedItems,
+      subtotal,
+      shipping_cost: shippingCost,
       total_amount: totalAmount,
-      shipping_details: shippingDetails,
+      shipping_details: {
+        ...shippingDetails,
+        topship: {
+          rate_id: currentRate.rate_id,
+          carrier: currentRate.carrier_name,
+          service: currentRate.carrier_rate_description,
+          delivery_time: currentRate.delivery_time,
+          delivery_date: currentRate.delivery_date,
+        },
+      },
       payment_method: paymentMethod,
       payment_status: "Pending",
       status: "Pending",
@@ -154,6 +197,14 @@ export async function POST(request: Request) {
     if (paymentMethod === "cod") {
       await decrementOrderStock(supabase, storedItems);
       await supabase.from("cart_items").delete().eq("user_id", user.id);
+      try {
+        const shipment = await arrangeTopshipPickup(currentRate.rate_id);
+        await saveTopshipShipment(supabase, order.id, shipment);
+      } catch (shipmentError) {
+        // The order remains valid if the courier wallet or carrier is briefly
+        // unavailable; staff can arrange it from the saved rate details.
+        console.error("Topship COD booking failed:", getServerErrorMessage(shipmentError));
+      }
     }
 
     return NextResponse.json({ success: true, data: order }, { status: 201 });

@@ -20,6 +20,17 @@ import {
   writeSavedAddresses,
 } from "@/lib/addressBook";
 
+interface ShippingOption {
+  rate_id: string;
+  amount: number;
+  currency: string;
+  carrier_name: string;
+  carrier_rate_description?: string;
+  delivery_time?: string;
+  delivery_date?: string;
+  quote_token: string;
+}
+
 export default function CheckoutPage() {
   const { items, getTotalPrice, clearCart } = useCartStore();
   const [step, setStep] = useState(1);
@@ -33,6 +44,9 @@ export default function CheckoutPage() {
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const [newAddressLabel, setNewAddressLabel] = useState("Home");
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
+  const [isLoadingShipping, setIsLoadingShipping] = useState(false);
   const router = useRouter();
 
   // Form State
@@ -87,6 +101,10 @@ export default function CheckoutPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (["address", "city", "state", "phone", "firstName", "lastName", "email"].includes(name)) {
+      setShippingOptions([]);
+      setSelectedShipping(null);
+    }
     // Clear error when user types
     if (errors[name]) {
       setErrors(prev => {
@@ -127,6 +145,8 @@ export default function CheckoutPage() {
     const [firstName, ...remainingNames] = address.name.split(" ").filter(Boolean);
     setSelectedAddressId(address.id);
     setShowNewAddressForm(false);
+    setShippingOptions([]);
+    setSelectedShipping(null);
     setFormData((prev) => ({
       ...prev,
       firstName: firstName || prev.firstName,
@@ -147,6 +167,8 @@ export default function CheckoutPage() {
   const startAddingAddress = () => {
     setSelectedAddressId(null);
     setShowNewAddressForm(true);
+    setShippingOptions([]);
+    setSelectedShipping(null);
     setFormData((prev) => ({
       ...prev,
       address: "",
@@ -160,7 +182,7 @@ export default function CheckoutPage() {
     if (preferredAddress) selectSavedAddress(preferredAddress);
   };
 
-  const continueToPayment = () => {
+  const continueToPayment = async () => {
     if (!validateStep(2)) {
       alert("Please complete the delivery address before continuing.");
       return;
@@ -192,10 +214,33 @@ export default function CheckoutPage() {
       return;
     }
 
-    setStep(3);
+    setIsLoadingShipping(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Your session expired. Please sign in again.");
+      const response = await axios.post(
+        "/api/shipping/quotes",
+        { items, shipping_details: formData },
+        { headers: { Authorization: `Bearer ${session.access_token}` } },
+      );
+      const options = response.data?.data as ShippingOption[] | undefined;
+      if (!options?.length) throw new Error("No delivery options are available for this address.");
+      setShippingOptions(options);
+      setSelectedShipping(options[0]);
+      setStep(3);
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+      alert(axiosError.response?.data?.message || axiosError.message || "We could not get shipping options. Please try again.");
+    } finally {
+      setIsLoadingShipping(false);
+    }
   };
 
   const handleCompleteOrder = async () => {
+    if (!selectedShipping) {
+      alert("Please select a shipping option before placing your order.");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const orderData = {
@@ -206,7 +251,7 @@ export default function CheckoutPage() {
           savedAddressId: selectedAddressId,
         },
         delivery_instructions: "", // Optional
-        shipping_cost: 0, // Free as per UI
+        shipping_quote: selectedShipping.quote_token,
       };
       
       const { data: { session } } = await supabase.auth.getSession();
@@ -494,10 +539,10 @@ export default function CheckoutPage() {
                       )}
                       <Button
                         onClick={continueToPayment}
-                        disabled={isLoadingAddresses}
+                        disabled={isLoadingAddresses || isLoadingShipping}
                         className="flex-grow h-16 text-lg rounded-2xl font-extrabold uppercase tracking-widest"
                       >
-                        {showNewAddressForm ? "Save Address & Continue" : "Continue to Payment"}
+                        {isLoadingShipping ? <Loader2 className="h-5 w-5 animate-spin" /> : showNewAddressForm ? "Save Address & Continue" : "Continue to Payment"}
                       </Button>
                     </div>
                   </div>
@@ -506,7 +551,30 @@ export default function CheckoutPage() {
                 {/* Step 3: Payment */}
                 {step === 3 && (
                   <div className="bg-card p-8 md:p-12 rounded-[40px] border border-border shadow-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <h3 className="text-2xl font-extrabold uppercase tracking-tight">Payment Method</h3>
+                    <div>
+                      <h3 className="text-2xl font-extrabold uppercase tracking-tight">Delivery & Payment</h3>
+                      <p className="mt-2 text-sm text-text-secondary">Choose the delivery option that works best for you.</p>
+                    </div>
+                    <div className="space-y-3">
+                      {shippingOptions.map((option) => {
+                        const selected = selectedShipping?.quote_token === option.quote_token;
+                        return (
+                          <button
+                            key={option.quote_token}
+                            type="button"
+                            onClick={() => setSelectedShipping(option)}
+                            className={`flex w-full items-center justify-between gap-4 rounded-3xl border-2 p-5 text-left transition-all ${selected ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}
+                          >
+                            <span>
+                              <span className="block font-bold text-text-primary">{option.carrier_name}</span>
+                              <span className="mt-1 block text-xs text-text-secondary">{option.carrier_rate_description || "Standard delivery"}{option.delivery_time ? ` · ${option.delivery_time}` : ""}</span>
+                            </span>
+                            <span className="font-extrabold text-primary">₦{option.amount.toLocaleString()}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <h4 className="text-lg font-extrabold uppercase tracking-tight">Payment Method</h4>
                     <div className="grid grid-cols-1 gap-4">
                       <div className="space-y-4">
                         <label 
@@ -583,11 +651,11 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex justify-between items-center text-sm font-medium text-white/80">
                       <span>Shipping</span>
-                      <span className="text-emerald-400 font-bold uppercase text-[10px] tracking-widest border border-emerald-400/20 px-2 py-0.5 rounded-full">Free</span>
+                      <span className="text-white font-bold">{selectedShipping ? `₦${selectedShipping.amount.toLocaleString()}` : "Calculated at checkout"}</span>
                     </div>
                     <div className="flex justify-between items-center text-xl font-extrabold">
                       <span>Total</span>
-                      <span className="text-gold-soft text-3xl">₦{getTotalPrice().toLocaleString()}</span>
+                      <span className="text-gold-soft text-3xl">₦{(getTotalPrice() + (selectedShipping?.amount || 0)).toLocaleString()}</span>
                     </div>
                   </div>
 
