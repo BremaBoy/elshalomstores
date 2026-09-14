@@ -241,6 +241,10 @@ export default function CheckoutPage() {
       alert("Please complete the delivery address before continuing.");
       return;
     }
+    if (!hasCompleteDeliveryAddress) {
+      alert("Please add the delivery email address and phone number so we can calculate shipping.");
+      return;
+    }
 
     if (showNewAddressForm) {
       if (!userId) {
@@ -566,12 +570,31 @@ export default function CheckoutPage() {
                             </div>
                           </div>
                         )}
+
+                        <div className="space-y-4 rounded-3xl border border-border bg-bg p-6">
+                          <div>
+                            <h4 className="text-sm font-black uppercase tracking-widest text-text-primary">Delivery contact</h4>
+                            <p className="mt-1 text-xs text-text-secondary">Topship needs these details to calculate and arrange delivery.</p>
+                          </div>
+                          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Email address</label>
+                              <input name="email" value={formData.email} onChange={handleInputChange} type="email" placeholder="you@example.com" className="h-14 w-full rounded-2xl border border-border bg-card px-5 text-text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20" />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Phone number</label>
+                              <input name="phone" value={formData.phone} onChange={handleInputChange} type="tel" placeholder="+234 800 000 0000" className="h-14 w-full rounded-2xl border border-border bg-card px-5 text-text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20" />
+                            </div>
+                          </div>
+                        </div>
                       </>
                     )}
 
-                    {hasCompleteDeliveryAddress && (
+                    {(formData.address.trim() && formData.city.trim() && formData.state.trim()) && (
                       <div className="rounded-3xl border border-primary/20 bg-primary/5 p-5">
-                        {isLoadingShipping ? (
+                        {!hasCompleteDeliveryAddress ? (
+                          <p className="text-sm font-medium text-text-secondary">Add your email address and phone number above to calculate the delivery fee.</p>
+                        ) : isLoadingShipping ? (
                           <div className="flex items-center gap-3 text-sm font-bold text-text-primary">
                             <Loader2 className="h-5 w-5 animate-spin text-primary" /> Calculating delivery fee…
                           </div>
@@ -719,7 +742,15 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex justify-between items-center text-sm font-medium text-white/80">
                       <span>Shipping</span>
-                      <span className="text-white font-bold">{selectedShipping ? `₦${selectedShipping.amount.toLocaleString()}` : "Calculated at checkout"}</span>
+                      <span className="text-white font-bold">
+                        {selectedShipping
+                          ? `₦${selectedShipping.amount.toLocaleString()}`
+                          : isLoadingShipping
+                            ? "Calculating…"
+                            : formData.address.trim() && formData.city.trim() && formData.state.trim()
+                              ? "Add contact details"
+                              : "Enter delivery address"}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center text-xl font-extrabold">
                       <span>Total</span>
