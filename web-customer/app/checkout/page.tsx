@@ -47,6 +47,8 @@ export default function CheckoutPage() {
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
   const [isLoadingShipping, setIsLoadingShipping] = useState(false);
+  const [shippingQuoteError, setShippingQuoteError] = useState<string | null>(null);
+  const [shippingQuoteAttempt, setShippingQuoteAttempt] = useState(0);
   const router = useRouter();
 
   // Form State
@@ -61,6 +63,15 @@ export default function CheckoutPage() {
     paymentMethod: "paystack"
   });
   const [errors, setErrors] = useState<Record<string, boolean>>({});
+  const hasCompleteDeliveryAddress = Boolean(
+    formData.firstName.trim()
+    && formData.lastName.trim()
+    && formData.email.trim()
+    && formData.phone.trim()
+    && formData.address.trim()
+    && formData.city.trim()
+    && formData.state.trim(),
+  );
 
 
 
@@ -98,12 +109,53 @@ export default function CheckoutPage() {
     checkAuth();
   }, [router]);
 
+  useEffect(() => {
+    if (step !== 2 || !isAuthenticated || !hasCompleteDeliveryAddress || items.length === 0) return;
+
+    let cancelled = false;
+    // Wait briefly for the customer to finish typing before asking Topship for
+    // a rate. This keeps the checkout responsive without sending a request for
+    // every character typed.
+    const timer = window.setTimeout(async () => {
+      setIsLoadingShipping(true);
+      setShippingQuoteError(null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) throw new Error("Your session expired. Please sign in again.");
+        const response = await axios.post(
+          "/api/shipping/quotes",
+          { items, shipping_details: formData },
+          { headers: { Authorization: `Bearer ${session.access_token}` } },
+        );
+        const options = response.data?.data as ShippingOption[] | undefined;
+        if (!options?.length) throw new Error("No delivery options are available for this address.");
+        if (!cancelled) {
+          setShippingOptions(options);
+          setSelectedShipping(options[0]);
+        }
+      } catch (error: unknown) {
+        if (!cancelled) {
+          const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+          setShippingQuoteError(axiosError.response?.data?.message || axiosError.message || "We could not calculate shipping for this address.");
+        }
+      } finally {
+        if (!cancelled) setIsLoadingShipping(false);
+      }
+    }, 600);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [formData, hasCompleteDeliveryAddress, isAuthenticated, items, shippingQuoteAttempt, step]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (["address", "city", "state", "phone", "firstName", "lastName", "email"].includes(name)) {
       setShippingOptions([]);
       setSelectedShipping(null);
+      setShippingQuoteError(null);
     }
     // Clear error when user types
     if (errors[name]) {
@@ -147,6 +199,7 @@ export default function CheckoutPage() {
     setShowNewAddressForm(false);
     setShippingOptions([]);
     setSelectedShipping(null);
+    setShippingQuoteError(null);
     setFormData((prev) => ({
       ...prev,
       firstName: firstName || prev.firstName,
@@ -169,6 +222,7 @@ export default function CheckoutPage() {
     setShowNewAddressForm(true);
     setShippingOptions([]);
     setSelectedShipping(null);
+    setShippingQuoteError(null);
     setFormData((prev) => ({
       ...prev,
       address: "",
@@ -182,7 +236,7 @@ export default function CheckoutPage() {
     if (preferredAddress) selectSavedAddress(preferredAddress);
   };
 
-  const continueToPayment = async () => {
+  const continueToPayment = () => {
     if (!validateStep(2)) {
       alert("Please complete the delivery address before continuing.");
       return;
@@ -214,26 +268,11 @@ export default function CheckoutPage() {
       return;
     }
 
-    setIsLoadingShipping(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error("Your session expired. Please sign in again.");
-      const response = await axios.post(
-        "/api/shipping/quotes",
-        { items, shipping_details: formData },
-        { headers: { Authorization: `Bearer ${session.access_token}` } },
-      );
-      const options = response.data?.data as ShippingOption[] | undefined;
-      if (!options?.length) throw new Error("No delivery options are available for this address.");
-      setShippingOptions(options);
-      setSelectedShipping(options[0]);
-      setStep(3);
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
-      alert(axiosError.response?.data?.message || axiosError.message || "We could not get shipping options. Please try again.");
-    } finally {
-      setIsLoadingShipping(false);
+    if (!selectedShipping) {
+      alert(shippingQuoteError || "We are calculating your shipping fee. Please wait a moment.");
+      return;
     }
+    setStep(3);
   };
 
   const handleCompleteOrder = async () => {
@@ -530,6 +569,35 @@ export default function CheckoutPage() {
                       </>
                     )}
 
+                    {hasCompleteDeliveryAddress && (
+                      <div className="rounded-3xl border border-primary/20 bg-primary/5 p-5">
+                        {isLoadingShipping ? (
+                          <div className="flex items-center gap-3 text-sm font-bold text-text-primary">
+                            <Loader2 className="h-5 w-5 animate-spin text-primary" /> Calculating delivery fee…
+                          </div>
+                        ) : selectedShipping ? (
+                          <div className="flex items-center justify-between gap-4">
+                            <span>
+                              <span className="block text-sm font-bold text-text-primary">{selectedShipping.carrier_name}</span>
+                              <span className="mt-1 block text-xs text-text-secondary">{selectedShipping.delivery_time || "Delivery time will be confirmed by the courier."}</span>
+                            </span>
+                            <span className="text-lg font-extrabold text-primary">₦{selectedShipping.amount.toLocaleString()}</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between gap-4">
+                            <p className="text-sm font-medium text-red-600">{shippingQuoteError}</p>
+                            <button
+                              type="button"
+                              onClick={() => setShippingQuoteAttempt((attempt) => attempt + 1)}
+                              className="shrink-0 text-xs font-black uppercase tracking-widest text-primary hover:text-primary-hover"
+                            >
+                              Try again
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex flex-col gap-4 sm:flex-row">
                       {!isAuthenticated && <Button variant="outline" onClick={() => setStep(1)} className="h-16 px-8 rounded-2xl font-bold uppercase tracking-widest">Back</Button>}
                       {showNewAddressForm && savedAddresses.length > 0 && (
@@ -539,7 +607,7 @@ export default function CheckoutPage() {
                       )}
                       <Button
                         onClick={continueToPayment}
-                        disabled={isLoadingAddresses || isLoadingShipping}
+                        disabled={isLoadingAddresses || isLoadingShipping || (hasCompleteDeliveryAddress && !selectedShipping && !shippingQuoteError)}
                         className="flex-grow h-16 text-lg rounded-2xl font-extrabold uppercase tracking-widest"
                       >
                         {isLoadingShipping ? <Loader2 className="h-5 w-5 animate-spin" /> : showNewAddressForm ? "Save Address & Continue" : "Continue to Payment"}
