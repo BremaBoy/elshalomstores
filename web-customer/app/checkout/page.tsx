@@ -115,7 +115,7 @@ export default function CheckoutPage() {
   }, [router]);
 
   useEffect(() => {
-    if (step !== 2 || !isAuthenticated || !hasCompleteDeliveryAddress || items.length === 0) return;
+    if (step !== 2 || showNewAddressForm || !isAuthenticated || !hasCompleteDeliveryAddress || items.length === 0) return;
 
     let cancelled = false;
     // Wait briefly for the customer to finish typing before asking Topship for
@@ -152,7 +152,7 @@ export default function CheckoutPage() {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [formData, hasCompleteDeliveryAddress, isAuthenticated, items, shippingQuoteAttempt, step]);
+  }, [formData, hasCompleteDeliveryAddress, isAuthenticated, items, shippingQuoteAttempt, showNewAddressForm, step]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -287,11 +287,6 @@ export default function CheckoutPage() {
       alert("Please complete the delivery address before continuing.");
       return;
     }
-    if (!hasCompleteDeliveryAddress) {
-      alert("Please add the delivery email address and phone number so we can calculate shipping.");
-      return;
-    }
-
     if (showNewAddressForm) {
       if (!userId) {
         alert("Please sign in again before saving this address.");
@@ -320,6 +315,11 @@ export default function CheckoutPage() {
       return;
     } else if (!selectedAddressId) {
       alert("Please select a delivery address.");
+      return;
+    }
+
+    if (!hasCompleteDeliveryAddress) {
+      alert("Please add the delivery email address and phone number so we can calculate shipping.");
       return;
     }
 
@@ -713,7 +713,7 @@ export default function CheckoutPage() {
                         disabled={isLoadingAddresses || isLoadingShipping || (hasCompleteDeliveryAddress && !selectedShipping && !shippingQuoteError)}
                         className="flex-grow h-16 text-lg rounded-2xl font-extrabold uppercase tracking-widest"
                       >
-                        {isLoadingShipping ? <Loader2 className="h-5 w-5 animate-spin" /> : showNewAddressForm ? editingAddressId ? "Save Changes & Continue" : "Save Address & Continue" : "Continue to Payment"}
+                        {isLoadingShipping ? <Loader2 className="h-5 w-5 animate-spin" /> : showNewAddressForm ? editingAddressId ? "Save Changes" : "Save Address" : "Continue to Payment"}
                       </Button>
                     </div>
                   </div>
