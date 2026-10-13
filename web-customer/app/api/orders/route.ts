@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         throw new Error("Payment tables are not installed. Run backend/payments_schema.sql in Supabase.");
       }
     }
-    if (!shippingDetails?.address || !shippingDetails.city || !shippingDetails.state || !shippingDetails.firstName || !shippingDetails.lastName || !shippingDetails.email || !shippingDetails.phone) {
+    if (!shippingDetails?.address || !shippingDetails.addressLine2 || !shippingDetails.city || !shippingDetails.state || !shippingDetails.firstName || !shippingDetails.lastName || !shippingDetails.email || !shippingDetails.phone) {
       throw new Error("Please choose a complete delivery address.");
     }
 
@@ -121,6 +121,7 @@ export async function POST(request: Request) {
       email: String(shippingDetails.email),
       phone: String(shippingDetails.phone),
       address: String(shippingDetails.address),
+      addressLine2: String(shippingDetails.addressLine2),
       city: String(shippingDetails.city),
       state: String(shippingDetails.state),
     };

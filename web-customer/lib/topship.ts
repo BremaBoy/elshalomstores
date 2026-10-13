@@ -13,6 +13,7 @@ export interface ShippingAddress {
   email: string;
   phone: string;
   address: string;
+  addressLine2: string;
   city: string;
   state: string;
 }
@@ -55,7 +56,7 @@ function topShipHeaders() {
 }
 
 function normalizedAddress(address: ShippingAddress) {
-  return [address.firstName, address.lastName, address.email, address.phone, address.address, address.city, address.state]
+  return [address.firstName, address.lastName, address.email, address.phone, address.address, address.addressLine2, address.city, address.state]
     .map((value) => value.trim().toLowerCase())
     .join("|");
 }
@@ -105,10 +106,7 @@ function deliveryAddress(address: ShippingAddress) {
     email: address.email.trim(),
     phone: normalizeNigeriaPhone(address.phone),
     line1: address.address.trim(),
-    // Topship marks line2 as required even for addresses without an apartment
-    // or unit. The current address book stores one street field, so duplicate
-    // it rather than preventing existing saved addresses from being quoted.
-    line2: address.address.trim(),
+    line2: address.addressLine2.trim(),
     city: address.city.trim(),
     state: address.state.trim(),
     country: "NG",

@@ -3,6 +3,7 @@ export interface SavedAddress {
   label: string;
   name: string;
   street: string;
+  streetLine2: string;
   city: string;
   state: string;
   isDefault: boolean;
@@ -26,6 +27,7 @@ function normalizeAddresses(value: unknown): SavedAddress[] {
       label: typeof address.label === "string" && address.label.trim() ? address.label : "Home",
       name: typeof address.name === "string" ? address.name.trim() : "",
       street: typeof address.street === "string" ? address.street.trim() : "",
+      streetLine2: typeof address.streetLine2 === "string" ? address.streetLine2.trim() : "",
       city: typeof address.city === "string" ? address.city.trim() : "",
       state: typeof address.state === "string" ? address.state.trim() : "",
       isDefault: address.isDefault === true,

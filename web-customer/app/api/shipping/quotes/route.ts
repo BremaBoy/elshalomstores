@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const body = asRecord(await request.json());
     const address = asRecord(body?.shipping_details) as ShippingAddress | null;
     const incoming = Array.isArray(body?.items) ? body.items as CartItem[] : [];
-    if (!address?.firstName || !address.lastName || !address.email || !address.phone || !address.address || !address.city || !address.state) {
+    if (!address?.firstName || !address.lastName || !address.email || !address.phone || !address.address || !address.addressLine2 || !address.city || !address.state) {
       throw new Error("Enter a complete delivery address to get shipping options.");
     }
     const requested = incoming.map((item) => ({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapPin, Plus, Trash2, Home, Briefcase, CheckCircle2 } from "lucide-react";
+import { MapPin, Plus, Trash2, Pencil, Home, Briefcase, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { supabase } from "@/lib/supabase";
 import {
@@ -16,10 +16,12 @@ export default function AddressesPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [form, setForm] = useState({
     label: "Home",
     name: "",
     street: "",
+    streetLine2: "",
     city: "",
     state: "",
   });
@@ -56,14 +58,24 @@ export default function AddressesPage() {
     });
   };
 
-  const handleAdd = () => {
-    if (!form.name || !form.street || !form.city || !form.state) return;
-    setAddresses((prev) => [
-      ...prev,
-      createSavedAddress(form, prev.length === 0),
-    ]);
-    setForm({ label: "Home", name: "", street: "", city: "", state: "" });
+  const resetForm = () => setForm({ label: "Home", name: "", street: "", streetLine2: "", city: "", state: "" });
+
+  const handleSave = () => {
+    if (!form.name.trim() || !form.street.trim() || !form.streetLine2.trim() || !form.city.trim() || !form.state.trim()) return;
+    if (editingAddressId) {
+      setAddresses((prev) => prev.map((address) => address.id === editingAddressId ? { ...address, ...form } : address));
+    } else {
+      setAddresses((prev) => [...prev, createSavedAddress(form, prev.length === 0)]);
+    }
+    resetForm();
+    setEditingAddressId(null);
     setShowForm(false);
+  };
+
+  const beginEdit = (address: SavedAddress) => {
+    setForm({ label: address.label, name: address.name, street: address.street, streetLine2: address.streetLine2, city: address.city, state: address.state });
+    setEditingAddressId(address.id);
+    setShowForm(true);
   };
 
   return (
@@ -78,7 +90,7 @@ export default function AddressesPage() {
           </p>
         </div>
         <Button
-          onClick={() => setShowForm((v) => !v)}
+          onClick={() => { resetForm(); setEditingAddressId(null); setShowForm((v) => !v); }}
           className="h-10 px-6 text-[10px] font-black uppercase tracking-widest rounded-2xl gap-2"
         >
           <Plus className="h-4 w-4" />
@@ -89,7 +101,7 @@ export default function AddressesPage() {
       {/* Add Form */}
       {showForm && (
         <div className="bg-bg p-8 rounded-[32px] border border-border space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
-          <h4 className="text-sm font-black uppercase tracking-widest text-text-primary">New Address</h4>
+          <h4 className="text-sm font-black uppercase tracking-widest text-text-primary">{editingAddressId ? "Edit Address" : "New Address"}</h4>
 
           <div className="flex gap-4">
             {["Home", "Work", "Other"].map((type) => (
@@ -110,7 +122,8 @@ export default function AddressesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { field: "name", label: "Full Name", placeholder: "John Doe" },
-              { field: "street", label: "Street Address", placeholder: "14 Admiralty Way" },
+              { field: "street", label: "Address Line 1", placeholder: "14 Admiralty Way" },
+              { field: "streetLine2", label: "Address Line 2", placeholder: "Estate, landmark or building" },
               { field: "city", label: "City", placeholder: "Lagos" },
               { field: "state", label: "State", placeholder: "Lagos State" },
             ].map(({ field, label, placeholder }) => (
@@ -130,12 +143,12 @@ export default function AddressesPage() {
           </div>
 
           <div className="flex gap-3">
-            <Button onClick={handleAdd} className="h-12 px-8 text-[10px] font-black uppercase tracking-widest rounded-2xl">
-              Save Address
+            <Button onClick={handleSave} className="h-12 px-8 text-[10px] font-black uppercase tracking-widest rounded-2xl">
+              {editingAddressId ? "Save Changes" : "Save Address"}
             </Button>
             <Button
               variant="outline"
-              onClick={() => setShowForm(false)}
+              onClick={() => { setShowForm(false); setEditingAddressId(null); resetForm(); }}
               className="h-12 px-8 text-[10px] font-black uppercase tracking-widest rounded-2xl"
             >
               Cancel
@@ -190,12 +203,19 @@ export default function AddressesPage() {
                     </div>
                     <p className="text-sm font-bold text-text-primary">{addr.name}</p>
                     <p className="text-sm text-text-secondary font-medium">
-                      {addr.street}, {addr.city}, {addr.state}
+                      {addr.street}, {addr.streetLine2}, {addr.city}, {addr.state}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => beginEdit(addr)}
+                    className="p-2 text-text-secondary/60 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+                    aria-label={`Edit ${addr.label} address`}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
                   <button
                     onClick={() => handleDelete(addr.id)}
                     className="p-2 text-text-secondary/60 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"

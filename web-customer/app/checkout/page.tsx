@@ -58,6 +58,7 @@ export default function CheckoutPage() {
     email: "",
     phone: "",
     address: "",
+    addressLine2: "",
     city: "",
     state: "",
     paymentMethod: "paystack"
@@ -69,6 +70,7 @@ export default function CheckoutPage() {
     && formData.email.trim()
     && formData.phone.trim()
     && formData.address.trim()
+    && formData.addressLine2.trim()
     && formData.city.trim()
     && formData.state.trim(),
   );
@@ -98,6 +100,7 @@ export default function CheckoutPage() {
           lastName: addressRemainingNames.join(" ") || fullName.split(' ').slice(1).join(' ') || prev.lastName,
           phone: session.user.phone || session.user.user_metadata?.phone || prev.phone,
           address: preferredAddress?.street || prev.address,
+          addressLine2: preferredAddress?.streetLine2 || prev.addressLine2,
           city: preferredAddress?.city || prev.city,
           state: preferredAddress?.state || prev.state,
         }));
@@ -152,7 +155,7 @@ export default function CheckoutPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (["address", "city", "state", "phone", "firstName", "lastName", "email"].includes(name)) {
+    if (["address", "addressLine2", "city", "state", "phone", "firstName", "lastName", "email"].includes(name)) {
       setShippingOptions([]);
       setSelectedShipping(null);
       setShippingQuoteError(null);
@@ -177,6 +180,7 @@ export default function CheckoutPage() {
       if (!formData.phone) newErrors.phone = true;
     } else if (stepNumber === 2) {
       if (!formData.address) newErrors.address = true;
+      if (!formData.addressLine2) newErrors.addressLine2 = true;
       if (!formData.city) newErrors.city = true;
       if (!formData.state) newErrors.state = true;
     }
@@ -205,12 +209,14 @@ export default function CheckoutPage() {
       firstName: firstName || prev.firstName,
       lastName: remainingNames.join(" ") || prev.lastName,
       address: address.street,
+      addressLine2: address.streetLine2,
       city: address.city,
       state: address.state,
     }));
     setErrors((prev) => {
       const nextErrors = { ...prev };
       delete nextErrors.address;
+      delete nextErrors.addressLine2;
       delete nextErrors.city;
       delete nextErrors.state;
       return nextErrors;
@@ -226,6 +232,7 @@ export default function CheckoutPage() {
     setFormData((prev) => ({
       ...prev,
       address: "",
+      addressLine2: "",
       city: "",
       state: "",
     }));
@@ -257,6 +264,7 @@ export default function CheckoutPage() {
           label: newAddressLabel,
           name: `${formData.firstName} ${formData.lastName}`.trim() || formData.email,
           street: formData.address.trim(),
+          streetLine2: formData.addressLine2.trim(),
           city: formData.city.trim(),
           state: formData.state.trim(),
         },
@@ -520,7 +528,7 @@ export default function CheckoutPage() {
                                     </span>
                                     <span className="mt-1 block text-sm font-bold text-text-primary">{address.name}</span>
                                     <span className="mt-1 block text-sm leading-6 text-text-secondary">
-                                      {address.street}, {address.city}, {address.state}
+                                      {address.street}<br />{address.streetLine2}, {address.city}, {address.state}
                                     </span>
                                   </span>
                                   <span className={`mt-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${selected ? "border-primary bg-primary" : "border-border"}`}>
@@ -555,8 +563,12 @@ export default function CheckoutPage() {
                             </div>
 
                             <div className="space-y-2">
-                              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Street Address</label>
+                              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Address line 1</label>
                               <input name="address" value={formData.address} onChange={handleInputChange} type="text" placeholder="House No, Street Name" className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.address ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Address line 2</label>
+                              <input name="addressLine2" value={formData.addressLine2} onChange={handleInputChange} type="text" placeholder="Area, landmark, estate or building" className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.addressLine2 ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
                             </div>
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                               <div className="space-y-2">
@@ -590,7 +602,7 @@ export default function CheckoutPage() {
                       </>
                     )}
 
-                    {(formData.address.trim() && formData.city.trim() && formData.state.trim()) && (
+                    {(formData.address.trim() && formData.addressLine2.trim() && formData.city.trim() && formData.state.trim()) && (
                       <div className="rounded-3xl border border-primary/20 bg-primary/5 p-5">
                         {!hasCompleteDeliveryAddress ? (
                           <p className="text-sm font-medium text-text-secondary">Add your email address and phone number above to calculate the delivery fee.</p>
@@ -747,7 +759,7 @@ export default function CheckoutPage() {
                           ? `₦${selectedShipping.amount.toLocaleString()}`
                           : isLoadingShipping
                             ? "Calculating…"
-                            : formData.address.trim() && formData.city.trim() && formData.state.trim()
+                            : formData.address.trim() && formData.addressLine2.trim() && formData.city.trim() && formData.state.trim()
                               ? "Add contact details"
                               : "Enter delivery address"}
                       </span>
