@@ -126,20 +126,26 @@ export default function AddressesPage() {
               { field: "streetLine2", label: "Address Line 2", placeholder: "Estate, landmark or building" },
               { field: "city", label: "City", placeholder: "Lagos" },
               { field: "state", label: "State", placeholder: "Lagos State" },
-            ].map(({ field, label, placeholder }) => (
+            ].map(({ field, label, placeholder }) => {
+              const addressField = field === "street" || field === "streetLine2";
+              const value = form[field as keyof typeof form];
+              return (
               <div key={field} className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
-                  {label}
-                </label>
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">{label}</label>
+                  {addressField && <span className="text-[10px] font-bold text-text-secondary">{value.length}/45</span>}
+                </div>
                 <input
                   type="text"
                   placeholder={placeholder}
-                  value={form[field as keyof typeof form]}
+                  value={value}
+                  maxLength={addressField ? 45 : undefined}
                   onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
                   className="w-full h-12 bg-bg text-text-primary border border-border rounded-2xl px-5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                 />
               </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="flex gap-3">

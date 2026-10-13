@@ -616,12 +616,18 @@ export default function CheckoutPage() {
                             </div>
 
                             <div className="space-y-2">
-                              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Address line 1</label>
-                              <input name="address" value={formData.address} onChange={handleInputChange} type="text" placeholder="House No, Street Name" className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.address ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
+                              <div className="flex items-center justify-between gap-3">
+                                <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Address line 1</label>
+                                <span className="text-[10px] font-bold text-text-secondary">{formData.address.length}/45</span>
+                              </div>
+                              <input name="address" value={formData.address} onChange={handleInputChange} type="text" maxLength={45} placeholder="House No, Street Name" className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.address ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
                             </div>
                             <div className="space-y-2">
-                              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Address line 2</label>
-                              <input name="addressLine2" value={formData.addressLine2} onChange={handleInputChange} type="text" placeholder="Area, landmark, estate or building" className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.addressLine2 ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
+                              <div className="flex items-center justify-between gap-3">
+                                <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Address line 2</label>
+                                <span className="text-[10px] font-bold text-text-secondary">{formData.addressLine2.length}/45</span>
+                              </div>
+                              <input name="addressLine2" value={formData.addressLine2} onChange={handleInputChange} type="text" maxLength={45} placeholder="Area, landmark, estate or building" className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.addressLine2 ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
                             </div>
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                               <div className="space-y-2">
