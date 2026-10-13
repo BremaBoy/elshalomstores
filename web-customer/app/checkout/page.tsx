@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cartStore";
-import { CreditCard, Truck, ShieldCheck, User, ChevronRight, CheckCircle2, Loader2, Plus, Home, Briefcase } from "lucide-react";
+import { CreditCard, Truck, ShieldCheck, User, ChevronRight, CheckCircle2, Loader2, Plus, Home, Briefcase, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -43,6 +43,7 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const [newAddressLabel, setNewAddressLabel] = useState("Home");
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
@@ -226,6 +227,7 @@ export default function CheckoutPage() {
   const startAddingAddress = () => {
     setSelectedAddressId(null);
     setShowNewAddressForm(true);
+    setEditingAddressId(null);
     setShippingOptions([]);
     setSelectedShipping(null);
     setShippingQuoteError(null);
@@ -236,6 +238,42 @@ export default function CheckoutPage() {
       city: "",
       state: "",
     }));
+  };
+
+  const startEditingAddress = (address: SavedAddress) => {
+    const [firstName, ...remainingNames] = address.name.split(" ").filter(Boolean);
+    setEditingAddressId(address.id);
+    setNewAddressLabel(address.label);
+    setSelectedAddressId(address.id);
+    setShowNewAddressForm(true);
+    setShippingOptions([]);
+    setSelectedShipping(null);
+    setShippingQuoteError(null);
+    setFormData((prev) => ({
+      ...prev,
+      firstName: firstName || prev.firstName,
+      lastName: remainingNames.join(" ") || prev.lastName,
+      address: address.street,
+      addressLine2: address.streetLine2,
+      city: address.city,
+      state: address.state,
+    }));
+  };
+
+  const deleteSavedAddress = (address: SavedAddress) => {
+    if (!window.confirm(`Delete the ${address.label} address?`)) return;
+    const remaining = savedAddresses.filter((item) => item.id !== address.id);
+    if (address.isDefault && remaining.length > 0) remaining[0] = { ...remaining[0], isDefault: true };
+    setSavedAddresses(remaining);
+    if (userId) writeSavedAddresses(userId, remaining);
+    if (selectedAddressId === address.id) {
+      setSelectedAddressId(null);
+      setShippingOptions([]);
+      setSelectedShipping(null);
+      setShippingQuoteError(null);
+      if (remaining[0]) selectSavedAddress(remaining[0]);
+      else startAddingAddress();
+    }
   };
 
   const cancelAddingAddress = () => {
@@ -259,20 +297,21 @@ export default function CheckoutPage() {
         return;
       }
 
-      const newAddress = createSavedAddress(
-        {
-          label: newAddressLabel,
-          name: `${formData.firstName} ${formData.lastName}`.trim() || formData.email,
-          street: formData.address.trim(),
-          streetLine2: formData.addressLine2.trim(),
-          city: formData.city.trim(),
-          state: formData.state.trim(),
-        },
-        savedAddresses.length === 0,
-      );
-      const nextAddresses = [...savedAddresses, newAddress];
+      const addressValues = {
+        label: newAddressLabel,
+        name: `${formData.firstName} ${formData.lastName}`.trim() || formData.email,
+        street: formData.address.trim(),
+        streetLine2: formData.addressLine2.trim(),
+        city: formData.city.trim(),
+        state: formData.state.trim(),
+      };
+      const newAddress = createSavedAddress(addressValues, savedAddresses.length === 0);
+      const nextAddresses = editingAddressId
+        ? savedAddresses.map((address) => address.id === editingAddressId ? { ...address, ...addressValues } : address)
+        : [...savedAddresses, newAddress];
       setSavedAddresses(nextAddresses);
-      setSelectedAddressId(newAddress.id);
+      setSelectedAddressId(editingAddressId || newAddress.id);
+      setEditingAddressId(null);
       setShowNewAddressForm(false);
       writeSavedAddresses(userId, nextAddresses);
     } else if (!selectedAddressId) {
@@ -472,7 +511,7 @@ export default function CheckoutPage() {
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                       <div>
                         <h3 className="text-2xl font-extrabold uppercase tracking-tight">
-                          {showNewAddressForm ? "Add a delivery address" : "Choose a delivery address"}
+                          {showNewAddressForm ? editingAddressId ? "Edit delivery address" : "Add a delivery address" : "Choose a delivery address"}
                         </h3>
                         <p className="mt-2 text-sm text-text-secondary">
                           {showNewAddressForm
@@ -504,10 +543,14 @@ export default function CheckoutPage() {
                               const selected = selectedAddressId === address.id;
 
                               return (
-                                <button
+                                <div
                                   key={address.id}
-                                  type="button"
+                                  role="button"
+                                  tabIndex={0}
                                   onClick={() => selectSavedAddress(address)}
+                                  onKeyDown={(event) => {
+                                    if (event.key === "Enter" || event.key === " ") selectSavedAddress(address);
+                                  }}
                                   className={`flex w-full items-start gap-4 rounded-3xl border-2 p-5 text-left transition-all ${
                                     selected
                                       ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
@@ -531,10 +574,20 @@ export default function CheckoutPage() {
                                       {address.street}<br />{address.streetLine2}, {address.city}, {address.state}
                                     </span>
                                   </span>
-                                  <span className={`mt-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${selected ? "border-primary bg-primary" : "border-border"}`}>
-                                    {selected && <CheckCircle2 className="h-4 w-4 text-white" />}
+                                  <span className="flex shrink-0 flex-col items-end gap-2">
+                                    <span className="flex gap-1">
+                                      <button type="button" onClick={(event) => { event.stopPropagation(); startEditingAddress(address); }} className="rounded-lg p-2 text-text-secondary hover:bg-primary/10 hover:text-primary" aria-label={`Edit ${address.label} address`}>
+                                        <Pencil className="h-4 w-4" />
+                                      </button>
+                                      <button type="button" onClick={(event) => { event.stopPropagation(); deleteSavedAddress(address); }} className="rounded-lg p-2 text-text-secondary hover:bg-red-50 hover:text-red-500" aria-label={`Delete ${address.label} address`}>
+                                        <Trash2 className="h-4 w-4" />
+                                      </button>
+                                    </span>
+                                    <span className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${selected ? "border-primary bg-primary" : "border-border"}`}>
+                                      {selected && <CheckCircle2 className="h-4 w-4 text-white" />}
+                                    </span>
                                   </span>
-                                </button>
+                                </div>
                               );
                             })}
                           </div>
@@ -645,7 +698,7 @@ export default function CheckoutPage() {
                         disabled={isLoadingAddresses || isLoadingShipping || (hasCompleteDeliveryAddress && !selectedShipping && !shippingQuoteError)}
                         className="flex-grow h-16 text-lg rounded-2xl font-extrabold uppercase tracking-widest"
                       >
-                        {isLoadingShipping ? <Loader2 className="h-5 w-5 animate-spin" /> : showNewAddressForm ? "Save Address & Continue" : "Continue to Payment"}
+                        {isLoadingShipping ? <Loader2 className="h-5 w-5 animate-spin" /> : showNewAddressForm ? editingAddressId ? "Save Changes & Continue" : "Save Address & Continue" : "Continue to Payment"}
                       </Button>
                     </div>
                   </div>
