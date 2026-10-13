@@ -90,13 +90,25 @@ function pickupAddress() {
   };
 }
 
+function normalizeNigeriaPhone(phone: string) {
+  const value = phone.trim().replace(/[\s()-]/g, "");
+  if (value.startsWith("+234")) return value;
+  if (value.startsWith("234")) return `+${value}`;
+  if (value.startsWith("0")) return `+234${value.slice(1)}`;
+  return value;
+}
+
 function deliveryAddress(address: ShippingAddress) {
   return {
     first_name: address.firstName.trim(),
     last_name: address.lastName.trim(),
     email: address.email.trim(),
-    phone: address.phone.trim(),
+    phone: normalizeNigeriaPhone(address.phone),
     line1: address.address.trim(),
+    // Topship marks line2 as required even for addresses without an apartment
+    // or unit. The current address book stores one street field, so duplicate
+    // it rather than preventing existing saved addresses from being quoted.
+    line2: address.address.trim(),
     city: address.city.trim(),
     state: address.state.trim(),
     country: "NG",
