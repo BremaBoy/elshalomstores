@@ -82,6 +82,7 @@ function pickupAddress() {
     email: configuredValue("TOPSHIP_PICKUP_EMAIL"),
     phone: configuredValue("TOPSHIP_PICKUP_PHONE"),
     line1: configuredValue("TOPSHIP_PICKUP_ADDRESS"),
+    line2: configuredValue("TOPSHIP_PICKUP_ADDRESS_LINE2"),
     city: configuredValue("TOPSHIP_PICKUP_CITY"),
     state: configuredValue("TOPSHIP_PICKUP_STATE"),
     country: process.env.TOPSHIP_PICKUP_COUNTRY?.trim() || "NG",
