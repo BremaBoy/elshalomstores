@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MapPin, Plus, Trash2, Pencil, Home, Briefcase, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { supabase } from "@/lib/supabase";
+import { NIGERIAN_STATES } from "@/lib/nigerianStates";
 import {
   createSavedAddress,
   readSavedAddresses,
@@ -135,14 +136,21 @@ export default function AddressesPage() {
                   <label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">{label}</label>
                   {addressField && <span className="text-[10px] font-bold text-text-secondary">{value.length}/45</span>}
                 </div>
-                <input
-                  type="text"
-                  placeholder={placeholder}
-                  value={value}
-                  maxLength={addressField ? 45 : undefined}
-                  onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
-                  className="w-full h-12 bg-bg text-text-primary border border-border rounded-2xl px-5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
-                />
+                {field === "state" ? (
+                  <select value={value} onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} className="w-full h-12 bg-bg text-text-primary border border-border rounded-2xl px-5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all">
+                    <option value="">Select a state</option>
+                    {NIGERIAN_STATES.map((state) => <option key={state} value={state}>{state}</option>)}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    placeholder={placeholder}
+                    value={value}
+                    maxLength={addressField ? 45 : undefined}
+                    onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
+                    className="w-full h-12 bg-bg text-text-primary border border-border rounded-2xl px-5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                  />
+                )}
               </div>
               );
             })}

@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { NIGERIAN_STATES } from "@/lib/nigerianStates";
 import {
   createSavedAddress,
   readSavedAddresses,
@@ -153,7 +154,7 @@ export default function CheckoutPage() {
     };
   }, [formData, hasCompleteDeliveryAddress, isAuthenticated, items, shippingQuoteAttempt, step]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (["address", "addressLine2", "city", "state", "phone", "firstName", "lastName", "email"].includes(name)) {
@@ -314,6 +315,9 @@ export default function CheckoutPage() {
       setEditingAddressId(null);
       setShowNewAddressForm(false);
       writeSavedAddresses(userId, nextAddresses);
+      // Show the saved address first; delivery contact and the quote become
+      // available after the address form has closed.
+      return;
     } else if (!selectedAddressId) {
       alert("Please select a delivery address.");
       return;
@@ -636,12 +640,16 @@ export default function CheckoutPage() {
                               </div>
                               <div className="space-y-2">
                                 <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">State</label>
-                                <input name="state" value={formData.state} onChange={handleInputChange} type="text" placeholder="Lagos State" className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary placeholder:text-text-secondary/60 outline-none focus:ring-2 transition-all font-medium ${errors.state ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`} />
+                                <select name="state" value={formData.state} onChange={handleInputChange} className={`w-full h-14 bg-card border border-border rounded-2xl px-6 text-text-primary outline-none focus:ring-2 transition-all font-medium ${errors.state ? 'ring-2 ring-red-500/50' : 'focus:border-primary focus:ring-primary/20'}`}>
+                                  <option value="">Select a state</option>
+                                  {NIGERIAN_STATES.map((state) => <option key={state} value={state}>{state}</option>)}
+                                </select>
                               </div>
                             </div>
                           </div>
                         )}
 
+                        {!showNewAddressForm && selectedAddressId && (
                         <div className="space-y-4 rounded-3xl border border-border bg-bg p-6">
                           <div>
                             <h4 className="text-sm font-black uppercase tracking-widest text-text-primary">Delivery contact</h4>
@@ -658,6 +666,7 @@ export default function CheckoutPage() {
                             </div>
                           </div>
                         </div>
+                        )}
                       </>
                     )}
 
