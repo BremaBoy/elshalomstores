@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, User, Menu, ArrowUpRight } from "lucide-react";
+import { ShoppingBag, User, Menu, ArrowUpRight, Search, X } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { MobileMenu } from "./MobileMenu";
@@ -16,6 +16,7 @@ import { InstantSearch } from "@/components/search/InstantSearch";
 
 export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -104,6 +105,16 @@ export const Header = () => {
                 </Link>
               ) : null}
 
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-text-secondary hover:bg-blue-soft hover:text-primary lg:hidden"
+                onClick={() => setIsMobileSearchOpen(true)}
+                aria-label="Search products"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -128,6 +139,18 @@ export const Header = () => {
         onClose={() => setIsMobileMenuOpen(false)}
         navLinks={navLinks}
       />
+
+      {isMobileSearchOpen && (
+        <div className="fixed inset-0 z-[80] bg-black/45 p-4 pt-20 lg:hidden" role="dialog" aria-modal="true" aria-label="Search products">
+          <div className="mx-auto max-w-lg rounded-3xl border border-border bg-card p-4 shadow-2xl">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-base font-black text-text-primary">Search products</h2>
+              <button type="button" onClick={() => setIsMobileSearchOpen(false)} className="rounded-full p-2 text-text-secondary hover:bg-bg" aria-label="Close search"><X className="h-5 w-5" /></button>
+            </div>
+            <InstantSearch mode="mobile" onNavigate={() => setIsMobileSearchOpen(false)} />
+          </div>
+        </div>
+      )}
 
       {/* Cart Drawer */}
       <CartDrawer 

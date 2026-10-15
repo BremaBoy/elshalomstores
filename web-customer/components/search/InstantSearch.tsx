@@ -264,10 +264,13 @@ export function InstantSearch({
                   key={`${result.type}-${result.href}`}
                   href={result.href}
                   onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => {
-                    setOpen(false);
-                    setActiveIndex(-1);
-                    onNavigate?.();
+                  onPointerDown={(event) => {
+                    event.preventDefault();
+                    navigate(result.href);
+                  }}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    navigate(result.href);
                   }}
                   className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${
                     activeIndex === index
