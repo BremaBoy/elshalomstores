@@ -5,6 +5,15 @@ import { Button } from "@/components/ui/Button";
 
 export const dynamic = "force-dynamic";
 
+function purchasedItemsSummary(items: unknown) {
+  if (!Array.isArray(items)) return "View order details";
+  const names = items
+    .filter((item): item is { name?: unknown; quantity?: unknown } => Boolean(item) && typeof item === "object")
+    .map((item) => `${typeof item.quantity === "number" ? `${item.quantity} × ` : ""}${typeof item.name === "string" ? item.name : "Product"}`)
+    .slice(0, 2);
+  return names.length ? `${names.join(", ")}${items.length > names.length ? ` +${items.length - names.length} more` : ""}` : "View order details";
+}
+
 export default async function OrdersPage() {
   const supabase = createServer();
   const { data: { user } } = await supabase.auth.getUser();
@@ -48,6 +57,9 @@ export default async function OrdersPage() {
                     <span>•</span>
                     <span>{order.items?.length || 0} Items</span>
                   </div>
+                  <p className="mt-2 max-w-sm truncate text-sm font-medium text-text-secondary">
+                    {purchasedItemsSummary(order.items)}
+                  </p>
                 </div>
               </div>
               

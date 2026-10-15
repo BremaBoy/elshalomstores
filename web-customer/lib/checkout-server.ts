@@ -26,6 +26,35 @@ interface OrderToFinalize {
   shipping_details?: unknown;
 }
 
+async function updateShipmentBookingState(
+  supabase: SupabaseClient,
+  order: OrderToFinalize,
+  state: "booking" | "booked" | "failed",
+  errorMessage?: string,
+) {
+  const shippingDetails = order.shipping_details && typeof order.shipping_details === "object"
+    ? order.shipping_details as Record<string, unknown>
+    : {};
+  const topship = shippingDetails.topship && typeof shippingDetails.topship === "object"
+    ? shippingDetails.topship as Record<string, unknown>
+    : {};
+
+  await supabase
+    .from("orders")
+    .update({
+      shipping_details: {
+        ...shippingDetails,
+        topship: {
+          ...topship,
+          booking_status: state,
+          booking_error: errorMessage || null,
+          booked_at: state === "booked" ? new Date().toISOString() : topship.booked_at || null,
+        },
+      },
+    })
+    .eq("id", order.id);
+}
+
 export function getServerErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "An unexpected checkout error occurred.";
 }
@@ -77,23 +106,33 @@ async function arrangePaidOrderShipment(supabase: SupabaseClient, order: OrderTo
     .eq("provider", "topship")
     .limit(1)
     .maybeSingle();
-  if (existing) return;
+  if (existing) {
+    await updateShipmentBookingState(supabase, order, "booked");
+    return;
+  }
 
-  const shipment = await arrangeTopshipPickup(rateId);
-  const extras = shipment.extras && typeof shipment.extras === "object" ? shipment.extras as Record<string, unknown> : {};
-  const { error } = await supabase.from("shipments").insert({
-    order_id: order.id,
-    provider: "topship",
-    provider_shipment_id: typeof shipment.shipment_id === "string" ? shipment.shipment_id : typeof shipment.id === "string" ? shipment.id : null,
-    courier: typeof details.carrier === "string" ? details.carrier : "Topship",
-    tracking_number: typeof extras.tracking_number === "string" ? extras.tracking_number : null,
-    tracking_url: typeof extras.tracking_url === "string" ? extras.tracking_url : null,
-    shipping_method: typeof details.service === "string" ? details.service : null,
-    estimated_delivery: typeof details.delivery_date === "string" ? details.delivery_date : null,
-    status: typeof shipment.status === "string" ? shipment.status : "Confirmed",
-    provider_payload: shipment,
-  });
-  if (error) throw new Error(error.message);
+  await updateShipmentBookingState(supabase, order, "booking");
+  try {
+    const shipment = await arrangeTopshipPickup(rateId);
+    const extras = shipment.extras && typeof shipment.extras === "object" ? shipment.extras as Record<string, unknown> : {};
+    const { error } = await supabase.from("shipments").insert({
+      order_id: order.id,
+      provider: "topship",
+      provider_shipment_id: typeof shipment.shipment_id === "string" ? shipment.shipment_id : typeof shipment.id === "string" ? shipment.id : null,
+      courier: typeof details.carrier === "string" ? details.carrier : "Topship",
+      tracking_number: typeof extras.tracking_number === "string" ? extras.tracking_number : null,
+      tracking_url: typeof extras.tracking_url === "string" ? extras.tracking_url : null,
+      shipping_method: typeof details.service === "string" ? details.service : null,
+      estimated_delivery: typeof details.delivery_date === "string" ? details.delivery_date : null,
+      status: typeof shipment.status === "string" ? shipment.status : "Confirmed",
+      provider_payload: shipment,
+    });
+    if (error) throw new Error(error.message);
+    await updateShipmentBookingState(supabase, order, "booked");
+  } catch (error) {
+    await updateShipmentBookingState(supabase, order, "failed", getServerErrorMessage(error));
+    throw error;
+  }
 }
 
 export async function finalizeSuccessfulPayment({
@@ -156,13 +195,17 @@ export async function finalizeSuccessfulPayment({
         ...eventPayload,
       },
     });
-    try {
-      await arrangePaidOrderShipment(supabase, order);
-    } catch (shipmentError) {
-      // Payment remains successful if the shipping provider is temporarily
-      // unavailable. The selected rate is retained on the order for staff.
-      console.error("Topship paid-order booking failed:", getServerErrorMessage(shipmentError));
-    }
+  }
+
+  // A payment callback and webhook can arrive in either order. Booking is
+  // deliberately retried on every verified payment while the shipment row is
+  // absent, so an earlier temporary Topship failure does not strand an order.
+  try {
+    await arrangePaidOrderShipment(supabase, order);
+  } catch (shipmentError) {
+    // Payment remains successful if the courier cannot book immediately. The
+    // exact reason is retained on the order for the customer and staff.
+    console.error("Topship paid-order booking failed:", getServerErrorMessage(shipmentError));
   }
 
   return { newlyFinalized };

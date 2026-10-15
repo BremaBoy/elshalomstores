@@ -26,7 +26,24 @@ async function saveTopshipShipment(supabase: Awaited<ReturnType<typeof authentic
     provider_payload: shipment,
   };
   const { error } = await supabase.from("shipments").insert(payload);
-  if (error) console.warn("Topship shipment could not be saved:", error.message);
+  if (error) {
+    console.warn("Topship shipment could not be saved:", error.message);
+    return;
+  }
+  const { data: order } = await supabase.from("orders").select("shipping_details").eq("id", orderId).maybeSingle();
+  const shippingDetails = asRecord(order?.shipping_details) || {};
+  const topship = asRecord(shippingDetails.topship) || {};
+  await supabase.from("orders").update({
+    shipping_details: {
+      ...shippingDetails,
+      topship: {
+        ...topship,
+        booking_status: "booked",
+        booking_error: null,
+        booked_at: new Date().toISOString(),
+      },
+    },
+  }).eq("id", orderId);
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -204,6 +221,18 @@ export async function POST(request: Request) {
       } catch (shipmentError) {
         // The order remains valid if the courier wallet or carrier is briefly
         // unavailable; staff can arrange it from the saved rate details.
+        const shippingDetails = asRecord(order.shipping_details) || {};
+        const topship = asRecord(shippingDetails.topship) || {};
+        await supabase.from("orders").update({
+          shipping_details: {
+            ...shippingDetails,
+            topship: {
+              ...topship,
+              booking_status: "failed",
+              booking_error: getServerErrorMessage(shipmentError),
+            },
+          },
+        }).eq("id", order.id);
         console.error("Topship COD booking failed:", getServerErrorMessage(shipmentError));
       }
     }

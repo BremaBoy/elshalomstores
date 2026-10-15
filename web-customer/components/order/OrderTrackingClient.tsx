@@ -48,6 +48,10 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
   }, [order.id]);
 
   const activeShipment = order.shipments?.[0];
+  const topshipBooking = order.shipping_details?.topship as {
+    booking_status?: string;
+    booking_error?: string | null;
+  } | undefined;
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-12">
@@ -214,6 +218,22 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
                     <Button variant="primary" className="w-full h-12 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2">
                        Track on Courier Website <ExternalLink className="h-3 w-3" />
                     </Button>
+                  </CardContent>
+                </Card>
+              )}
+              {!activeShipment && topshipBooking?.booking_status === "booking" && (
+                <Card className="rounded-[2.5rem] border border-primary/15 bg-primary/5 shadow-xl shadow-primary/5">
+                  <CardContent className="p-8">
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Booking delivery</p>
+                    <p className="mt-3 text-sm font-medium text-text-secondary">Your payment is confirmed and we are booking delivery with Topship.</p>
+                  </CardContent>
+                </Card>
+              )}
+              {!activeShipment && topshipBooking?.booking_status === "failed" && (
+                <Card className="rounded-[2.5rem] border border-amber-200 bg-amber-50 shadow-xl shadow-amber-100/50">
+                  <CardContent className="p-8">
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-800">Delivery booking needs attention</p>
+                    <p className="mt-3 text-sm font-medium text-amber-900/80">{topshipBooking.booking_error || "Topship could not complete the booking yet. Our team can use the selected delivery details to arrange it."}</p>
                   </CardContent>
                 </Card>
               )}

@@ -10,6 +10,16 @@ import { LogoutButton } from "@/components/layout/LogoutButton";
 
 export const dynamic = "force-dynamic";
 
+function purchasedItemsSummary(items: unknown) {
+  if (!Array.isArray(items)) return "Order details are available to view.";
+  const names = items
+    .filter((item): item is { name?: unknown; quantity?: unknown } => Boolean(item) && typeof item === "object")
+    .map((item) => `${typeof item.quantity === "number" ? `${item.quantity} × ` : ""}${typeof item.name === "string" ? item.name : "Product"}`)
+    .slice(0, 2);
+  if (!names.length) return "Order details are available to view.";
+  return `${names.join(", ")}${items.length > names.length ? ` +${items.length - names.length} more` : ""}`;
+}
+
 export default async function ProfilePage() {
   const supabase = createServer();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -99,6 +109,9 @@ export default async function ProfilePage() {
                               <Clock className="h-3 w-3" />
                               {new Date(order.created_at).toLocaleDateString()}
                             </div>
+                            <p className="mt-2 max-w-sm truncate text-sm font-medium text-text-secondary">
+                              {purchasedItemsSummary(order.items)}
+                            </p>
                           </div>
                         </div>
                         
@@ -117,9 +130,9 @@ export default async function ProfilePage() {
                             <p className="text-xs text-text-secondary font-bold uppercase tracking-widest mb-1">Total</p>
                             <p className="text-lg font-extrabold text-primary">₦{order.total_amount?.toLocaleString()}</p>
                           </div>
-                          <Button variant="ghost" size="icon" className="group-hover:translate-x-1 transition-transform">
+                          <Link href={`/orders/${order.id}`} aria-label={`View order ${order.id.slice(0, 8)}`} className="rounded-full p-2 text-text-secondary transition hover:bg-card hover:text-primary group-hover:translate-x-1">
                             <ChevronRight className="h-6 w-6" />
-                          </Button>
+                          </Link>
                         </div>
                       </div>
                     ))
