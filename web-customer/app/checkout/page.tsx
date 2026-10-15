@@ -781,6 +781,11 @@ export default function CheckoutPage() {
                           <span className={`font-bold ${formData.paymentMethod === 'cod' ? 'text-text-primary' : 'text-text-secondary'}`}>Cash on Delivery</span>
                         </div>
                       </label>
+                      {formData.paymentMethod === 'cod' && (
+                        <p className="px-2 text-xs text-text-secondary">
+                          Your delivery is booked straight away. Pay only when your order arrives.
+                        </p>
+                      )}
                     </div>
                     <div className="flex gap-4 pt-4">
                       <Button variant="outline" onClick={() => setStep(2)} className="h-16 px-8 rounded-2xl font-bold uppercase tracking-widest">Back</Button>

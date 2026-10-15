@@ -172,8 +172,10 @@ export async function POST(request: Request) {
         },
       },
       payment_method: paymentMethod,
+      // Cash-on-delivery is dispatched immediately. Payment stays pending
+      // until collection, but it must not hold up the shipment workflow.
       payment_status: "Pending",
-      status: "Pending",
+      status: paymentMethod === "cod" ? "Processing" : "Pending",
     };
 
     let { data: order, error: orderError } = await supabase
