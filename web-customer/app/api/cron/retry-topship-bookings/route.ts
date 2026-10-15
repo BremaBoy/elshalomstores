@@ -20,7 +20,7 @@ function bookingStatus(value: unknown) {
 }
 
 /**
- * Vercel invokes this route hourly. It deliberately only retries orders that
+ * Vercel invokes this route daily. It deliberately only retries orders that
  * are waiting for wallet funding, preventing a temporary Terminal shortfall
  * from becoming a permanent manual task for the store team.
  */

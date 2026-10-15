@@ -62,5 +62,6 @@ and set `TOPSHIP_WALLET_RESERVE_NGN` to an amount that should remain untouched.
 
 If Terminal reports an insufficient wallet balance, the customer order remains
 valid and is marked as waiting for wallet funding. Vercel Cron retries those
-bookings hourly after the wallet is topped up. Add a long, random `CRON_SECRET`
+bookings every day after the wallet is topped up. The order page also includes a
+"Check delivery booking" button for an immediate retry. Add a long, random `CRON_SECRET`
 to the Vercel environment variables so the scheduled route is protected.
