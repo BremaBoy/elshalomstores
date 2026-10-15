@@ -53,3 +53,14 @@ After deploying, configure Paystack with:
 The Paystack webhook validates the `x-paystack-signature` header and verifies the
 transaction with Paystack before marking an order as paid. The callback and
 webhook share idempotent finalization so stock is only reduced once.
+
+### Terminal wallet safety net
+
+Terminal charges the store wallet when a delivery is booked; it is separate from
+the customer payment collected by Paystack. Keep a delivery float in Terminal
+and set `TOPSHIP_WALLET_RESERVE_NGN` to an amount that should remain untouched.
+
+If Terminal reports an insufficient wallet balance, the customer order remains
+valid and is marked as waiting for wallet funding. Vercel Cron retries those
+bookings hourly after the wallet is topped up. Add a long, random `CRON_SECRET`
+to the Vercel environment variables so the scheduled route is protected.

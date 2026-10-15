@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/Button";
 
 export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOrder }) => {
   const [order, setOrder] = useState<DetailedOrder>(initialOrder);
+  const [retryingBooking, setRetryingBooking] = useState(false);
+  const [bookingMessage, setBookingMessage] = useState("");
 
   useEffect(() => {
     // Real-time subscription to order changes
@@ -52,6 +54,25 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
     booking_status?: string;
     booking_error?: string | null;
   } | undefined;
+
+  const retryBooking = async () => {
+    setRetryingBooking(true);
+    setBookingMessage("");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`/api/orders/${order.id}/retry-shipping`, {
+        method: "POST",
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
+      const payload = await response.json() as { success?: boolean; message?: string };
+      if (!response.ok || !payload.success) throw new Error(payload.message || "We could not check the delivery booking yet.");
+      setBookingMessage("Delivery booking completed. This page will update shortly.");
+    } catch (error) {
+      setBookingMessage(error instanceof Error ? error.message : "We could not check the delivery booking yet.");
+    } finally {
+      setRetryingBooking(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-12">
@@ -226,6 +247,18 @@ export const OrderTrackingClient = ({ initialOrder }: { initialOrder: DetailedOr
                   <CardContent className="p-8">
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Booking delivery</p>
                     <p className="mt-3 text-sm font-medium text-text-secondary">Your payment is confirmed and we are booking delivery with Topship.</p>
+                  </CardContent>
+                </Card>
+              )}
+              {!activeShipment && topshipBooking?.booking_status === "waiting_for_funds" && (
+                <Card className="rounded-[2.5rem] border border-amber-200 bg-amber-50 shadow-xl shadow-amber-100/50">
+                  <CardContent className="p-8">
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-800">Delivery is being arranged</p>
+                    <p className="mt-3 text-sm font-medium text-amber-900/80">Your order is confirmed. We are arranging delivery and will update this page as soon as the courier booking is complete.</p>
+                    <Button onClick={retryBooking} disabled={retryingBooking} variant="outline" className="mt-5 h-10 w-full border-amber-300 bg-white text-[10px] font-black uppercase tracking-widest text-amber-900 hover:bg-amber-100">
+                      {retryingBooking ? "Checking delivery…" : "Check delivery booking"}
+                    </Button>
+                    {bookingMessage && <p className="mt-3 text-xs font-medium text-amber-900/80">{bookingMessage}</p>}
                   </CardContent>
                 </Card>
               )}

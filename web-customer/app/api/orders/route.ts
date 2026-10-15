@@ -1,49 +1,13 @@
 import { NextResponse } from "next/server";
 
-import { decrementOrderStock, getServerErrorMessage, type StoredOrderItem } from "@/lib/checkout-server";
+import { arrangeOrderShipment, decrementOrderStock, getServerErrorMessage, isInsufficientWalletError, type StoredOrderItem } from "@/lib/checkout-server";
 import { authenticateCheckoutRequest } from "@/lib/supabase-admin";
-import { arrangeTopshipPickup, getAuthoritativeTopshipRate, verifyTopshipQuote, type ShippingAddress } from "@/lib/topship";
+import { getAuthoritativeTopshipRate, verifyTopshipQuote, type ShippingAddress } from "@/lib/topship";
 
 interface IncomingCartItem {
   id?: unknown;
   product_id?: unknown;
   quantity?: unknown;
-}
-
-async function saveTopshipShipment(supabase: Awaited<ReturnType<typeof authenticateCheckoutRequest>>["supabase"], orderId: string, shipment: Record<string, unknown>) {
-  const extras = asRecord(shipment.extras);
-  const rate = asRecord(shipment.rate);
-  const payload = {
-    order_id: orderId,
-    provider: "topship",
-    provider_shipment_id: typeof shipment.shipment_id === "string" ? shipment.shipment_id : typeof shipment.id === "string" ? shipment.id : null,
-    courier: typeof rate?.carrier_name === "string" ? rate.carrier_name : "Topship",
-    tracking_number: typeof extras?.tracking_number === "string" ? extras.tracking_number : null,
-    tracking_url: typeof extras?.tracking_url === "string" ? extras.tracking_url : null,
-    shipping_method: typeof rate?.carrier_rate_description === "string" ? rate.carrier_rate_description : null,
-    estimated_delivery: typeof rate?.delivery_date === "string" ? rate.delivery_date : null,
-    status: typeof shipment.status === "string" ? shipment.status : "Confirmed",
-    provider_payload: shipment,
-  };
-  const { error } = await supabase.from("shipments").insert(payload);
-  if (error) {
-    console.warn("Topship shipment could not be saved:", error.message);
-    return;
-  }
-  const { data: order } = await supabase.from("orders").select("shipping_details").eq("id", orderId).maybeSingle();
-  const shippingDetails = asRecord(order?.shipping_details) || {};
-  const topship = asRecord(shippingDetails.topship) || {};
-  await supabase.from("orders").update({
-    shipping_details: {
-      ...shippingDetails,
-      topship: {
-        ...topship,
-        booking_status: "booked",
-        booking_error: null,
-        booked_at: new Date().toISOString(),
-      },
-    },
-  }).eq("id", orderId);
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -218,8 +182,7 @@ export async function POST(request: Request) {
       await decrementOrderStock(supabase, storedItems);
       await supabase.from("cart_items").delete().eq("user_id", user.id);
       try {
-        const shipment = await arrangeTopshipPickup(currentRate.rate_id, totalAmount);
-        await saveTopshipShipment(supabase, order.id, shipment);
+        await arrangeOrderShipment(supabase, order);
       } catch (shipmentError) {
         // The order remains valid if the courier wallet or carrier is briefly
         // unavailable; staff can arrange it from the saved rate details.
@@ -230,8 +193,10 @@ export async function POST(request: Request) {
             ...shippingDetails,
             topship: {
               ...topship,
-              booking_status: "failed",
-              booking_error: getServerErrorMessage(shipmentError),
+              booking_status: isInsufficientWalletError(shipmentError) ? "waiting_for_funds" : "failed",
+              booking_error: isInsufficientWalletError(shipmentError)
+                ? "Waiting for Terminal wallet funding. Delivery will be booked automatically after the wallet is topped up."
+                : getServerErrorMessage(shipmentError),
             },
           },
         }).eq("id", order.id);

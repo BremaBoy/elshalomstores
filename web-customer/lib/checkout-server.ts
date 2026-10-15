@@ -24,12 +24,15 @@ interface OrderToFinalize {
   user_id: string;
   items: unknown;
   shipping_details?: unknown;
+  payment_method?: string | null;
+  total_amount?: number | null;
+  shipping_cost?: number | null;
 }
 
 async function updateShipmentBookingState(
   supabase: SupabaseClient,
   order: OrderToFinalize,
-  state: "booking" | "booked" | "failed",
+  state: "booking" | "booked" | "failed" | "waiting_for_funds",
   errorMessage?: string,
 ) {
   const shippingDetails = order.shipping_details && typeof order.shipping_details === "object"
@@ -91,7 +94,11 @@ export async function decrementOrderStock(
   }
 }
 
-async function arrangePaidOrderShipment(supabase: SupabaseClient, order: OrderToFinalize) {
+export function isInsufficientWalletError(error: unknown) {
+  return getServerErrorMessage(error).toLowerCase().includes("insufficient wallet balance");
+}
+
+export async function arrangeOrderShipment(supabase: SupabaseClient, order: OrderToFinalize) {
   if (!order.shipping_details || typeof order.shipping_details !== "object") return;
   const topship = (order.shipping_details as Record<string, unknown>).topship;
   if (!topship || typeof topship !== "object") return;
@@ -113,7 +120,10 @@ async function arrangePaidOrderShipment(supabase: SupabaseClient, order: OrderTo
 
   await updateShipmentBookingState(supabase, order, "booking");
   try {
-    const shipment = await arrangeTopshipPickup(rateId);
+    const cashToCollect = order.payment_method === "cod" && Number(order.total_amount) > 0
+      ? Number(order.total_amount)
+      : undefined;
+    const shipment = await arrangeTopshipPickup(rateId, cashToCollect);
     const extras = shipment.extras && typeof shipment.extras === "object" ? shipment.extras as Record<string, unknown> : {};
     const { error } = await supabase.from("shipments").insert({
       order_id: order.id,
@@ -130,7 +140,10 @@ async function arrangePaidOrderShipment(supabase: SupabaseClient, order: OrderTo
     if (error) throw new Error(error.message);
     await updateShipmentBookingState(supabase, order, "booked");
   } catch (error) {
-    await updateShipmentBookingState(supabase, order, "failed", getServerErrorMessage(error));
+    const message = isInsufficientWalletError(error)
+      ? "Waiting for Terminal wallet funding. Delivery will be booked automatically after the wallet is topped up."
+      : getServerErrorMessage(error);
+    await updateShipmentBookingState(supabase, order, isInsufficientWalletError(error) ? "waiting_for_funds" : "failed", message);
     throw error;
   }
 }
@@ -201,7 +214,7 @@ export async function finalizeSuccessfulPayment({
   // deliberately retried on every verified payment while the shipment row is
   // absent, so an earlier temporary Topship failure does not strand an order.
   try {
-    await arrangePaidOrderShipment(supabase, order);
+    await arrangeOrderShipment(supabase, order);
   } catch (shipmentError) {
     // Payment remains successful if the courier cannot book immediately. The
     // exact reason is retained on the order for the customer and staff.

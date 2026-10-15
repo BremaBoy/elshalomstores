@@ -143,6 +143,25 @@ async function topShipRequest(path: string, init: RequestInit) {
   return payload.data;
 }
 
+function readWalletBalance(value: unknown): number | null {
+  if (!value || typeof value !== "object") return null;
+  const wallet = value as Record<string, unknown>;
+  for (const key of ["available_balance", "balance", "amount"]) {
+    const amount = Number(wallet[key]);
+    if (Number.isFinite(amount) && amount >= 0) return amount;
+  }
+  return readWalletBalance(wallet.wallet);
+}
+
+/** Returns the spendable Terminal wallet balance in naira. */
+export async function getTopshipWalletBalance() {
+  const balance = readWalletBalance(await topShipRequest("/users/wallet", { method: "GET" }));
+  if (balance === null) {
+    throw new Error("Topship returned an unreadable wallet balance.");
+  }
+  return balance;
+}
+
 function createQuoteToken(quote: SignedQuote) {
   const payload = Buffer.from(JSON.stringify(quote)).toString("base64url");
   return `${payload}.${signature(payload)}`;
