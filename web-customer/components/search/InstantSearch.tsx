@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -72,7 +73,7 @@ export function InstantSearch({
           .limit(60),
         supabase
           .from("categories")
-          .select("id, name, icon")
+          .select("id, name, slug, icon")
           .order("name", { ascending: true })
           .limit(30),
       ]);
@@ -238,33 +239,36 @@ export function InstantSearch({
               </div>
               <div className="flex flex-wrap gap-2">
                 {categories.slice(0, 5).map((category) => (
-                  <button
+                  <Link
                     key={category.id}
-                    type="button"
-                    onClick={() =>
-                      navigate(
-                        `/categories/${encodeURIComponent(categorySlug(category))}`
-                      )
-                    }
+                    href={`/categories/${encodeURIComponent(categorySlug(category))}`}
+                    onClick={() => {
+                      setOpen(false);
+                      onNavigate?.();
+                    }}
                     className="rounded-full border border-border bg-bg px-3 py-2 text-xs font-bold text-text-secondary transition hover:border-primary hover:text-primary"
                   >
                     {category.icon && <span className="mr-1">{category.icon}</span>}
                     {category.name}
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
           ) : results.length > 0 ? (
             <div className="max-h-[min(28rem,65vh)] overflow-y-auto p-2">
               {results.map((result, index) => (
-                <button
+                <Link
                   id={`instant-result-${mode}-${index}`}
                   role="option"
                   aria-selected={activeIndex === index}
                   key={`${result.type}-${result.href}`}
-                  type="button"
+                  href={result.href}
                   onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => navigate(result.href)}
+                  onClick={() => {
+                    setOpen(false);
+                    setActiveIndex(-1);
+                    onNavigate?.();
+                  }}
                   className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${
                     activeIndex === index
                       ? "bg-primary/10"
@@ -322,7 +326,7 @@ export function InstantSearch({
                       <ArrowRight className="h-4 w-4 text-text-secondary" />
                     </>
                   )}
-                </button>
+                </Link>
               ))}
               <button
                 type="submit"

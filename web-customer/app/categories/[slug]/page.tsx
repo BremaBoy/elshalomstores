@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { getProducts } from "@/products/getProducts";
+import { getCategories } from "@/products/getCategories";
 
 
 interface CategoryPageProps {
@@ -12,13 +13,21 @@ interface CategoryPageProps {
 
 export default async function CategoryDetailPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const products = await getProducts();
-  
-  // Clean slug for display
-  const categoryName = slug.charAt(0).toUpperCase() + slug.slice(1);
-  
+  const [products, categories] = await Promise.all([getProducts(), getCategories()]);
+  const decodedSlug = decodeURIComponent(slug).toLowerCase();
+  const selectedCategory = categories.find((category) =>
+    [category.id, category.slug, category.name]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase() === decodedSlug)
+  );
+  const categoryName = selectedCategory?.name || slug.replace(/-/g, " ");
+  const categoryValues = new Set(
+    [selectedCategory?.id, selectedCategory?.slug, selectedCategory?.name, slug]
+      .filter((value): value is string => Boolean(value))
+      .map((value) => value.toLowerCase())
+  );
   const categoryProducts = products.filter(
-    (p) => p.category.toLowerCase() === slug.toLowerCase()
+    (product) => categoryValues.has((product.category || "").toLowerCase())
   );
 
   return (
