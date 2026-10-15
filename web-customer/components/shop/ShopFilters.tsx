@@ -113,7 +113,7 @@ export function ShopFilters({ categories, variant }: { categories: Category[]; v
   if (variant === "sidebar") {
     return (
       <aside className="hidden w-72 shrink-0 lg:block xl:w-80">
-        <div className="sticky top-28 rounded-3xl border border-border bg-card p-5 shadow-sm">
+        <div className="sticky top-28 max-h-[calc(100dvh-8rem)] overflow-y-auto rounded-3xl border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-4 text-xl font-black">Filters</h2>
           <FilterGroups categories={categories} />
         </div>
