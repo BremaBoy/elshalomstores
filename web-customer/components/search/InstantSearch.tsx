@@ -11,7 +11,6 @@ import {
   Search,
   TrendingUp,
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 type SearchProduct = {
   id: string;
@@ -62,40 +61,52 @@ export function InstantSearch({
   const [activeIndex, setActiveIndex] = useState(-1);
 
   useEffect(() => {
-    let active = true;
+    const controller = new AbortController();
     const loadCatalog = async () => {
       setLoading(true);
-      const [productResponse, categoryResponse] = await Promise.all([
-        supabase
-          .from("products")
-          .select("id, name, category, image, price, discount_price")
-          .eq("status", "active")
-          .limit(60),
-        supabase
-          .from("categories")
-          .select("id, name, slug, icon")
-          .order("name", { ascending: true })
-          .limit(30),
-      ]);
-
-      if (!active) return;
-      setProducts((productResponse.data as SearchProduct[] | null) || []);
-      setCategories((categoryResponse.data as SearchCategory[] | null) || []);
-      setLoading(false);
+      try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const payload = await response.json() as {
+          success?: boolean;
+          data?: { products?: SearchProduct[]; categories?: SearchCategory[] };
+        };
+        if (!response.ok || !payload.success) throw new Error("Search catalogue could not be loaded.");
+        setProducts(payload.data?.products || []);
+        setCategories(payload.data?.categories || []);
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          setProducts([]);
+          setCategories([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
     };
 
-    loadCatalog();
+    const timer = window.setTimeout(loadCatalog, query.trim() ? 180 : 0);
     return () => {
-      active = false;
+      controller.abort();
+      window.clearTimeout(timer);
     };
-  }, []);
+  }, [query]);
 
   const normalizedQuery = query.trim().toLowerCase();
   const results = useMemo<SearchResult[]>(() => {
     if (!normalizedQuery) return [];
 
+    const normalizedCategory = (value: string) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+    const matchedProductCategories = new Set(
+      products.map((product) => normalizedCategory(product.category || "")).filter(Boolean),
+    );
     const categoryResults: SearchResult[] = categories
-      .filter((category) => category.name.toLowerCase().includes(normalizedQuery))
+      .filter((category) =>
+        category.name.toLowerCase().includes(normalizedQuery)
+        || matchedProductCategories.has(normalizedCategory(category.name))
+        || matchedProductCategories.has(normalizedCategory(category.slug || "")),
+      )
       .slice(0, 4)
       .map((category) => ({
         type: "category",
@@ -257,27 +268,32 @@ export function InstantSearch({
           ) : results.length > 0 ? (
             <div className="max-h-[min(28rem,65vh)] overflow-y-auto p-2">
               {results.map((result, index) => (
-                <Link
-                  id={`instant-result-${mode}-${index}`}
-                  role="option"
-                  aria-selected={activeIndex === index}
-                  key={`${result.type}-${result.href}`}
-                  href={result.href}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onPointerDown={(event) => {
-                    event.preventDefault();
-                    navigate(result.href);
-                  }}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    navigate(result.href);
-                  }}
-                  className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${
-                    activeIndex === index
-                      ? "bg-primary/10"
-                      : "hover:bg-blue-soft/60"
-                  }`}
-                >
+                <div key={`${result.type}-${result.href}`}>
+                  {(index === 0 || results[index - 1]?.type !== result.type) && (
+                    <p className="px-3 pb-1 pt-2 text-[10px] font-black uppercase tracking-[.18em] text-text-secondary">
+                      {result.type === "category" ? "Categories" : "Products"}
+                    </p>
+                  )}
+                  <Link
+                    id={`instant-result-${mode}-${index}`}
+                    role="option"
+                    aria-selected={activeIndex === index}
+                    href={result.href}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    onPointerDown={(event) => {
+                      event.preventDefault();
+                      navigate(result.href);
+                    }}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      navigate(result.href);
+                    }}
+                    className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${
+                      activeIndex === index
+                        ? "bg-primary/10"
+                        : "hover:bg-blue-soft/60"
+                    }`}
+                  >
                   {result.type === "product" ? (
                     <>
                       <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-border bg-bg">
@@ -329,7 +345,8 @@ export function InstantSearch({
                       <ArrowRight className="h-4 w-4 text-text-secondary" />
                     </>
                   )}
-                </Link>
+                  </Link>
+                </div>
               ))}
               <button
                 type="submit"
