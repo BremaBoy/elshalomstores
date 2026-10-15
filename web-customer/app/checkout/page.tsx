@@ -115,7 +115,7 @@ export default function CheckoutPage() {
   }, [router]);
 
   useEffect(() => {
-    if (step !== 2 || showNewAddressForm || !isAuthenticated || !hasCompleteDeliveryAddress || items.length === 0) return;
+    if ((step !== 2 && step !== 3) || showNewAddressForm || !isAuthenticated || !hasCompleteDeliveryAddress || items.length === 0) return;
 
     let cancelled = false;
     // Wait briefly for the customer to finish typing before asking Topship for
@@ -750,7 +750,10 @@ export default function CheckoutPage() {
                       <div className="space-y-4">
                         <label 
                           className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'paystack' ? 'border-primary bg-primary/5' : 'border-border'}`}
-                          onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'paystack' }))}
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, paymentMethod: 'paystack' }));
+                          setSelectedShipping(null);
+                        }}
                         >
                           <div className="flex items-center gap-4">
                             <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center p-1 ${formData.paymentMethod === 'paystack' ? 'border-primary' : 'border-slate-300'}`}>
@@ -772,7 +775,10 @@ export default function CheckoutPage() {
 
                       <label 
                         className={`flex items-center justify-between p-6 border-2 rounded-[32px] cursor-pointer transition-all ${formData.paymentMethod === 'cod' ? 'border-primary bg-primary/5' : 'border-border'}`}
-                        onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cod' }))}
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, paymentMethod: 'cod' }));
+                          setSelectedShipping(null);
+                        }}
                       >
                         <div className="flex items-center gap-4">
                           <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center p-1 ${formData.paymentMethod === 'cod' ? 'border-primary' : 'border-slate-300'}`}>

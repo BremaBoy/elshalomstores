@@ -218,7 +218,7 @@ export async function POST(request: Request) {
       await decrementOrderStock(supabase, storedItems);
       await supabase.from("cart_items").delete().eq("user_id", user.id);
       try {
-        const shipment = await arrangeTopshipPickup(currentRate.rate_id);
+        const shipment = await arrangeTopshipPickup(currentRate.rate_id, totalAmount);
         await saveTopshipShipment(supabase, order.id, shipment);
       } catch (shipmentError) {
         // The order remains valid if the courier wallet or carrier is briefly

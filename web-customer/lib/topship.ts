@@ -168,7 +168,12 @@ export function verifyTopshipQuote(token: string, userId: string, address: Shipp
   return quote;
 }
 
-export async function getTopshipQuotes(address: ShippingAddress, items: StoredOrderItem[], userId: string) {
+export async function getTopshipQuotes(
+  address: ShippingAddress,
+  items: StoredOrderItem[],
+  userId: string,
+  cashOnDelivery = false,
+) {
   const data = await topShipRequest("/rates/shipment/quotes", {
     method: "POST",
     body: JSON.stringify({
@@ -177,6 +182,7 @@ export async function getTopshipQuotes(address: ShippingAddress, items: StoredOr
       parcel: parcel(items),
       currency: "NGN",
       persist_data: true,
+      cash_on_delivery: cashOnDelivery,
     }),
   });
   const rates = Array.isArray(data) ? data as TopshipRate[] : [];
@@ -211,9 +217,13 @@ export async function getAuthoritativeTopshipRate(rateId: string) {
   return { ...data, amount: Number(data.amount) };
 }
 
-export async function arrangeTopshipPickup(rateId: string) {
+export async function arrangeTopshipPickup(rateId: string, cashToCollect?: number) {
+  const body: Record<string, unknown> = { rate_id: rateId };
+  if (typeof cashToCollect === "number" && Number.isFinite(cashToCollect) && cashToCollect > 0) {
+    body.cash_to_collect = cashToCollect;
+  }
   return topShipRequest("/shipments/pickup", {
     method: "POST",
-    body: JSON.stringify({ rate_id: rateId }),
+    body: JSON.stringify(body),
   }) as Promise<Record<string, unknown>>;
 }

@@ -35,7 +35,10 @@ export async function POST(request: Request) {
       if (!product || product.status !== "active" || !Number.isFinite(price) || price <= 0) throw new Error("One or more products are no longer available.");
       return { id: product.id, product_id: product.id, name: product.name, image: "", quantity: requestedItem.quantity, unit_price: price, price, subtotal: price * requestedItem.quantity };
     });
-    const rates = await getTopshipQuotes(address, items, user.id);
+    const cashOnDelivery = typeof body?.shipping_details === "object"
+      && body.shipping_details !== null
+      && (body.shipping_details as Record<string, unknown>).paymentMethod === "cod";
+    const rates = await getTopshipQuotes(address, items, user.id, cashOnDelivery);
     if (!rates.length) throw new Error("Topship could not find a delivery option for this address.");
     return NextResponse.json({ success: true, data: rates });
   } catch (error) {
